@@ -124,6 +124,117 @@ Transaccion resultado = ordenCompra.dracarys(metodoPago, tarjetaToken);
 
 ---
 
+## Objetos de Valor (Value Objects)
+
+### Vala
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula de forma acoplada, cohesiva e inmutable el precio o dinero dentro del marketplace. Une el monto numérico de alta precisión matemática con el identificador de su divisa correspondiente.
+
+**Sinónimos aceptados:** Precio, Dinero, Importe, Monto
+
+**No usar:** Double, Float, PrecioId, Costo, PrimitivePrice
+
+**Precondiciones:** El monto asignado debe ser obligatoriamente igual o superior a cero (no se permiten valores negativos) y la cadena de texto de la divisa (código ISO de tres letras) no puede estar vacía o nula.
+
+**Ejemplo de uso en código:**
+```java
+public record Vala(BigDecimal monto, String divisa) {
+    public Vala {
+        if (monto == null || monto.compareTo(BigDecimal.ZERO) < 0)
+            throw new ReglaDominioException("Monto inválido");
+        if (divisa == null || divisa.isBlank())
+            throw new ReglaDominioException("Divisa requerida");
+    }
+}
+```
+
+---
+
+### Ālion
+**Definición:** El Objeto de Valor (Value Object / record) encargado de modelar la ubicación geográfica y la localización física de estudios (Lentor), artistas (Azantys) o direcciones de destino para entregas (Caraxes). Agrupa variables espaciales en una sola estructura cohesiva.
+
+**Sinónimos aceptados:** Ubicación, Dirección, Geolocalización, Coordenadas
+
+**No usar:** String ciudad, double lat, UbicacionId, CoordenadasId
+
+**Precondiciones:** Debe poseer coordenadas válidas dentro de los rangos matemáticos globales de latitud y longitud, acompañados por cadenas de texto no nulas de la ciudad y el país correspondientes.
+
+**Ejemplo de uso en código:**
+```java
+public record Ālion(String ciudad, String pais, double latitud, double longitud) {
+    public double calcularDistanciaContra(Ālion destino) {
+        // Implementación inmutable de la fórmula de Haversine
+        return GeometriaEspacial.calcular(this, destino);
+    }
+}
+```
+
+---
+
+### Sari
+**Definición:** El Objeto de Valor (Value Object / record) que unifica el tiempo lineal y las dimensiones cronológicas del negocio. Encapsula una ventana temporal inmutable compuesta por un instante de inicio, uno de finalización y comportamientos lógicos de colisión.
+
+**Sinónimos aceptados:** Tiempo, VentanaTemporal, Horario, AgendaSlot
+
+**No usar:** FechaInicio, RangoFechas, CalendarioId, CitaTime
+
+**Precondiciones:** La fecha/hora de finalización del bloque temporal debe ser estrictamente posterior al instante cronológico de su inicio. No se permite la creación de ventanas en el pasado.
+
+**Ejemplo de uso en código:**
+```java
+public record Sari(LocalDateTime inicio, LocalDateTime fin) {
+    public boolean seSolapaCon(Sari otroSlot) {
+        return this.inicio.isBefore(otroSlot.fin()) &&
+               otroSlot.inicio().isBefore(this.fin);
+    }
+}
+```
+
+---
+
+## Enums Especializados de Subcategorización (Value Objects)
+
+A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio:
+
+### CaraxesKastor
+**Definición:** El enumerado (Value Object) que define de forma rígida y segura los tipos válidos de arte físico (ej: PINTURA, ESCULTURA, GRABADO) aceptados en los flujos de logística física.
+
+**Ejemplo en código:**
+```java
+public enum CaraxesKastor { PINTURA, ESCULTURA, GRABADO }
+```
+
+---
+
+### SunfyreKastor
+**Definición:** El enumerado (Value Object) que tipifica las variedades lógicas de los servicios corporales y por encargo (ej: TATUAJE, MURAL, RETRATO_EN_VIVO), activando lógicas de geolocalización.
+
+**Ejemplo en código:**
+```java
+public enum SunfyreKastor { TATUAJE, MURAL, RETRATO_EN_VIVO }
+```
+
+---
+
+### SeasmokeKastor
+**Definición:** El enumerado (Value Object) que restringe y clasifica los tipos de merchandising de autor y reproducciones gráficas masivas o bajo demanda (ej: PRINTS, ARTBOOKS, STICKERS).
+
+**Ejemplo en código:**
+```java
+public enum SeasmokeKastor { PRINTS, ARTBOOKS, STICKERS }
+```
+
+---
+
+### DreamfyreKastor
+**Definición:** El enumerado (Value Object) que tipifica las variedades de piezas puramente digitales e intangibles de la plataforma (ej: ILUSTRACION_DIGITAL, CRIPTOARTE).
+
+**Ejemplo en código:**
+```java
+public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
+```
+
+---
+
 ## Anti-patrones (Términos a EVITAR en nuestro proyecto)
 
 | No usar | Usar |
@@ -137,3 +248,7 @@ Transaccion resultado = ordenCompra.dracarys(metodoPago, tarjetaToken);
 | Escrow / Garantía / Depósito | **Kelitis** |
 | Studio / Tienda / Galería | **Lentor** |
 | Checkout / Pagar / Confirmar | **Dracarys** |
+| Double / Float / Precio | **Vala** |
+| String ciudad / Coordenadas / Dirección | **Ālion** |
+| RangoFechas / Calendario / Horario | **Sari** |
+| Subcategoria / TipoProducto (Monolítico) | **CaraxesKastor / SunfyreKastor / SeasmokeKastor / DreamfyreKastor** |
