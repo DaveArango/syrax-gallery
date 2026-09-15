@@ -3,7 +3,8 @@ package com.uniquindio.syrax_gallery.domain.valueobject;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 
 
-public record Vala(double monto, String divisa) {
+public record Vala(double monto,
+                   String divisa) {
 
     public Vala {
         if (monto < 0)

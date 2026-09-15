@@ -2,7 +2,10 @@ package com.uniquindio.syrax_gallery.domain.valueobject;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 
-public record Alion(String ciudad, String pais, double latitud, double longitud) {
+public record Alion(String ciudad,
+                    String pais,
+                    double latitud,
+                    double longitud) {
 
     public Alion {
         if (ciudad == null || ciudad.isBlank())

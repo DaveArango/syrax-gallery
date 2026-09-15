@@ -4,7 +4,8 @@ import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 
 import java.time.LocalDateTime;
 
-public record Sari(LocalDateTime inicio, LocalDateTime fin) {
+public record Sari(LocalDateTime inicio,
+                   LocalDateTime fin) {
 
     public Sari {
         if (inicio == null || fin == null)

@@ -11,7 +11,9 @@ public class Azantys {
     private String especialidad;
     private boolean activo;
 
-    public Azantys(String id, String nombre, String especialidad) {
+    public Azantys(String id,
+                   String nombre,
+                   String especialidad) {
         if (id == null)
             throw new ReglaDominioException("El id del Azantys es obligatorio");
         if (nombre == null || nombre.isBlank())

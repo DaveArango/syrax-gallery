@@ -9,7 +9,9 @@ public class Zentys {
     private String nombre;
     private String email;
 
-    public Zentys(String id, String nombre, String email) {
+    public Zentys(String id,
+                  String nombre,
+                  String email) {
         if (id == null)
             throw new ReglaDominioException("El id del Zentys es obligatorio");
         if (email == null || !email.contains("@"))
