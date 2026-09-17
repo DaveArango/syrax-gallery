@@ -67,7 +67,7 @@ Dreamfyre nftColeccionable = new Dreamfyre(tokenUri, blockchainAddress);
 
 **Ejemplo de uso en código:**
 ```java
-Azantys nuevoArtista = new Azantys("Rhaenyra Targaryen", Especialidad.TATUAJE);
+Azantys nuevoArtista = new Azantys(id, "Rhaenyra Targaryen", nuevoKostion, nuevoRuniapos, lentorId);
 ```
 
 ---
@@ -191,6 +191,56 @@ public record Sari(LocalDateTime inicio, LocalDateTime fin) {
 
 ---
 
+### Kostion
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula la especialidad artística de un Azantys, agrupando su descripción junto con las reglas de validación que garantizan que sea un dato coherente (ni vacío, ni desproporcionadamente corto o largo).
+
+**Sinónimos aceptados:** Especialidad, EspecialidadArtística
+
+**No usar:** String especialidad, Especialidad (como campo primitivo suelto), TipoArtista
+
+**Precondiciones:** La descripción no puede ser nula ni estar vacía, debe tener una longitud mínima de 3 caracteres y no puede superar los 100 caracteres.
+
+**Ejemplo de uso en código:**
+```java
+public record Kostion(String descripcion) {
+    public Kostion {
+        if (descripcion == null || descripcion.isBlank())
+            throw new ReglaDominioException("La especialidad no puede estar vacía");
+        if (descripcion.length() < 3)
+            throw new ReglaDominioException("La especialidad debe tener al menos 3 caracteres");
+        if (descripcion.length() > 100)
+            throw new ReglaDominioException("La especialidad no puede superar 100 caracteres");
+    }
+}
+```
+
+---
+
+### Runiapos
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula y valida la dirección de correo electrónico de un Azantys o Zentys dentro del dominio. Centraliza la regla de formato válido para ser reutilizada en cualquier caso de uso que necesite un correo confiable (registro, inicio de sesión, notificaciones, etc.).
+
+**Sinónimos aceptados:** Correo, CorreoElectrónico, Contacto
+
+**No usar:** Email, String email, Mail, EmailAddress
+
+**Precondiciones:** La dirección no puede ser nula ni estar vacía, debe contener el símbolo "@" y al menos un punto, y no puede comenzar ni terminar con el símbolo "@".
+
+**Ejemplo de uso en código:**
+```java
+public record Runiapos(String direccion) {
+    public Runiapos {
+        if (direccion == null || direccion.isBlank())
+            throw new ReglaDominioException("El correo es obligatorio");
+        if (!direccion.contains("@") || !direccion.contains("."))
+            throw new ReglaDominioException("Correo inválido");
+        if (direccion.startsWith("@") || direccion.endsWith("@"))
+            throw new ReglaDominioException("Correo inválido");
+    }
+}
+```
+
+---
+
 ## Enums Especializados de Subcategorización (Value Objects)
 
 A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio:
@@ -252,3 +302,5 @@ public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
 | String ciudad / Coordenadas / Dirección | **Ālion** |
 | RangoFechas / Calendario / Horario | **Sari** |
 | Subcategoria / TipoProducto (Monolítico) | **CaraxesKastor / SunfyreKastor / SeasmokeKastor / DreamfyreKastor** |
+| Especialidad / String especialidad | **Kostion** |
+| Email / String email | **Runiapos** |
