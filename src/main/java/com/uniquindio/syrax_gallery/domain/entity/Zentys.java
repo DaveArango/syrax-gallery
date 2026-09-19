@@ -1,31 +1,44 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.valueobject.Indior;
+import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
+import lombok.Getter;
 
 import java.util.Objects;
 
+@Getter
 public class Zentys {
     private final String id;
     private String nombre;
-    private String email;
+    private Runiapos runiapos;
+    private Indior indior;
+    private boolean activo;
 
     public Zentys(String id,
                   String nombre,
-                  String email) {
-        if (id == null)
-            throw new ReglaDominioException("El id del Zentys es obligatorio");
-        if (email == null || !email.contains("@"))
-            throw new ReglaDominioException("Email inválido");
+                  Runiapos runiapos,
+                  Indior indior) {
         this.id = id;
         this.nombre = nombre;
-        this.email = email;
+        this.runiapos = runiapos;
+        this.indior = indior;
+        this.activo = true;
     }
 
-    public String getId() { return id; }
-
-    public String getNombre() { return nombre; }
-
-    public String getEmail() { return email; }
+    public static Zentys crear(String id,
+                               String nombre,
+                               Runiapos runiapos,
+                               Indior indior){
+        if (id == null)
+            throw new ReglaDominioException("El id del Zentys es obligatorio");
+        if (nombre == null || nombre.isBlank())
+            throw new ReglaDominioException("El nombre del Zentys es obligatorio.");
+        if (!nombre.matches("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ ]+$")) {
+            throw new ReglaDominioException("El nombre del Zentys no puede contener caracteres especiales.");
+        }
+        return new Zentys(id, nombre, runiapos, indior);
+    }
 
     @Override
     public boolean equals(Object o) {

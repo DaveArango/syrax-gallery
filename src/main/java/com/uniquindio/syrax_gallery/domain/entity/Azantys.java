@@ -41,12 +41,6 @@ public class Azantys {
         return new Azantys(id, nombre, kostion, runiapos, lentorId);
     }
 
-    public void actualizarKostion(Kostion nuevoKostion) {
-        if (nuevoKostion == null)
-            throw new ReglaDominioException("La especialidad es obligatoria");
-        this.kostion = nuevoKostion;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
