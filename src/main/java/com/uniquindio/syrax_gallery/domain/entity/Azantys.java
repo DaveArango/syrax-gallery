@@ -4,9 +4,11 @@ package com.uniquindio.syrax_gallery.domain.entity;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
+import lombok.Getter;
 
 import java.util.Objects;
 
+@Getter
 public class Azantys {
 
     private final String id;
@@ -16,7 +18,16 @@ public class Azantys {
     private Runiapos runiapos;
     private String lentorId;
 
-    public Azantys(String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId) {
+    private Azantys(String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId) {
+        this.id = id;
+        this.nombre = nombre;
+        this.kostion = kostion;
+        this.runiapos = runiapos;
+        this.lentorId = lentorId;
+        this.activo = true;
+    }
+
+    public static Azantys crear (String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId){
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id del Azantys es obligatorio");
         if (nombre == null || nombre.isBlank())
@@ -27,13 +38,7 @@ public class Azantys {
             throw new ReglaDominioException("El email del Azantys es obligatorio");
         if (lentorId != null && lentorId.isBlank())
             throw new ReglaDominioException("El lentorId no puede ser una cadena vacía");
-
-        this.id = id;
-        this.nombre = nombre;
-        this.kostion = kostion;
-        this.runiapos = runiapos;
-        this.lentorId = lentorId;
-        this.activo = true;
+        return new Azantys(id, nombre, kostion, runiapos, lentorId);
     }
 
     public void actualizarKostion(Kostion nuevoKostion) {
@@ -41,18 +46,6 @@ public class Azantys {
             throw new ReglaDominioException("La especialidad es obligatoria");
         this.kostion = nuevoKostion;
     }
-
-    public Kostion getKostion() { return kostion; }
-
-    public String getId() { return id; }
-
-    public String getNombre() { return nombre; }
-
-    public boolean isActivo() { return activo; }
-
-    public Runiapos getRuniapos() { return runiapos; }
-    
-    public String getLentorId() { return lentorId; }
 
     @Override
     public boolean equals(Object o) {
