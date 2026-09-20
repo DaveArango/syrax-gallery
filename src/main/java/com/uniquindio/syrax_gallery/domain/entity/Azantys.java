@@ -2,7 +2,9 @@ package com.uniquindio.syrax_gallery.domain.entity;
 
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
+import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import lombok.Getter;
 
@@ -17,14 +19,22 @@ public class Azantys {
     private Kostion kostion;
     private Runiapos runiapos;
     private String lentorId;
+    private boolean iksiaVerificada;
+    private Laehurlion laehurlion;
+    private Iksia iksia;
 
-    private Azantys(String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId) {
+    private Azantys(String id, String nombre,
+                    Kostion kostion, Runiapos runiapos,
+                    String lentorId) {
         this.id = id;
         this.nombre = nombre;
         this.kostion = kostion;
         this.runiapos = runiapos;
         this.lentorId = lentorId;
         this.activo = true;
+        this.iksiaVerificada = false;
+        this.iksia = null;
+        this.laehurlion = null;
     }
 
     public static Azantys crear (String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId){
@@ -39,6 +49,31 @@ public class Azantys {
         if (lentorId != null && lentorId.isBlank())
             throw new ReglaDominioException("El lentorId no puede ser una cadena vacía");
         return new Azantys(id, nombre, kostion, runiapos, lentorId);
+    }
+
+    public void verificarIdentidad(Iksia iksia) {
+        if (iksiaVerificada)
+            throw new ReglaDominioException("La identidad ya fue verificada");
+        if (iksia == null)
+            throw new ReglaDominioException("El documento de identidad es obligatorio");
+        this.iksia = iksia;
+        this.iksiaVerificada = true;
+    }
+
+    public void subirLaehurlion(Laehurlion laehurlion) {
+        if (laehurlion == null)
+            throw new ReglaDominioException("La foto de perfil es obligatoria");
+        this.laehurlion = laehurlion;
+    }
+
+    public void completarIdentificacion() {
+        if (iksiaVerificada)
+            throw new ReglaDominioException("La identidad ya fue verificada");
+        this.iksiaVerificada = true;
+    }
+
+    public boolean puedePublicar() {
+        return iksiaVerificada && laehurlion != null;
     }
 
     @Override
