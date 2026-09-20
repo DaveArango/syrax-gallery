@@ -67,7 +67,7 @@ Dreamfyre nftColeccionable = new Dreamfyre(tokenUri, blockchainAddress);
 
 **Ejemplo de uso en código:**
 ```java
-Azantys nuevoArtista = new Azantys(id, "Rhaenyra Targaryen", nuevoKostion, nuevoRuniapos, lentorId);
+Azantys nuevoArtista = Azantys.crear(id, "Rhaenyra Targaryen", nuevoKostion, nuevoRuniapos, lentorId);
 ```
 
 ---
@@ -137,9 +137,9 @@ Transaccion resultado = ordenCompra.dracarys(metodoPago, tarjetaToken);
 
 **Ejemplo de uso en código:**
 ```java
-public record Vala(BigDecimal monto, String divisa) {
+public record Vala(double monto, String divisa) {
     public Vala {
-        if (monto == null || monto.compareTo(BigDecimal.ZERO) < 0)
+        if (monto < 0)
             throw new ReglaDominioException("Monto inválido");
         if (divisa == null || divisa.isBlank())
             throw new ReglaDominioException("Divisa requerida");
@@ -241,6 +241,82 @@ public record Runiapos(String direccion) {
 
 ---
 
+### Indior
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula la descripción de los intereses artísticos de un Zentys, agrupando el texto junto con las reglas de validación que garantizan un dato coherente (ni vacío, ni demasiado corto, ni demasiado largo, sin caracteres no permitidos).
+
+**Sinónimos aceptados:** Intereses, Preferencias, PreferenciasArtísticas
+
+**No usar:** String intereses, Intereses (como campo primitivo suelto), Tags
+
+**Precondiciones:** La descripción no puede ser nula ni estar vacía, solo puede contener letras, números, tildes, ñ y signos de puntuación básicos (`.`, `,`, `;`, `:`, `!`, `?`, `-`), debe tener una longitud mínima de 10 caracteres y no puede superar los 300 caracteres.
+
+**Ejemplo de uso en código:**
+```java
+public record Indior(String descripcion) {
+    public Indior {
+        if (descripcion == null || descripcion.isBlank())
+            throw new ReglaDominioException("La descripción es obligatoria");
+        if (!descripcion.matches("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ .,;:!?-]+$"))
+            throw new ReglaDominioException("La descripción contiene caracteres no permitidos");
+        if (descripcion.length() < 10)
+            throw new ReglaDominioException("Debe tener al menos 10 caracteres");
+        if (descripcion.length() > 300)
+            throw new ReglaDominioException("No puede superar 300 caracteres");
+    }
+
+    public boolean coincideCon(String otraDescripcion) {
+        if (otraDescripcion == null) return false;
+        return this.descripcion.trim().equalsIgnoreCase(otraDescripcion.trim());
+    }
+}
+```
+
+---
+
+### Iksia
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula y valida el número de documento de identidad de un Azantys, utilizado como dato base del proceso de verificación de identidad antes de habilitar la publicación de obras o servicios.
+
+**Sinónimos aceptados:** DocumentoIdentidad, Cédula, Identificación
+
+**No usar:** String documento, DocumentoId, CedulaId
+
+**Precondiciones:** El número no puede ser nulo ni estar vacío, y debe contener entre 6 y 10 dígitos numéricos.
+
+**Ejemplo de uso en código:**
+```java
+public record Iksia(String numero) {
+    public Iksia {
+        if (numero == null || numero.isBlank())
+            throw new ReglaDominioException("El número de documento es obligatorio");
+        if (!numero.matches("\\d{6,10}"))
+            throw new ReglaDominioException("El número de documento debe tener entre 6 y 10 dígitos");
+    }
+}
+```
+
+---
+
+### Laehurlion
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula y valida la fotografía de perfil de un Azantys, requisito indispensable junto con la verificación de identidad para poder publicar productos o servicios en la plataforma.
+
+**Sinónimos aceptados:** FotoPerfil, Avatar, ImagenPerfil
+
+**No usar:** String foto, ImagenUrl, ProfilePicture
+
+**Precondiciones:** La url de la fotografía no puede ser nula ni estar vacía.
+
+**Ejemplo de uso en código:**
+```java
+public record Laehurlion(String url) {
+    public Laehurlion {
+        if (url == null || url.isBlank())
+            throw new ReglaDominioException("La foto de perfil es obligatoria");
+    }
+}
+```
+
+---
+
 ## Enums Especializados de Subcategorización (Value Objects)
 
 A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio:
@@ -304,3 +380,6 @@ public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
 | Subcategoria / TipoProducto (Monolítico) | **CaraxesKastor / SunfyreKastor / SeasmokeKastor / DreamfyreKastor** |
 | Especialidad / String especialidad | **Kostion** |
 | Email / String email | **Runiapos** |
+| Intereses / String intereses | **Indior** |
+| DocumentoIdentidad / Cédula suelta | **Iksia** |
+| FotoPerfil / Avatar suelto | **Laehurlion** |
