@@ -3,7 +3,15 @@
 ## Conceptos Centrales
 
 ### Caraxes
-**Definición:** La macro-categoría de Arte Físico y Obras Originales tangibles (pinturas, esculturas, fotografías firmadas, etc.) que se envían por logística tradicional. Representa las obras feroces, masivas y físicas.
+**Definición:** La entidad que representa una obra de Arte Físico individual, original y tangible (pintura, escultura, fotografía firmada, etc.) que se envía por logística tradicional. Pertenece a la macro-categoría de Arte Físico y cada Caraxes es única e identificable por su `id`. Representa las obras feroces, masivas y físicas.
+
+**Composición:** Se compone de `id`, `azantysId` (creador), `Vala` (precio), `Sete` (nombre), `Jorva` (descripción), `Urnebion` (imagen de referencia) y `CaraxesKastor` (tipo de obra). Además tiene un `Kanez` (estado) que **no se recibe al crear**: toda Caraxes nace en `BORRADOR`.
+
+**Transiciones de estado (Kanez):** `publicarParaExhibicion()` (BORRADOR → EXHIBICION), `publicarParaVenta()` (BORRADOR o EXHIBICION → EN_VENTA, exige precio mayor a cero), `marcarComoVendido()` (EN_VENTA → VENDIDO) y `retirar()` (cualquier estado excepto VENDIDO y RETIRADO → RETIRADO). Cualquier otra transición lanza `ReglaDominioException`.
+
+**Precondiciones:** Ninguno de sus componentes puede ser nulo; el `id` y el `azantysId` no pueden estar vacíos. La validación interna de cada componente vive en su propio Value Object.
+
+**Creación:** Se instancia únicamente mediante la fábrica estática `Caraxes.crear(...)`; el constructor es privado, los campos son `final`, no hay setters y la igualdad (`equals`/`hashCode`) se define solo por `id`.
 
 **Sinónimos aceptados:** ObraFísica, ArteTangible
 
@@ -11,7 +19,15 @@
 
 **Ejemplo de uso en código:**
 ```java
-Caraxes nuevaPintura = new Caraxes("Óleo sobre lienzo", 1200.00);
+Caraxes nuevaPintura = Caraxes.crear(
+    id,
+    azantysId,
+    new Vala(1200.00, "USD"),
+    new Sete("Óleo sobre lienzo"),
+    new Jorva("Paisaje al atardecer pintado con técnica de óleo"),
+    new Urnebion("https://cdn.syrax.com/obras/paisaje.jpg"),
+    CaraxesKastor.PINTURA
+);
 ```
 
 ---
@@ -317,9 +333,82 @@ public record Laehurlion(String url) {
 
 ---
 
+### Sete
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula el nombre o título de una obra (traducción: "creación" u "obra"). Agrupa el texto junto con las reglas que garantizan un nombre coherente. Se usa en las obras de las macro-categorías, empezando por Caraxes.
+
+**Sinónimos aceptados:** NombreObra, TituloObra
+
+**No usar:** String nombre, Titulo (como campo primitivo suelto), Nombre
+
+**Precondiciones:** El nombre no puede ser nulo ni estar vacío, debe tener una longitud mínima de 3 caracteres y no puede superar los 100 caracteres.
+
+**Ejemplo de uso en código:**
+```java
+public record Sete(String nombre) {
+    public Sete {
+        if (nombre == null || nombre.isBlank())
+            throw new ReglaDominioException("El nombre de la obra es obligatorio");
+        if (nombre.trim().length() < 3)
+            throw new ReglaDominioException("El nombre de la obra debe tener al menos 3 caracteres");
+        if (nombre.length() > 100)
+            throw new ReglaDominioException("El nombre de la obra no puede superar 100 caracteres");
+    }
+}
+```
+
+---
+
+### Jorva
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula la descripción de una obra (traducción: "relato" o "historia"). Cuenta la historia detrás de la pieza y garantiza que el texto sea un dato coherente (ni vacío, ni demasiado corto, ni desproporcionadamente largo).
+
+**Sinónimos aceptados:** DescripcionObra, HistoriaObra
+
+**No usar:** String descripcion, Descripcion (como campo primitivo suelto), Detalle
+
+**Precondiciones:** La descripción no puede ser nula ni estar vacía, debe tener una longitud mínima de 10 caracteres y no puede superar los 1000 caracteres.
+
+**Ejemplo de uso en código:**
+```java
+public record Jorva(String descripcion) {
+    public Jorva {
+        if (descripcion == null || descripcion.isBlank())
+            throw new ReglaDominioException("La descripción de la obra es obligatoria");
+        if (descripcion.trim().length() < 10)
+            throw new ReglaDominioException("La descripción de la obra debe tener al menos 10 caracteres");
+        if (descripcion.length() > 1000)
+            throw new ReglaDominioException("La descripción de la obra no puede superar 1000 caracteres");
+    }
+}
+```
+
+---
+
+### Urnebion
+**Definición:** El Objeto de Valor (Value Object / record) que encapsula la URL de la imagen de referencia de una obra (traducción: "obra"). Materializa la regla innegociable de que toda obra publicada debe tener al menos una imagen que permita al comprador conocer el producto.
+
+**Sinónimos aceptados:** ImagenObra, ImagenReferencia
+
+**No usar:** String urlImagen, Imagen, Foto, ImagenUrl
+
+**Precondiciones:** La URL no puede ser nula ni estar vacía y debe comenzar con `http://` o `https://`.
+
+**Ejemplo de uso en código:**
+```java
+public record Urnebion(String url) {
+    public Urnebion {
+        if (url == null || url.isBlank())
+            throw new ReglaDominioException("La imagen de referencia de la obra es obligatoria");
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            throw new ReglaDominioException("La imagen de referencia debe ser una URL válida (http o https)");
+    }
+}
+```
+
+---
+
 ## Enums Especializados de Subcategorización (Value Objects)
 
-A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio:
+A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio (los `Kastor`), más un enum transversal (`Kanez`) compartido por todas ellas para el estado de la obra:
 
 ### CaraxesKastor
 **Definición:** El enumerado (Value Object) que define de forma rígida y segura los tipos válidos de arte físico (ej: PINTURA, ESCULTURA, GRABADO) aceptados en los flujos de logística física.
@@ -361,6 +450,20 @@ public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
 
 ---
 
+### Kanez
+**Definición:** El enumerado (Value Object) que define el estado de una obra dentro de la galería: si está en preparación, solo para exhibición, disponible para la venta, vendida o retirada. A diferencia de los `Kastor`, **es compartido por todas las macro-categorías** (Caraxes, Sunfyre, Seasmoke y Dreamfyre), ya que el ciclo de estados es común.
+
+**Sinónimos aceptados:** EstadoObra, EstadoPublicacion
+
+**No usar:** Estado (como String o int suelto), Status, Situacion
+
+**Ejemplo en código:**
+```java
+public enum Kanez { BORRADOR, EXHIBICION, EN_VENTA, VENDIDO, RETIRADO }
+```
+
+---
+
 ## Anti-patrones (Términos a EVITAR en nuestro proyecto)
 
 | No usar | Usar |
@@ -383,3 +486,7 @@ public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
 | Intereses / String intereses | **Indior** |
 | DocumentoIdentidad / Cédula suelta | **Iksia** |
 | FotoPerfil / Avatar suelto | **Laehurlion** |
+| String nombreObra / Titulo | **Sete** |
+| String descripcion / Detalle | **Jorva** |
+| String urlImagen / Imagen suelta | **Urnebion** |
+| Estado / Status de la obra | **Kanez** |
