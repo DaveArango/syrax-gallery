@@ -6,6 +6,6 @@ public record Urnebion(String url) {
 
     public Urnebion {
         if (url == null || url.isBlank())
-            throw new ReglaDominioException("La imagen de referencia de la obra es obligatoria");
+            throw new ReglaDominioException("La imagen de referencia de la obra física es obligatoria");
     }
 }

@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Getter
 public class Caraxes {
-    private String id;
+    private final String id;
     private String azantysId;
     private Vala vala;
     private Sete sete;
