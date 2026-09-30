@@ -5,9 +5,9 @@
 ### Caraxes
 **Definición:** La entidad que representa una obra de Arte Físico individual, original y tangible (pintura, escultura, fotografía firmada, etc.) que se envía por logística tradicional. Pertenece a la macro-categoría de Arte Físico y cada Caraxes es única e identificable por su `id`. Representa las obras feroces, masivas y físicas.
 
-**Composición:** Se compone de `id`, `azantysId` (creador), `Vala` (precio), `Sete` (nombre), `Jorva` (descripción), `Urnebion` (imagen de referencia) y `CaraxesKastor` (tipo de obra); Además tiene un `Kanez` (estado) que **no se recibe al crear**: toda Caraxes nace en `BORRADOR`.
+**Composición:** Se compone de `id`, `azantysId` (creador), `Vala` (precio), `Sete` (nombre), `Jorva` (descripción), `Urnebion` (imagen de referencia) y `CaraxesKastor` (tipo de obra). Además tiene un `Kanez` (estado) que **no se recibe al crear**: toda Caraxes nace en `BORRADOR`.
 
-**Transiciones de estado (Kanez):** `publicarParaExhibicion()` (BORRADOR → EXHIBICION), `publicarParaVenta()` (BORRADOR o EXHIBICION → EN_VENTA, exige precio mayor a cero), `marcarComoVendido()` (EN_VENTA → VENDIDO) y `retirar()` (cualquier estado excepto VENDIDO y RETIRADO → RETIRADO). Cualquier otra transición lanza `ReglaDominioException`.
+**Transiciones de estado (Kanez):** `publicar(destino)` (BORRADOR → EXHIBICION o EN_VENTA, y EXHIBICION → EN_VENTA; exige precio mayor a cero para EN_VENTA; la habilitación del Azantys creador se valida antes, en el caso de uso, mediante `Azantys.validarPuedePublicar()`), `marcarComoVendido()` (EN_VENTA → VENDIDO) y `retirar()` (cualquier estado excepto VENDIDO y RETIRADO → RETIRADO). Cualquier otra transición lanza `ReglaDominioException`.
 
 **Precondiciones:** Ninguno de sus componentes puede ser nulo; el `id` y el `azantysId` no pueden estar vacíos. La validación interna de cada componente vive en su propio Value Object.
 
@@ -340,7 +340,7 @@ public record Laehurlion(String url) {
 
 **No usar:** String nombre, Titulo (como campo primitivo suelto), Nombre
 
-**Precondiciones:** El nombre no puede ser nulo ni estar vacío, debe tener una longitud mínima de 3 caracteres, no puede superar los 100 caracteres y no acepta caracteres especiales.
+**Precondiciones:** El nombre no puede ser nulo ni estar vacío, debe tener una longitud mínima de 3 caracteres y no puede superar los 100 caracteres.
 
 **Ejemplo de uso en código:**
 ```java
@@ -393,7 +393,6 @@ public record Jorva(String descripcion) {
 
 **No usar:** String urlImagen, Imagen, Foto, ImagenUrl
 
-**Precondiciones:** La URL no puede ser nula ni estar vacía y debe comenzar con `http://` o `https://`.
 
 **Ejemplo de uso en código:**
 ```java
@@ -401,8 +400,6 @@ public record Urnebion(String url) {
     public Urnebion {
         if (url == null || url.isBlank())
             throw new ReglaDominioException("La imagen de referencia de la obra es obligatoria");
-        if (!url.startsWith("http://") && !url.startsWith("https://"))
-            throw new ReglaDominioException("La imagen de referencia debe ser una URL válida (http o https)");
     }
 }
 ```
