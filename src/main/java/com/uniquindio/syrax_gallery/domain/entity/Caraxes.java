@@ -83,6 +83,18 @@ public class Caraxes {
         this.kanez = Kanez.RETIRADO;
     }
 
+    public void publicar(Kanez kanez) {
+        if (kanez == null)
+            throw new ReglaDominioException("El destino de publicación es obligatorio");
+
+        switch (kanez) {
+            case EXHIBICION -> publicarParaExhibicion();
+            case EN_VENTA -> publicarParaVenta();
+            default -> throw new ReglaDominioException(
+                    "Solo se puede publicar para EXHIBICION o EN_VENTA");
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

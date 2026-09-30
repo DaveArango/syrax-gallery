@@ -1,6 +1,5 @@
 package com.uniquindio.syrax_gallery.domain.repository;
 
-import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 
 import java.util.Optional;
