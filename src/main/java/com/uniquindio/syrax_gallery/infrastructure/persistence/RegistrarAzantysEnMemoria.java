@@ -1,4 +1,4 @@
-package com.uniquindio.syrax_gallery.infrastructure;
+package com.uniquindio.syrax_gallery.infrastructure.persistence;
 
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;

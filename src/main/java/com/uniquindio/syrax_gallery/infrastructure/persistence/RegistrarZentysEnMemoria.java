@@ -1,4 +1,4 @@
-package com.uniquindio.syrax_gallery.infrastructure;
+package com.uniquindio.syrax_gallery.infrastructure.persistence;
 
 import com.uniquindio.syrax_gallery.domain.entity.Zentys;
 import com.uniquindio.syrax_gallery.domain.repository.ZentysRepository;
