@@ -1,8 +1,7 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.valueobject.CaraxesKastor;
-import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
+import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -52,6 +51,7 @@ public class Caraxes {
         if (kanez == null) throw new ReglaDominioException("El Kanez no puede ser nulo.");
         if (urnebion == null) throw new ReglaDominioException("El Urnebion no puede ser nulo.");
         if (kastor == null) throw new ReglaDominioException("El Kastor no puede ser nulo.");
+        return new Caraxes(id, azantysId, vala, sete, jorva, kanez, urnebion, kastor);
     }
 
     @Override
