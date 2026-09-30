@@ -5,7 +5,7 @@
 ### Caraxes
 **Definición:** La entidad que representa una obra de Arte Físico individual, original y tangible (pintura, escultura, fotografía firmada, etc.) que se envía por logística tradicional. Pertenece a la macro-categoría de Arte Físico y cada Caraxes es única e identificable por su `id`. Representa las obras feroces, masivas y físicas.
 
-**Composición:** Se compone de `id`, `azantysId` (creador), `Vala` (precio), `Sete` (nombre), `Jorva` (descripción), `Urnebion` (imagen de referencia) y `CaraxesKastor` (tipo de obra). Además tiene un `Kanez` (estado) que **no se recibe al crear**: toda Caraxes nace en `BORRADOR`.
+**Composición:** Se compone de `id`, `azantysId` (creador), `Vala` (precio), `Sete` (nombre), `Jorva` (descripción), `Urnebion` (imagen de referencia) y `CaraxesKastor` (tipo de obra); Además tiene un `Kanez` (estado) que **no se recibe al crear**: toda Caraxes nace en `BORRADOR`.
 
 **Transiciones de estado (Kanez):** `publicarParaExhibicion()` (BORRADOR → EXHIBICION), `publicarParaVenta()` (BORRADOR o EXHIBICION → EN_VENTA, exige precio mayor a cero), `marcarComoVendido()` (EN_VENTA → VENDIDO) y `retirar()` (cualquier estado excepto VENDIDO y RETIRADO → RETIRADO). Cualquier otra transición lanza `ReglaDominioException`.
 
@@ -340,7 +340,7 @@ public record Laehurlion(String url) {
 
 **No usar:** String nombre, Titulo (como campo primitivo suelto), Nombre
 
-**Precondiciones:** El nombre no puede ser nulo ni estar vacío, debe tener una longitud mínima de 3 caracteres y no puede superar los 100 caracteres.
+**Precondiciones:** El nombre no puede ser nulo ni estar vacío, debe tener una longitud mínima de 3 caracteres, no puede superar los 100 caracteres y no acepta caracteres especiales.
 
 **Ejemplo de uso en código:**
 ```java
@@ -348,6 +348,9 @@ public record Sete(String nombre) {
     public Sete {
         if (nombre == null || nombre.isBlank())
             throw new ReglaDominioException("El nombre de la obra es obligatorio");
+        if (!nombre.matches("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ ]+$")) {
+            throw new ReglaDominioException("El nombre del Zentys no puede contener caracteres especiales.");
+        }
         if (nombre.trim().length() < 3)
             throw new ReglaDominioException("El nombre de la obra debe tener al menos 3 caracteres");
         if (nombre.length() > 100)
