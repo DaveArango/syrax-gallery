@@ -2,7 +2,9 @@ package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.repository.CaraxesRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ObtenerCaraxesUseCase {
     private final CaraxesRepository repository;
 

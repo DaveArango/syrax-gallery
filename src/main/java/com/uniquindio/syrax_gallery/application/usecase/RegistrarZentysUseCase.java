@@ -4,7 +4,9 @@ import com.uniquindio.syrax_gallery.domain.entity.Zentys;
 import com.uniquindio.syrax_gallery.domain.repository.ZentysRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Indior;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RegistrarZentysUseCase {
     private final ZentysRepository repository;
 

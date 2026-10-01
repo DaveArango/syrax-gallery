@@ -2,11 +2,13 @@ package com.uniquindio.syrax_gallery.infrastructure.persistence;
 
 import com.uniquindio.syrax_gallery.domain.entity.Zentys;
 import com.uniquindio.syrax_gallery.domain.repository.ZentysRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Repository
 public class RegistrarZentysEnMemoria implements ZentysRepository {
     private final Map<String, Zentys> zentysMap = new HashMap<>();
 

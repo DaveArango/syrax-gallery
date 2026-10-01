@@ -4,7 +4,9 @@ import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RegistrarAzantysUseCase{
     private final AzantysRepository repository;
 

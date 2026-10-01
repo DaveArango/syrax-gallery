@@ -20,6 +20,7 @@ public class Azantys {
     private Runiapos runiapos;
     private String lentorId;
     private boolean iksiaVerificada;
+    private boolean laehurlionVerificado;
     private Laehurlion laehurlion;
     private Iksia iksia;
 
@@ -64,6 +65,7 @@ public class Azantys {
         if (laehurlion == null)
             throw new ReglaDominioException("La foto de perfil es obligatoria");
         this.laehurlion = laehurlion;
+        this.laehurlionVerificado = true;
     }
 
     public void completarIdentificacion() {
@@ -73,7 +75,9 @@ public class Azantys {
     }
 
     public boolean puedePublicar() {
-        return iksiaVerificada && laehurlion != null;
+        if (!iksiaVerificada || !laehurlionVerificado)
+            throw new ReglaDominioException("No puede publicar sin verificar su identidad.");
+        return true;
     }
 
     @Override

@@ -5,7 +5,9 @@ import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.repository.CaraxesRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PublicarCaraxesUseCase {
     private final CaraxesRepository caraxesRepository;
     private final AzantysRepository azantysRepository;
@@ -22,7 +24,9 @@ public class PublicarCaraxesUseCase {
         Azantys azantys = azantysRepository.obtener(caraxes.getAzantysId())
                 .orElseThrow( () -> new IllegalArgumentException("Azantys no encontrado"));
 
-        if (azantys.puedePublicar()) caraxes.publicar(destino);
+        azantys.puedePublicar();
+        caraxes.publicar(destino);
+
         caraxesRepository.guardar(caraxes);
         return caraxes;
     }

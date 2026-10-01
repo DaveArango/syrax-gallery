@@ -3,6 +3,6 @@
 
 |Operación del dominio|Método HTTP|Endpoint|
 |---|---|---|
-| caraxes.crear(...) | POST | /caraxes |
-| caraxes.get(...) | GET | /caraxes/{id} |
-| caraxes.publicar(...) | PUT | /caraxes/{id}/publicar/{kanez} |
+| caraxes.crear(...) | POST | /api/caraxes |
+| caraxes.get(...) | GET | /api/caraxes/{id} |
+| caraxes.publicar(...) | PUT | /api/caraxes/{id}/publicar/{kanez} |

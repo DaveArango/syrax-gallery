@@ -1,6 +1,6 @@
 package com.uniquindio.syrax_gallery.application.dto.response;
 
-// Mapea a: GET /caraxes/{id}
+// Mapea a: GET /api/caraxes/{id}
 public record CaraxesDetalleResponse(
     String id,
     String azantysId,
