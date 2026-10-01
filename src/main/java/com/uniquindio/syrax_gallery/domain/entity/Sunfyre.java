@@ -17,6 +17,7 @@ public class Sunfyre {
     private Alion alion;
     private final Vala valaCongelado;
     private DohaeroxJeda dohaeroxJeda;
+    private Kanez kanez;
 
     private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
                     SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
@@ -28,6 +29,7 @@ public class Sunfyre {
         this.alion = alion;
         this.valaCongelado = valaCongelado;
         this.dohaeroxJeda = DohaeroxJeda.PENDIENTE;
+        this.kanez = Kanez.BORRADOR;
     }
 
     public static Sunfyre solicitar(String id, String idAzantys, String idZentys, Sari sari,
@@ -48,6 +50,32 @@ public class Sunfyre {
             throw new ReglaDominioException("El precio pactado es obligatorio");
 
         return new Sunfyre(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado);
+    }
+
+    public void publicar(Kanez kanez) {
+        if (kanez == null)
+            throw new ReglaDominioException("El destino de publicación es obligatorio");
+        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE)
+            throw new ReglaDominioException("Solo una Sunfyre PENDIENTE puede publicarse");
+        switch (kanez) {
+            case EXHIBICION -> publicarParaExhibicion();
+            case EN_VENTA -> publicarParaVenta();
+            default -> throw new ReglaDominioException("Solo se puede publicar para EXHIBICION o EN_VENTA");
+        }
+    }
+
+    private void publicarParaExhibicion() {
+        if (kanez != Kanez.BORRADOR)
+            throw new ReglaDominioException("Solo una Sunfyre en BORRADOR puede publicarse para exhibición");
+        this.kanez = Kanez.EXHIBICION;
+    }
+
+    private void publicarParaVenta() {
+        if (kanez != Kanez.BORRADOR && kanez != Kanez.EXHIBICION)
+            throw new ReglaDominioException("Solo una Sunfyre en BORRADOR o EXHIBICION puede ponerse en venta");
+        if (valaCongelado.monto() <= 0)
+            throw new ReglaDominioException("Una Sunfyre debe tener un precio mayor a cero para ponerse en venta");
+        this.kanez = Kanez.EN_VENTA;
     }
 
     public void confirmar() {
