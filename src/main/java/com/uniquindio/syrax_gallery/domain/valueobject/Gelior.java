@@ -1,6 +1,6 @@
 package com.uniquindio.syrax_gallery.domain.valueobject;
 
-public enum EstadoKelitis {
+public enum Gelior {
     RETENIDO,
     LIBERADO,
     COMPLETADO,

@@ -24,7 +24,7 @@ public class SunfyreTest {
 
         assertThrows(ReglaDominioException.class, () -> sunfyre.reprogramar(nuevoSari));
 
-        assertEquals(EstadoSunfyre.PENDIENTE, sunfyre.getEstado());
+        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
     }
 
     @Test
@@ -36,6 +36,6 @@ public class SunfyreTest {
 
         assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar("Ya no la quiero"));
 
-        assertEquals(EstadoSunfyre.COMPLETADO, sunfyre.getEstado()); // sigue completada, no se canceló
+        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda()); // sigue completada, no se canceló
     }
 }

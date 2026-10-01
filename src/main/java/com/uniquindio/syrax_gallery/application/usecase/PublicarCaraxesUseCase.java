@@ -21,10 +21,10 @@ public class PublicarCaraxesUseCase {
     public Caraxes ejecutar(String id, Kanez destino) {
         Caraxes caraxes = caraxesRepository.obtener(id)
                 .orElseThrow( () -> new IllegalArgumentException("Caraxes no encontrado"));
-        Azantys azantys = azantysRepository.obtener(caraxes.getAzantysId())
+        Azantys azantys = azantysRepository.obtener(caraxes.getIdAzantys())
                 .orElseThrow( () -> new IllegalArgumentException("Azantys no encontrado"));
 
-        azantys.puedePublicar();
+        azantys.validarHabilitacionParaPublicar();
         caraxes.publicar(destino);
 
         caraxesRepository.guardar(caraxes);

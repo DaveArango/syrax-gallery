@@ -52,7 +52,7 @@ public class Azantys {
         return new Azantys(id, nombre, kostion, runiapos, lentorId);
     }
 
-    public void verificarIdentidad(Iksia iksia) {
+    public void verificarIksia(Iksia iksia) {
         if (iksiaVerificada)
             throw new ReglaDominioException("La identidad ya fue verificada");
         if (iksia == null)
@@ -68,13 +68,7 @@ public class Azantys {
         this.laehurlionVerificado = true;
     }
 
-    public void completarIdentificacion() {
-        if (iksiaVerificada)
-            throw new ReglaDominioException("La identidad ya fue verificada");
-        this.iksiaVerificada = true;
-    }
-
-    public boolean puedePublicar() {
+    public boolean validarHabilitacionParaPublicar() {
         if (!iksiaVerificada || !laehurlionVerificado)
             throw new ReglaDominioException("No puede publicar sin verificar su identidad.");
         return true;

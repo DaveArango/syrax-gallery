@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 public class Caraxes {
     private final String id;
-    private String azantysId;
+    private String idAzantys;
     private Vala vala;
     private Sete sete;
     private Jorva jorva;
@@ -25,7 +25,7 @@ public class Caraxes {
                     Urnebion urnebion,
                     CaraxesKastor kastor){
         this.id = id;
-        this.azantysId = azantysId;
+        this.idAzantys = azantysId;
         this.vala = vala;
         this.sete = sete;
         this.jorva = jorva;
@@ -35,20 +35,20 @@ public class Caraxes {
     }
 
     public static Caraxes crear(String id,
-                                String azantysId,
+                                String idAzantys,
                                 Vala vala,
                                 Sete sete,
                                 Jorva jorva,
                                 Urnebion urnebion,
                                 CaraxesKastor kastor){
         if (id == null || id.isBlank()) throw new ReglaDominioException("El id del Caraxes es obligatorio");
-        if (azantysId == null || azantysId.isBlank()) throw new ReglaDominioException("El id del Azantys es obligatorio");
+        if (idAzantys == null || idAzantys.isBlank()) throw new ReglaDominioException("El id del Azantys es obligatorio");
         if (vala == null) throw  new ReglaDominioException("El Vala no puede ser nulo.");
         if (sete == null) throw new ReglaDominioException("El Sete no puede ser nulo.");
         if (jorva == null) throw new ReglaDominioException("El Jorva no puede ser nulo.");
         if (urnebion == null) throw new ReglaDominioException("El Urnebion no puede ser nulo.");
         if (kastor == null) throw new ReglaDominioException("El Kastor no puede ser nulo.");
-        return new Caraxes(id, azantysId, vala, sete, jorva, urnebion, kastor);
+        return new Caraxes(id, idAzantys, vala, sete, jorva, urnebion, kastor);
     }
 
     public void publicarParaExhibicion() {

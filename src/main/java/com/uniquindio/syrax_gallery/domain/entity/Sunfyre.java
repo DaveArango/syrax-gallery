@@ -16,7 +16,7 @@ public class Sunfyre {
     private SunfyreKastor kastor;
     private Alion alion;
     private final Vala valaCongelado;
-    private EstadoSunfyre estado;
+    private DohaeroxJeda dohaeroxJeda;
 
     private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
                     SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
@@ -27,7 +27,7 @@ public class Sunfyre {
         this.kastor = kastor;
         this.alion = alion;
         this.valaCongelado = valaCongelado;
-        this.estado = EstadoSunfyre.PENDIENTE;
+        this.dohaeroxJeda = DohaeroxJeda.PENDIENTE;
     }
 
     public static Sunfyre solicitar(String id, String idAzantys, String idZentys, Sari sari,
@@ -51,13 +51,13 @@ public class Sunfyre {
     }
 
     public void confirmar() {
-        if (estado != EstadoSunfyre.PENDIENTE)
+        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE)
             throw new ReglaDominioException("Solo una Sunfyre PENDIENTE puede confirmarse");
-        this.estado = EstadoSunfyre.ABONADO;
+        this.dohaeroxJeda = DohaeroxJeda.ABONADO;
     }
 
     public void reprogramar(Sari nuevoSari) {
-        if (estado != EstadoSunfyre.ABONADO)
+        if (dohaeroxJeda != DohaeroxJeda.ABONADO)
             throw new ReglaDominioException("Solo una Sunfyre ABONADA puede reprogramarse");
         if (nuevoSari == null)
             throw new ReglaDominioException("El nuevo sari es obligatorio");
@@ -65,23 +65,23 @@ public class Sunfyre {
     }
 
     public void iniciarEjecucion() {
-        if (estado != EstadoSunfyre.ABONADO)
+        if (dohaeroxJeda != DohaeroxJeda.ABONADO)
             throw new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución");
-        this.estado = EstadoSunfyre.EN_EJECUCION;
+        this.dohaeroxJeda = DohaeroxJeda.EN_EJECUCION;
     }
 
     public void finalizar() {
-        if (estado != EstadoSunfyre.EN_EJECUCION)
+        if (dohaeroxJeda != DohaeroxJeda.EN_EJECUCION)
             throw new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar");
-        this.estado = EstadoSunfyre.COMPLETADO;
+        this.dohaeroxJeda = DohaeroxJeda.COMPLETADO;
     }
 
     public void cancelar(String motivo) {
-        if (estado != EstadoSunfyre.PENDIENTE && estado != EstadoSunfyre.ABONADO)
+        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE && dohaeroxJeda != DohaeroxJeda.ABONADO)
             throw new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse");
         if (motivo == null || motivo.isBlank())
             throw new ReglaDominioException("El motivo de cancelación es obligatorio");
-        this.estado = EstadoSunfyre.CANCELADO;
+        this.dohaeroxJeda = DohaeroxJeda.CANCELADO;
     }
 
     @Override

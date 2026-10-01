@@ -16,7 +16,7 @@ public class VerificarIdentidadAzantysUseCase {
     public Azantys ejecutar(String id, Iksia iksia) {
         Azantys azantys = repository.obtener(id)
                 .orElseThrow(() -> new IllegalArgumentException("Azantys no encontrado"));
-        azantys.verificarIdentidad(iksia);
+        azantys.verificarIksia(iksia);
         repository.guardar(azantys);
         return azantys;
     }

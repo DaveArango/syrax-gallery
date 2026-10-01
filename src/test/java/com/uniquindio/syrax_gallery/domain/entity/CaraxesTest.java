@@ -47,7 +47,7 @@ public class CaraxesTest {
 
         assertNotNull(caraxes);
         assertEquals(ID, caraxes.getId());
-        assertEquals(AZANTYS_ID, caraxes.getAzantysId());
+        assertEquals(AZANTYS_ID, caraxes.getIdAzantys());
         assertEquals(vala, caraxes.getVala());
         assertEquals(sete, caraxes.getSete());
         assertEquals(jorva, caraxes.getJorva());

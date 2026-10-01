@@ -1,7 +1,7 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.valueobject.EstadoKelitis;
+import com.uniquindio.syrax_gallery.domain.valueobject.Gelior;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import lombok.Getter;
 
@@ -14,14 +14,14 @@ public class Kelitis {
     private final String idAzantys;
     private final String idZentys;
     private final Vala valaCongelado;
-    private EstadoKelitis estado;
+    private Gelior gelior;
 
     private Kelitis(String id, String idAzantys, String idZentys, Vala valaCongelado) {
         this.id = id;
         this.idAzantys = idAzantys;
         this.idZentys = idZentys;
         this.valaCongelado = valaCongelado;
-        this.estado = EstadoKelitis.RETENIDO;
+        this.gelior = Gelior.RETENIDO;
     }
 
     public static Kelitis realizar(String id, String idAzantys, String idZentys, Vala valaCongelado) {
@@ -38,26 +38,26 @@ public class Kelitis {
     }
 
     public void liberarPago() {
-        if (estado != EstadoKelitis.RETENIDO)
+        if (gelior != Gelior.RETENIDO)
             throw new ReglaDominioException("Solo un Kelitis RETENIDO puede liberar el pago");
 
-        this.estado = EstadoKelitis.LIBERADO;
+        this.gelior = Gelior.LIBERADO;
     }
 
     public void completar() {
-        if (estado != EstadoKelitis.LIBERADO)
+        if (gelior != Gelior.LIBERADO)
             throw new ReglaDominioException("Solo un Kelitis LIBERADO puede completarse");
 
-        this.estado = EstadoKelitis.COMPLETADO;
+        this.gelior = Gelior.COMPLETADO;
     }
 
     public void solicitarReembolso(String motivo) {
-        if (estado != EstadoKelitis.RETENIDO)
+        if (gelior != Gelior.RETENIDO)
             throw new ReglaDominioException("Solo un Kelitis RETENIDO puede reembolsarse");
         if (motivo == null || motivo.isBlank())
             throw new ReglaDominioException("El motivo del reembolso es obligatorio");
 
-        this.estado = EstadoKelitis.REEMBOLSADO;
+        this.gelior = Gelior.REEMBOLSADO;
     }
 
     @Override

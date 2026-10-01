@@ -10,7 +10,7 @@ public class CaraxesMapper {
     public CaraxesDetalleResponse toDetalleResponse(Caraxes caraxes){
         return new CaraxesDetalleResponse(
                 caraxes.getId(),
-                caraxes.getAzantysId(),
+                caraxes.getIdAzantys(),
                 caraxes.getVala().monto(),
                 caraxes.getVala().divisa(),
                 caraxes.getSete().nombre(),

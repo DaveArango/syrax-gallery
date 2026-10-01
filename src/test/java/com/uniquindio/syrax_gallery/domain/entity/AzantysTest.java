@@ -75,10 +75,10 @@ public class AzantysTest {
     @Test
     void verificarIdentidadDosVeces() {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
-        azantys.verificarIdentidad(new Iksia("1234567"));
+        azantys.verificarIksia(new Iksia("1234567"));
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class,
-                () -> azantys.verificarIdentidad(new Iksia("7654321")));
+                () -> azantys.verificarIksia(new Iksia("7654321")));
 
         assertEquals("La identidad ya fue verificada", ex.getMessage());
     }
@@ -96,7 +96,7 @@ public class AzantysTest {
     void noPoderPublicarSinIdentidadNiFoto() {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
 
-        boolean resultado = azantys.puedePublicar();
+        boolean resultado = azantys.validarHabilitacionParaPublicar();
 
         assertFalse(resultado);
     }
@@ -104,9 +104,9 @@ public class AzantysTest {
     @Test
     void noPublicarSoloConIdentidadVerificada() {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
-        azantys.verificarIdentidad(new Iksia("1234567"));
+        azantys.verificarIksia(new Iksia("1234567"));
 
-        boolean resultado = azantys.puedePublicar();
+        boolean resultado = azantys.validarHabilitacionParaPublicar();
 
         assertFalse(resultado);
     }
@@ -116,7 +116,7 @@ public class AzantysTest {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
         azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
 
-        boolean resultado = azantys.puedePublicar();
+        boolean resultado = azantys.validarHabilitacionParaPublicar();
 
         assertFalse(resultado);
     }
@@ -124,10 +124,10 @@ public class AzantysTest {
     @Test
     void publicarConIdentidadVerificadaYFotoDePerfil() {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
-        azantys.verificarIdentidad(new Iksia("1234567"));
+        azantys.verificarIksia(new Iksia("1234567"));
         azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
 
-        boolean resultado = azantys.puedePublicar();
+        boolean resultado = azantys.validarHabilitacionParaPublicar();
 
         assertTrue(resultado);
     }

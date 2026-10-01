@@ -1,7 +1,7 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.valueobject.EstadoKelitis;
+import com.uniquindio.syrax_gallery.domain.valueobject.Gelior;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ class KelitisTest {
 
         Kelitis kelitis = Kelitis.realizar("kl-001", "az-001", "ze-001", monto);
 
-        assertEquals(EstadoKelitis.RETENIDO, kelitis.getEstado());
+        assertEquals(Gelior.RETENIDO, kelitis.getGelior());
         assertEquals("az-001", kelitis.getIdAzantys());
         assertEquals("ze-001", kelitis.getIdZentys());
         assertEquals(monto, kelitis.getValaCongelado());
@@ -43,7 +43,7 @@ class KelitisTest {
 
         kelitis.liberarPago();
 
-        assertEquals(EstadoKelitis.LIBERADO, kelitis.getEstado());
+        assertEquals(Gelior.LIBERADO, kelitis.getGelior());
     }
 
     @Test
@@ -53,7 +53,7 @@ class KelitisTest {
 
         assertThrows(ReglaDominioException.class, kelitis::liberarPago);
 
-        assertEquals(EstadoKelitis.LIBERADO, kelitis.getEstado());
+        assertEquals(Gelior.LIBERADO, kelitis.getGelior());
     }
 
     @Test
@@ -63,7 +63,7 @@ class KelitisTest {
 
         kelitis.completar();
 
-        assertEquals(EstadoKelitis.COMPLETADO, kelitis.getEstado());
+        assertEquals(Gelior.COMPLETADO, kelitis.getGelior());
     }
 
     @Test
@@ -72,7 +72,7 @@ class KelitisTest {
 
         assertThrows(ReglaDominioException.class, kelitis::completar);
 
-        assertEquals(EstadoKelitis.RETENIDO, kelitis.getEstado());
+        assertEquals(Gelior.RETENIDO, kelitis.getGelior());
     }
 
     @Test
@@ -82,7 +82,7 @@ class KelitisTest {
 
         assertThrows(ReglaDominioException.class, () -> kelitis.solicitarReembolso("Servicio no prestado"));
 
-        assertEquals(EstadoKelitis.LIBERADO, kelitis.getEstado());
+        assertEquals(Gelior.LIBERADO, kelitis.getGelior());
     }
 
     @Test
@@ -91,7 +91,7 @@ class KelitisTest {
 
         kelitis.solicitarReembolso("Servicio cancelado");
 
-        assertEquals(EstadoKelitis.REEMBOLSADO, kelitis.getEstado());
+        assertEquals(Gelior.REEMBOLSADO, kelitis.getGelior());
     }
 
     @Test
@@ -100,7 +100,7 @@ class KelitisTest {
 
         assertThrows(ReglaDominioException.class, () -> kelitis.solicitarReembolso(""));
 
-        assertEquals(EstadoKelitis.RETENIDO, kelitis.getEstado());
+        assertEquals(Gelior.RETENIDO, kelitis.getGelior());
     }
 
     @Test
@@ -111,6 +111,6 @@ class KelitisTest {
 
         assertThrows(ReglaDominioException.class, () -> kelitis.solicitarReembolso("Quiero devolver el dinero"));
 
-        assertEquals(EstadoKelitis.COMPLETADO, kelitis.getEstado());
+        assertEquals(Gelior.COMPLETADO, kelitis.getGelior());
     }
 }
