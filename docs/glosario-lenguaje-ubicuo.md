@@ -20,20 +20,40 @@
 **Ejemplo de uso en código:**
 ```java
 Caraxes nuevaPintura = Caraxes.crear(
-    id,
-    azantysId,
-    new Vala(1200.00, "USD"),
-    new Sete("Óleo sobre lienzo"),
-    new Jorva("Paisaje al atardecer pintado con técnica de óleo"),
-    new Urnebion("https://cdn.syrax.com/obras/paisaje.jpg"),
-    CaraxesKastor.PINTURA
+        id,
+        azantysId,
+        new Vala(1200.00, "USD"),
+        new Sete("Óleo sobre lienzo"),
+        new Jorva("Paisaje al atardecer pintado con técnica de óleo"),
+        new Urnebion("https://cdn.syrax.com/obras/paisaje.jpg"),
+        CaraxesKastor.PINTURA
 );
 ```
 
 ---
 
 ### Sunfyre
-**Definición:** La macro-categoría de Servicios Artísticos y Arte por Encargo (tatuajes, murales, retratos personalizados). Representa el arte que brilla por su personalización y que requiere la ejecución directa del artista.
+**Definición:** El agregado que representa un Servicio Artístico y Arte por Encargo (tatuajes, murales, retratos personalizados) pactado entre un Azantys y un Zentys. Pertenece a la macro-categoría de Servicios Artísticos y representa el arte que brilla por su personalización y que requiere la ejecución directa del artista.
+
+**Composición:** Se compone de `id`, `idAzantys` (creador), `idZentys` (cliente), `Sari` (ventana de tiempo), `SunfyreKastor` (tipo de servicio), `Ālion` (ubicación) y `valaCongelado` (`Vala` pactada). Además tiene dos estados que **no se reciben al crear**: `estado` (`DohaeroxJeda`, ciclo de vida del servicio, nace `PENDIENTE`) y `kanez` (`Kanez`, estado de publicación, nace `BORRADOR`).
+
+**Creación:** Se instancia únicamente mediante la fábrica estática `Sunfyre.solicitar(...)`; el constructor es privado, `id`, `idAzantys`, `idZentys` y `valaCongelado` son `final`, no hay setters y la igualdad (`equals`/`hashCode`) se define solo por `id`.
+
+**Operaciones del agregado:**
+- Publicación (`Kanez`): `publicar(destino)` (BORRADOR → EXHIBICION o EN_VENTA, y EXHIBICION → EN_VENTA). Exige `estado == PENDIENTE` y, para EN_VENTA, un precio mayor a cero. La habilitación del Azantys y su autoría se validan antes, en el caso de uso `PublicarSunfyre`, mediante `Azantys.puedePublicar()`.
+- Ciclo de vida (`DohaeroxJeda`): `confirmar()`, `reprogramar(nuevoSari)`, `iniciarEjecucion()`, `finalizar()` y `cancelar(motivo)`.
+
+**Invariantes:**
+1. **Creación completa.** Toda Sunfyre nace con `idAzantys`, `idZentys`, `sari`, `kastor`, `alion` y `valaCongelado` no nulos. Nunca existe un servicio artístico sin creador, sin cliente, sin ventana de tiempo, sin tipo de servicio, sin ubicación ni sin precio pactado.
+2. **Precio congelado.** `valaCongelado` nunca cambia durante el ciclo de vida. Se fija en la creación y ninguna operación posterior (`reprogramar`, `iniciarEjecucion`, `finalizar`, `cancelar`) puede alterarlo.
+3. **No solapamiento de agenda.** El `sari` de una Sunfyre nunca se solapa con el `sari` de otra Sunfyre en estado `ABONADO` del mismo `idAzantys`. Se valida en `confirmar()` y en `reprogramar(nuevoSari)`, comparando contra las citas ya abonadas de ese artista.
+4. **Reprogramación controlada.** `reprogramar(nuevoSari)` solo es válido si `estado == ABONADO`.
+5. **Camino único de transición.** `PENDIENTE → ABONADO → EN_EJECUCION → COMPLETADO`, mediante `confirmar() → iniciarEjecucion() → finalizar()`. Nunca se invoca `finalizar()` sin pasar por `iniciarEjecucion()`, ni `iniciarEjecucion()` sin `estado == ABONADO`.
+6. **Cancelación restringida.** `CANCELADO` solo es alcanzable desde `PENDIENTE` o `ABONADO`, nunca desde `EN_EJECUCION` ni `COMPLETADO`. Consistente con la regla de negocio: un servicio artístico personalizado no puede ser devuelto una vez iniciada su ejecución, salvo incumplimiento.
+7. **Motivo obligatorio.** `cancelar(motivo)` exige un motivo no nulo ni vacío.
+8. **Estados terminales.** `COMPLETADO` y `CANCELADO` son definitivos. Ningún método puede reabrir o modificar una Sunfyre que ya cerró su ciclo de vida.
+
+**Reglas de negocio relacionadas:** el Azantys debe completar su identificación y tener fotografía de perfil para publicar; todo servicio debe pertenecer a una categoría y subcategoría disponible (`SunfyreKastor`); todo servicio debe especificar su ubicación o modalidad (`Ālion`); un servicio personalizado no puede devolverse una vez iniciada su ejecución, salvo incumplimiento.
 
 **Sinónimos aceptados:** ServicioArtístico, EncargoPersonalizado
 
@@ -41,7 +61,15 @@ Caraxes nuevaPintura = Caraxes.crear(
 
 **Ejemplo de uso en código:**
 ```java
-Sunfyre sesionTatuaje = new Sunfyre(TipoServicio.TATUAJE, artistaId);
+Sunfyre sesionTatuaje = Sunfyre.solicitar(
+    id,
+    azantysId,
+    zentysId,
+    new Sari(inicio, fin),
+    SunfyreKastor.ARTE_PIEL,
+    new Ālion("Armenia", "Colombia", 4.53, -75.68),
+    new Vala(150000, "COP")
+);
 ```
 
 ---
@@ -105,11 +133,15 @@ Zentys comprador = zentysRepository.findById(usuarioId);
 ### Kelitis
 **Definición:** El Contrato Inteligente o Estado de Garantía (Escrow). Es el mecanismo del sistema que retiene de forma segura el pago del cliente por un servicio (como un tatuaje o un mural) y no se lo libera al Azantys hasta que el servicio esté terminado y aprobado.
 
+**Composición:** Se compone de `id`, `idAzantys`, `idZentys`, `valaCongelado` (monto retenido) y `estado` (`Gelior`). Nace siempre `RETENIDO`.
+
+**Ciclo de vida (`Gelior`):** `liberarPago()` (RETENIDO → LIBERADO), `completar()` (LIBERADO → COMPLETADO) y `solicitarReembolso(motivo)` (RETENIDO → REEMBOLSADO, motivo obligatorio).
+
 **Precondiciones:** El Zentys debe haber ejecutado un Dracarys exitoso y el estado de la cita debe estar registrado.
 
 **Ejemplo de uso en código:**
 ```java
-Kelitis depositoGarantia = new Kelitis(montoTotal, azantysId, zentysId);
+Kelitis depositoGarantia = Kelitis.realizar(id, azantysId, zentysId, new Vala(150000, "COP"));
 ```
 
 ---
@@ -349,7 +381,7 @@ public record Sete(String nombre) {
         if (nombre == null || nombre.isBlank())
             throw new ReglaDominioException("El nombre de la obra es obligatorio");
         if (!nombre.matches("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ ]+$")) {
-            throw new ReglaDominioException("El nombre del Zentys no puede contener caracteres especiales.");
+            throw new ReglaDominioException("El nombre de la obra no puede contener caracteres especiales");
         }
         if (nombre.trim().length() < 3)
             throw new ReglaDominioException("El nombre de la obra debe tener al menos 3 caracteres");
@@ -408,50 +440,50 @@ public record Urnebion(String url) {
 
 ## Enums Especializados de Subcategorización (Value Objects)
 
-A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio (los `Kastor`), más un enum transversal (`Kanez`) compartido por todas ellas para el estado de la obra:
+A fin de mitigar el acoplamiento cruzado y el uso de un enum monolítico genérico que rompa el Principio de Responsabilidad Única, se declaran cuatro enums independientes asociados a cada macro-categoría de dominio (los `Kastor`), un enum transversal (`Kanez`) compartido por todas ellas para el estado de publicación de la obra, y dos enums de ciclo de vida propios de un agregado (`DohaeroxJeda` para Sunfyre y `Gelior` para Kelitis):
 
 ### CaraxesKastor
-**Definición:** El enumerado (Value Object) que define de forma rígida y segura los tipos válidos de arte físico (ej: PINTURA, ESCULTURA, GRABADO) aceptados en los flujos de logística física.
+**Definición:** El enumerado (Value Object) que define de forma rígida y segura los tipos válidos de arte físico (PINTURA, ESCULTURA, FOTOGRAFIA, DIBUJO, GRABADO) aceptados en los flujos de logística física.
 
 **Ejemplo en código:**
 ```java
-public enum CaraxesKastor { PINTURA, ESCULTURA, GRABADO }
+public enum CaraxesKastor { PINTURA, ESCULTURA, FOTOGRAFIA, DIBUJO, GRABADO }
 ```
 
 ---
 
 ### SunfyreKastor
-**Definición:** El enumerado (Value Object) que tipifica las variedades lógicas de los servicios corporales y por encargo (ej: TATUAJE, MURAL, RETRATO_EN_VIVO), activando lógicas de geolocalización.
+**Definición:** El enumerado (Value Object) que tipifica las variedades lógicas de los servicios corporales y por encargo (ARTE_PIEL, MURAL, RETRATO_TRADICIONAL, CUSTOMIZACION), activando lógicas de geolocalización.
 
 **Ejemplo en código:**
 ```java
-public enum SunfyreKastor { TATUAJE, MURAL, RETRATO_EN_VIVO }
+public enum SunfyreKastor { ARTE_PIEL, MURAL, RETRATO_TRADICIONAL, CUSTOMIZACION }
 ```
 
 ---
 
 ### SeasmokeKastor
-**Definición:** El enumerado (Value Object) que restringe y clasifica los tipos de merchandising de autor y reproducciones gráficas masivas o bajo demanda (ej: PRINTS, ARTBOOKS, STICKERS).
+**Definición:** El enumerado (Value Object) que restringe y clasifica los tipos de merchandising de autor y reproducciones gráficas masivas o bajo demanda (PRINTS, ARTBOOKS, MERCHANDISING).
 
 **Ejemplo en código:**
 ```java
-public enum SeasmokeKastor { PRINTS, ARTBOOKS, STICKERS }
+public enum SeasmokeKastor { PRINTS, ARTBOOKS, MERCHANDISING }
 ```
 
 ---
 
 ### DreamfyreKastor
-**Definición:** El enumerado (Value Object) que tipifica las variedades de piezas puramente digitales e intangibles de la plataforma (ej: ILUSTRACION_DIGITAL, CRIPTOARTE).
+**Definición:** El enumerado (Value Object) que tipifica las variedades de piezas puramente digitales e intangibles de la plataforma (ILUSTRACION_DIGITAL, NFTS).
 
 **Ejemplo en código:**
 ```java
-public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
+public enum DreamfyreKastor { ILUSTRACION_DIGITAL, NFTS }
 ```
 
 ---
 
 ### Kanez
-**Definición:** El enumerado (Value Object) que define el estado de una obra dentro de la galería: si está en preparación, solo para exhibición, disponible para la venta, vendida o retirada. A diferencia de los `Kastor`, **es compartido por todas las macro-categorías** (Caraxes, Sunfyre, Seasmoke y Dreamfyre), ya que el ciclo de estados es común.
+**Definición:** El enumerado (Value Object) que define el estado de una obra dentro de la galería: si está en preparación, solo para exhibición, disponible para la venta, vendida o retirada. A diferencia de los `Kastor`, **es compartido por todas las macro-categorías** (Caraxes, Sunfyre, Seasmoke y Dreamfyre), ya que el ciclo de estados es común. En una Sunfyre es **independiente** de `DohaeroxJeda`: `Kanez` dice si el servicio está publicado, `DohaeroxJeda` dice en qué punto de su ejecución está.
 
 **Sinónimos aceptados:** EstadoObra, EstadoPublicacion
 
@@ -460,6 +492,42 @@ public enum DreamfyreKastor { ILUSTRACION_DIGITAL, CRIPTOARTE }
 **Ejemplo en código:**
 ```java
 public enum Kanez { BORRADOR, EXHIBICION, EN_VENTA, VENDIDO, RETIRADO }
+```
+
+---
+
+### DohaeroxJeda
+**Definición:** El enumerado (Value Object) que define el ciclo de vida de una Sunfyre (antes `EstadoSunfyre`): desde que se solicita hasta que se completa o se cancela. Sus transiciones siguen un único camino y `COMPLETADO` y `CANCELADO` son estados terminales.
+
+**Valores:** `PENDIENTE` (solicitada, aún sin compromiso firme), `ABONADO` (confirmada y con pago retenido, ocupa agenda), `EN_EJECUCION` (el Azantys inició el servicio), `COMPLETADO` (finalizada) y `CANCELADO` (cerrada con motivo).
+
+**Transiciones válidas:** `PENDIENTE → ABONADO → EN_EJECUCION → COMPLETADO`; `PENDIENTE → CANCELADO`; `ABONADO → CANCELADO`.
+
+**Sinónimos aceptados:** EstadoServicio, CicloSunfyre
+
+**No usar:** EstadoSunfyre, Estado (como String o int suelto), Status
+
+**Ejemplo en código:**
+```java
+public enum DohaeroxJeda { PENDIENTE, ABONADO, EN_EJECUCION, COMPLETADO, CANCELADO }
+```
+
+---
+
+### Gelior
+**Definición:** El enumerado (Value Object) que define el ciclo de vida de un Kelitis (antes `EstadoKelitis`): si el pago del cliente está retenido en garantía, liberado al Azantys, completado o reembolsado al Zentys.
+
+**Valores:** `RETENIDO` (el monto está en garantía), `LIBERADO` (el pago se liberó al Azantys), `COMPLETADO` (el Kelitis cerró su ciclo tras la liberación) y `REEMBOLSADO` (el monto volvió al Zentys).
+
+**Transiciones válidas:** `RETENIDO → LIBERADO → COMPLETADO`; `RETENIDO → REEMBOLSADO`.
+
+**Sinónimos aceptados:** EstadoGarantia, CicloKelitis
+
+**No usar:** EstadoKelitis, EstadoEscrow, Estado (como String o int suelto)
+
+**Ejemplo en código:**
+```java
+public enum Gelior { RETENIDO, LIBERADO, COMPLETADO, REEMBOLSADO }
 ```
 
 ---
@@ -490,3 +558,5 @@ public enum Kanez { BORRADOR, EXHIBICION, EN_VENTA, VENDIDO, RETIRADO }
 | String descripcion / Detalle | **Jorva** |
 | String urlImagen / Imagen suelta | **Urnebion** |
 | Estado / Status de la obra | **Kanez** |
+| EstadoSunfyre / Estado de la cita o del servicio | **DohaeroxJeda** |
+| EstadoKelitis / Estado del escrow o la garantía | **Gelior** |
