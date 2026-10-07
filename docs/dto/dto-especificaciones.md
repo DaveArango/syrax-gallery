@@ -1,8 +1,9 @@
 # Diseño de DTOs y mapeo Dominio → API
 
-Convención general: los DTOs viven en `application/dto`. 
-Los Request validan solo que los campos obligatorios vengan (`@NotBlank`, `@NotNull`); 
+Convención general: los DTOs viven en `application/dto`.
+Los Request validan solo que los campos obligatorios vengan (`@NotBlank`, `@NotNull`);
 las reglas de formato y de negocio las aplican los Value Objects y las entidades del dominio.
+Cada operación tiene su propio Request: lo obligatorio en una no lo es en otra.
 
 ---
 
@@ -13,15 +14,16 @@ las reglas de formato y de negocio las aplican los Value Objects y las entidades
 | Campo | Por qué es necesario |
 |---|---|
 | azantysId | Una Caraxes siempre tiene creador; el caso de uso verifica que el Azantys exista |
-| monto, divisa | Forman el Vala (monto >= 0, divisa ISO de 3 letras) |
-| sete | Nombre de la obra (3 a 100 caracteres) |
-| jorva | Descripción de la obra (10 a 1000 caracteres) |
-| urnebion | URL de la imagen de referencia. Regla: toda obra publicada debe tener al menos una imagen |
-| kastor | Tipo de obra (CaraxesKastor). Regla: todo producto pertenece a una categoría |
 
 No se reciben:
-- `id`: lo genera el servidor.
+- `id`: lo asigna el servidor (por ahora un valor fijo en el controller).
 - `kanez`: toda Caraxes nace en BORRADOR.
+
+Pendiente de ampliar: el diseño completo del Request incluiría `monto` y `divisa` (forman el
+Vala), `sete` (nombre), `jorva` (descripción), `urnebion` (imagen de referencia, regla
+"toda obra publicada debe tener al menos una imagen") y `kastor` (tipo de obra, regla
+"todo producto pertenece a una categoría"). Hoy el controller usa valores fijos para esos
+campos mientras se completa el DTO.
 
 ### CaraxesDetalleResponse (respuesta de crear, obtener y publicar)
 
@@ -37,7 +39,8 @@ No se reciben:
 
 ### Publicar: sin body
 El destino viaja en la ruta (`{kanez}`) porque la operación solo necesita ese valor.
-El Azantys creador se obtiene de la propia Caraxes y se valida con `puedePublicar()`.
+El Azantys creador se obtiene de la propia Caraxes y se valida con
+`validarHabilitacionParaPublicar()`.
 
 ---
 
@@ -63,7 +66,7 @@ No se reciben:
 
 | Campo | Por qué es necesario |
 |---|---|
-| azantysId | Actor que publica: se valida que sea el creador y que cumpla `puedePublicar()` (identidad verificada y foto de perfil) |
+| azantysId | Actor que publica: se valida que sea el creador y que cumpla `validarHabilitacionParaPublicar()` (identidad verificada y foto de perfil) |
 | destino | Kanez objetivo (EXHIBICION o EN_VENTA) |
 
 El `id` de la Sunfyre va en la ruta. Aquí el destino va en el body (y no en la ruta como en
@@ -89,15 +92,16 @@ Caraxes) porque la operación también necesita el `azantysId` del actor.
 
 | Campo | Por qué es necesario |
 |---|---|
-| id | Identidad del Azantys; el dominio exige un id no vacío |
 | nombre | Un Azantys siempre tiene nombre (no vacío) |
 | kostion | Especialidad artística (3 a 100 caracteres); se convierte en el VO Kostion |
 | runiapos | Correo con formato válido; se convierte en el VO Runiapos |
 | lentorId | Estudio al que pertenece. Es opcional: un artista puede ser independiente, pero si viene no puede ser vacío |
 
-No se reciben la identidad ni la foto: se completan después, en sus propias operaciones.
+No se reciben:
+- `id`: lo genera el servidor.
+- La identidad ni la foto: se completan después, en sus propias operaciones.
 
-### VerificarIdentidadRequest → azantys.verificarIdentidad(iksia)
+### VerificarIdentidadRequest → azantys.verificarIksia(iksia)
 
 | Campo | Por qué es necesario |
 |---|---|

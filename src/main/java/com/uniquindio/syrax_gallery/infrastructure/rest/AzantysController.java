@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/azantys")
@@ -35,7 +36,9 @@ public class AzantysController {
     public ResponseEntity<AzantysDetalleResponse> crear(@Valid @RequestBody RegistrarAzantysRequest request) {
         Kostion kostion = new Kostion(request.kostion());
         Runiapos runiapos = new Runiapos(request.runiapos());
-        Azantys azantys = registrarAzantysUseCase.ejecutar(request.id(), request.nombre(),
+        Azantys azantys = registrarAzantysUseCase.ejecutar(
+                UUID.randomUUID().toString(),
+                request.nombre(),
                 kostion, runiapos, request.lentorId());
 
         AzantysDetalleResponse response =
