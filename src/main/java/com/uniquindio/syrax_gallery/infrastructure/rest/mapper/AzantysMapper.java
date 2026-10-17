@@ -14,7 +14,6 @@ public class AzantysMapper {
                 azantys.getNombre(),
                 azantys.getKostion().descripcion(),
                 azantys.getRuniapos().direccion(),
-                azantys.getLentorId(),
                 azantys.isActivo(),
                 azantys.isIksiaVerificada(),
                 azantys.isLaehurlionVerificado()

@@ -17,7 +17,7 @@ public class AzantysTest {
     }
 
     private Azantys azantysBase() {
-        return Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
+        return Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida());
     }
 
     @Test
@@ -27,7 +27,7 @@ public class AzantysTest {
         Kostion kostion = kostionValida();
         Runiapos runiapos = runiaposValida();
 
-        Azantys azantys = Azantys.crear(id, nombre, kostion, runiapos, null);
+        Azantys azantys = Azantys.crear(id, nombre, kostion, runiapos);
 
         assertEquals(id, azantys.getId());
         assertEquals(nombre, azantys.getNombre());
@@ -45,9 +45,9 @@ public class AzantysTest {
         Runiapos runiapos = runiaposValida();
 
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear(null, "Rhaenyra", kostion, runiapos, null));
+                () -> Azantys.crear(null, "Rhaenyra", kostion, runiapos));
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("  ", "Rhaenyra", kostion, runiapos, null));
+                () -> Azantys.crear("  ", "Rhaenyra", kostion, runiapos));
     }
 
     @Test
@@ -56,9 +56,9 @@ public class AzantysTest {
         Runiapos runiapos = runiaposValida();
 
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("az-001", null, kostion, runiapos, null));
+                () -> Azantys.crear("az-001", null, kostion, runiapos));
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("az-001", "  ", kostion, runiapos, null));
+                () -> Azantys.crear("az-001", "  ", kostion, runiapos));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class AzantysTest {
         Runiapos runiapos = runiaposValida();
 
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("az-001", "Rhaenyra", null, runiapos, null));
+                () -> Azantys.crear("az-001", "Rhaenyra", null, runiapos));
     }
 
     @Test
@@ -74,28 +74,7 @@ public class AzantysTest {
         Kostion kostion = kostionValida();
 
         assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("az-001", "Rhaenyra", kostion, null, null));
-    }
-
-    @Test
-    void lentorIdEsCadenaVacia() {
-        Kostion kostion = kostionValida();
-        Runiapos runiapos = runiaposValida();
-
-        ReglaDominioException ex = assertThrows(ReglaDominioException.class,
-                () -> Azantys.crear("az-001", "Rhaenyra", kostion, runiapos, ""));
-
-        assertEquals("El lentorId no puede ser una cadena vacía", ex.getMessage());
-    }
-
-    @Test
-    void lentorIdNuloParaArtistaIndependiente() {
-        Kostion kostion = kostionValida();
-        Runiapos runiapos = runiaposValida();
-
-        Azantys azantys = Azantys.crear("az-001", "Rhaenyra", kostion, runiapos, null);
-
-        assertNull(azantys.getLentorId());
+                () -> Azantys.crear("az-001", "Rhaenyra", kostion, null));
     }
 
     @Test
@@ -201,8 +180,8 @@ public class AzantysTest {
 
     @Test
     void dosAzantysConElMismoIdSonIguales() {
-        Azantys a = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
-        Azantys b = Azantys.crear("az-001", "Otro nombre", kostionValida(), runiaposValida(), "lentor-1");
+        Azantys a = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida());
+        Azantys b = Azantys.crear("az-001", "Otro nombre", kostionValida(), runiaposValida());
 
         assertEquals(a, b);
         assertEquals(a.hashCode(), b.hashCode());
@@ -210,8 +189,8 @@ public class AzantysTest {
 
     @Test
     void dosAzantysConDistintoIdNoSonIguales() {
-        Azantys a = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida(), null);
-        Azantys b = Azantys.crear("az-002", "Rhaenyra", kostionValida(), runiaposValida(), null);
+        Azantys a = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida());
+        Azantys b = Azantys.crear("az-002", "Rhaenyra", kostionValida(), runiaposValida());
 
         assertNotEquals(a, b);
     }

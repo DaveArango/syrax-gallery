@@ -14,8 +14,8 @@ public class RegistrarAzantysUseCase{
         this.repository = repository;
     }
 
-    public Azantys ejecutar(String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId){
-        Azantys azantys = Azantys.crear(id, nombre, kostion, runiapos, lentorId);
+    public Azantys ejecutar(String id, String nombre, Kostion kostion, Runiapos runiapos){
+        Azantys azantys = Azantys.crear(id, nombre, kostion, runiapos);
         repository.guardar(azantys);
         return azantys;
     }

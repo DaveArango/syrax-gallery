@@ -11,7 +11,5 @@ public record RegistrarAzantysRequest(
         String kostion,
 
         @NotBlank(message = "El correo del Azantys es obligatorio.")
-        String runiapos,
-
-        String lentorId
+        String runiapos
 ) {}

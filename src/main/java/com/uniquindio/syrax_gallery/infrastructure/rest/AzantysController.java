@@ -39,7 +39,7 @@ public class AzantysController {
         Azantys azantys = registrarAzantysUseCase.ejecutar(
                 UUID.randomUUID().toString(),
                 request.nombre(),
-                kostion, runiapos, request.lentorId());
+                kostion, runiapos);
 
         AzantysDetalleResponse response =
                 mapper.toDetalleResponse(azantys);

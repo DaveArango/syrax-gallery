@@ -18,27 +18,24 @@ public class Azantys {
     private boolean activo;
     private Kostion kostion;
     private Runiapos runiapos;
-    private String lentorId;
     private boolean iksiaVerificada;
     private boolean laehurlionVerificado;
     private Laehurlion laehurlion;
     private Iksia iksia;
 
     private Azantys(String id, String nombre,
-                    Kostion kostion, Runiapos runiapos,
-                    String lentorId) {
+                    Kostion kostion, Runiapos runiapos) {
         this.id = id;
         this.nombre = nombre;
         this.kostion = kostion;
         this.runiapos = runiapos;
-        this.lentorId = lentorId;
         this.activo = true;
         this.iksiaVerificada = false;
         this.iksia = null;
         this.laehurlion = null;
     }
 
-    public static Azantys crear (String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId){
+    public static Azantys crear (String id, String nombre, Kostion kostion, Runiapos runiapos){
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id del Azantys es obligatorio");
         if (nombre == null || nombre.isBlank())
@@ -47,9 +44,7 @@ public class Azantys {
             throw new ReglaDominioException("La especialidad del Azantys es obligatorio");
         if (runiapos == null)
             throw new ReglaDominioException("El email del Azantys es obligatorio");
-        if (lentorId != null && lentorId.isBlank())
-            throw new ReglaDominioException("El lentorId no puede ser una cadena vacía");
-        return new Azantys(id, nombre, kostion, runiapos, lentorId);
+        return new Azantys(id, nombre, kostion, runiapos);
     }
 
     public void verificarIksia(Iksia iksia) {
