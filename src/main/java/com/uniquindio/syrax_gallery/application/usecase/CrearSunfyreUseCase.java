@@ -8,24 +8,18 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class CrearSunfyreUseCase {
 
     private final SunfyreRepository sunfyreRepository;
     private final AzantysRepository azantysRepository;
     private final ZentysRepository zentysRepository;
-
-    public CrearSunfyreUseCase(SunfyreRepository sunfyreRepository,
-                               AzantysRepository azantysRepository,
-                               ZentysRepository zentysRepository) {
-        this.sunfyreRepository = sunfyreRepository;
-        this.azantysRepository = azantysRepository;
-        this.zentysRepository = zentysRepository;
-    }
 
     public Sunfyre ejecutar(String id, String azantysId, String zentysId, Sari sari,
                             SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
