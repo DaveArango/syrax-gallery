@@ -1,6 +1,5 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
-
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
@@ -18,38 +17,48 @@ public class Azantys {
     private boolean activo;
     private Kostion kostion;
     private Runiapos runiapos;
-    private String lentorId;
-    private boolean iksiaVerificada;
-    private boolean laehurlionVerificado;
-    private Laehurlion laehurlion;
     private Iksia iksia;
+    private boolean iksiaVerificada;
+    private Laehurlion laehurlion;
+    private boolean laehurlionVerificado;
 
-    private Azantys(String id, String nombre,
+    private Azantys(String id, String nombre, boolean activo,
                     Kostion kostion, Runiapos runiapos,
-                    String lentorId) {
+                    Iksia iksia, boolean iksiaVerificada,
+                    Laehurlion laehurlion, boolean laehurlionVerificado) {
         this.id = id;
         this.nombre = nombre;
+        this.activo = activo;
         this.kostion = kostion;
         this.runiapos = runiapos;
-        this.lentorId = lentorId;
-        this.activo = true;
-        this.iksiaVerificada = false;
-        this.iksia = null;
-        this.laehurlion = null;
+        this.iksia = iksia;
+        this.iksiaVerificada = iksiaVerificada;
+        this.laehurlion = laehurlion;
+        this.laehurlionVerificado = laehurlionVerificado;
     }
 
-    public static Azantys crear (String id, String nombre, Kostion kostion, Runiapos runiapos, String lentorId){
+    private Azantys(String id, String nombre, Kostion kostion, Runiapos runiapos) {
+        this(id, nombre, true, kostion, runiapos, null, false, null, false);
+    }
+
+    public static Azantys crear(String id, String nombre, Kostion kostion, Runiapos runiapos) {
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id del Azantys es obligatorio");
         if (nombre == null || nombre.isBlank())
             throw new ReglaDominioException("El nombre del Azantys es obligatorio");
         if (kostion == null)
-            throw new ReglaDominioException("La especialidad del Azantys es obligatorio");
+            throw new ReglaDominioException("La especialidad del Azantys es obligatoria");
         if (runiapos == null)
-            throw new ReglaDominioException("El email del Azantys es obligatorio");
-        if (lentorId != null && lentorId.isBlank())
-            throw new ReglaDominioException("El lentorId no puede ser una cadena vacía");
-        return new Azantys(id, nombre, kostion, runiapos, lentorId);
+            throw new ReglaDominioException("El correo del Azantys es obligatorio");
+        return new Azantys(id, nombre, kostion, runiapos);
+    }
+
+    public static Azantys reconstruir(String id, String nombre, boolean activo,
+                                      Kostion kostion, Runiapos runiapos,
+                                      Iksia iksia, boolean iksiaVerificada,
+                                      Laehurlion laehurlion, boolean laehurlionVerificado) {
+        return new Azantys(id, nombre, activo, kostion, runiapos,
+                iksia, iksiaVerificada, laehurlion, laehurlionVerificado);
     }
 
     public void verificarIksia(Iksia iksia) {
@@ -68,8 +77,12 @@ public class Azantys {
         this.laehurlionVerificado = true;
     }
 
+    public boolean estaHabilitadoParaPublicar() {
+        return iksiaVerificada && laehurlionVerificado;
+    }
+
     public boolean validarHabilitacionParaPublicar() {
-        if (!iksiaVerificada || !laehurlionVerificado)
+        if (!estaHabilitadoParaPublicar())
             throw new ReglaDominioException("No puede publicar sin verificar su identidad.");
         return true;
     }

@@ -42,7 +42,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra es obligatorio", ex.getMessage());
+        assertEquals("El nombre de la obra física es obligatorio", ex.getMessage());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra es obligatorio", ex.getMessage());
+        assertEquals("El nombre de la obra física es obligatorio", ex.getMessage());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra es obligatorio", ex.getMessage());
+        assertEquals("El nombre de la obra física es obligatorio", ex.getMessage());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra debe tener al menos 3 caracteres", ex.getMessage());
+        assertEquals("El nombre de la obra física debe tener al menos 3 caracteres", ex.getMessage());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra debe tener al menos 3 caracteres", ex.getMessage());
+        assertEquals("El nombre de la obra física debe tener al menos 3 caracteres", ex.getMessage());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class SeteTest {
 
         ReglaDominioException ex = assertThrows(ReglaDominioException.class, () -> new Sete(nombre));
 
-        assertEquals("El nombre de la obra no puede superar 100 caracteres", ex.getMessage());
+        assertEquals("El nombre de la obra física no puede superar 100 caracteres", ex.getMessage());
     }
 
     @Test

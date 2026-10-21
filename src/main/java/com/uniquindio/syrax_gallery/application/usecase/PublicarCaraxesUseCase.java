@@ -5,18 +5,14 @@ import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.repository.CaraxesRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class PublicarCaraxesUseCase {
     private final CaraxesRepository caraxesRepository;
     private final AzantysRepository azantysRepository;
-
-    public PublicarCaraxesUseCase(CaraxesRepository caraxesRepository,
-                                  AzantysRepository azantysRepository) {
-        this.caraxesRepository = caraxesRepository;
-        this.azantysRepository = azantysRepository;
-    }
 
     public Caraxes ejecutar(String id, Kanez destino) {
         Caraxes caraxes = caraxesRepository.obtener(id)

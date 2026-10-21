@@ -29,9 +29,14 @@ public record CrearSunfyreRequest(
         @NotBlank(message = "El país es obligatorio.")
         String pais,
 
-        double latitud,
-        double longitud,
-        double monto,
+        @NotNull(message = "La latitud es obligatoria.")
+        Double latitud,
+
+        @NotNull(message = "La longitud es obligatoria.")
+        Double longitud,
+
+        @NotNull(message = "El monto es obligatorio.")
+        Double monto,
 
         @NotBlank(message = "La divisa es obligatoria.")
         String divisa

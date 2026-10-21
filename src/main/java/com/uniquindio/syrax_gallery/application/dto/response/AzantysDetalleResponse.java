@@ -5,8 +5,8 @@ public record AzantysDetalleResponse(
         String nombre,
         String kostion,
         String runiapos,
-        String lentorId,
         boolean activo,
         boolean iksiaVerificada,
-        boolean laehurlionVerificado
+        boolean laehurlionVerificado,
+        boolean habilitadoParaPublicar
 ) {}

@@ -30,10 +30,8 @@ public class Zentys {
                                String nombre,
                                Runiapos runiapos,
                                Indior indior){
-        if (id == null)
-            throw new ReglaDominioException("El id del Zentys es obligatorio");
-        if (nombre == null || nombre.isBlank())
-            throw new ReglaDominioException("El nombre del Zentys es obligatorio.");
+        if (id == null) throw new ReglaDominioException("El id del Zentys es obligatorio");
+        if (nombre == null || nombre.isBlank()) throw new ReglaDominioException("El nombre del Zentys es obligatorio.");
         if (!nombre.matches("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ ]+$")) {
             throw new ReglaDominioException("El nombre del Zentys no puede contener caracteres especiales.");
         }
