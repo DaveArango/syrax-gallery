@@ -3,18 +3,25 @@ package com.uniquindio.syrax_gallery.application.usecase;
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
+import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class VerificarIdentidadAzantysUseCase {
+
     private final AzantysRepository repository;
 
-    public Azantys ejecutar(String id, Iksia iksia) {
+    @Transactional
+    public Azantys ejecutar(String id, Iksia iksia, Laehurlion laehurlion) {
         Azantys azantys = repository.obtener(id)
-                .orElseThrow(() -> new IllegalArgumentException("Azantys no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Azantys no encontrado"));
         azantys.verificarIksia(iksia);
+        azantys.subirLaehurlion(laehurlion);
         repository.guardar(azantys);
         return azantys;
     }

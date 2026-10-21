@@ -6,5 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 public record VerificarIdentidadRequest(
 
         @NotBlank(message = "El número de documento es obligatorio.")
-        String iksia
+        String iksia,
+
+        @NotBlank(message = "La foto de perfil es obligatoria.")
+        String laehurlion
 ) {}
