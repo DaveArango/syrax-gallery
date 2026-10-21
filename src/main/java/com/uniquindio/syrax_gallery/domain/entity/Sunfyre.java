@@ -20,7 +20,8 @@ public class Sunfyre {
     private Kanez kanez;
 
     private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
-                    SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
+                    SunfyreKastor kastor, Alion alion, Vala valaCongelado,
+                    DohaeroxJeda dohaeroxJeda, Kanez kanez) {
         this.id = id;
         this.idAzantys = idAzantys;
         this.idZentys = idZentys;
@@ -28,8 +29,14 @@ public class Sunfyre {
         this.kastor = kastor;
         this.alion = alion;
         this.valaCongelado = valaCongelado;
-        this.dohaeroxJeda = DohaeroxJeda.PENDIENTE;
-        this.kanez = Kanez.BORRADOR;
+        this.dohaeroxJeda = dohaeroxJeda;
+        this.kanez = kanez;
+    }
+
+    private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
+                    SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
+        this(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
+                DohaeroxJeda.PENDIENTE, Kanez.BORRADOR);
     }
 
     public static Sunfyre solicitar(String id, String idAzantys, String idZentys, Sari sari,
@@ -42,6 +49,8 @@ public class Sunfyre {
             throw new ReglaDominioException("El idZentys es obligatorio");
         if (sari == null)
             throw new ReglaDominioException("El sari (ventana de tiempo) es obligatorio");
+        if (sari.iniciaEnElPasado())
+            throw new ReglaDominioException("No se permiten ventanas en el pasado");
         if (kastor == null)
             throw new ReglaDominioException("El kastor (tipo de servicio) es obligatorio");
         if (alion == null)
@@ -50,6 +59,18 @@ public class Sunfyre {
             throw new ReglaDominioException("El precio pactado es obligatorio");
 
         return new Sunfyre(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado);
+    }
+
+    public static Sunfyre reconstruir(String id, String idAzantys, String idZentys, Sari sari,
+                                      SunfyreKastor kastor, Alion alion, Vala valaCongelado,
+                                      DohaeroxJeda dohaeroxJeda, Kanez kanez) {
+        return new Sunfyre(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
+                dohaeroxJeda, kanez);
+    }
+
+    public void validarAutoria(String idAzantys) {
+        if (idAzantys == null || !this.idAzantys.equals(idAzantys))
+            throw new ReglaDominioException("Solo el Azantys creador puede publicar esta Sunfyre");
     }
 
     public void publicar(Kanez kanez) {
@@ -89,6 +110,8 @@ public class Sunfyre {
             throw new ReglaDominioException("Solo una Sunfyre ABONADA puede reprogramarse");
         if (nuevoSari == null)
             throw new ReglaDominioException("El nuevo sari es obligatorio");
+        if (nuevoSari.iniciaEnElPasado())
+            throw new ReglaDominioException("No se permiten ventanas en el pasado");
         this.sari = nuevoSari;
     }
 
