@@ -8,14 +8,12 @@ import com.uniquindio.syrax_gallery.application.usecase.VerificarIdentidadAzanty
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
+import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
-
 import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -29,10 +27,9 @@ public class AzantysController {
     private final VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase;
     private final AzantysMapper mapper;
 
-    public AzantysController(
-            RegistrarAzantysUseCase registrarAzantysUseCase,
-            VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase,
-            AzantysMapper mapper) {
+    public AzantysController(RegistrarAzantysUseCase registrarAzantysUseCase,
+                             VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase,
+                             AzantysMapper mapper) {
         this.registrarAzantysUseCase = registrarAzantysUseCase;
         this.verificarIdentidadAzantysUseCase = verificarIdentidadAzantysUseCase;
         this.mapper = mapper;
@@ -45,10 +42,10 @@ public class AzantysController {
         Azantys azantys = registrarAzantysUseCase.ejecutar(
                 UUID.randomUUID().toString(),
                 request.nombre(),
-                kostion, runiapos);
+                kostion,
+                runiapos);
 
-        AzantysDetalleResponse response =
-                mapper.toDetalleResponse(azantys);
+        AzantysDetalleResponse response = mapper.toDetalleResponse(azantys);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -56,14 +53,17 @@ public class AzantysController {
                 .buildAndExpand(azantys.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.created(location).body(response); 
     }
 
     @PutMapping("/{id}/identidad")
-    public ResponseEntity<AzantysDetalleResponse> verificarIdentidad(
-            @PathVariable String id,
-            @Valid @RequestBody VerificarIdentidadRequest request) {
-        Azantys azantys = verificarIdentidadAzantysUseCase.ejecutar(id, new Iksia(request.iksia()));
+    public ResponseEntity<AzantysDetalleResponse> verificarIdentidad(@PathVariable String id,
+                                                                     @Valid @RequestBody VerificarIdentidadRequest request) {
+        Azantys azantys = verificarIdentidadAzantysUseCase.ejecutar(
+                id,
+                new Iksia(request.iksia()),
+                new Laehurlion(request.laehurlion()));
+
         return ResponseEntity.ok(mapper.toDetalleResponse(azantys));
     }
 }
