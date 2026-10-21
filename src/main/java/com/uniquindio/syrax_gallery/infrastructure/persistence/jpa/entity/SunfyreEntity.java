@@ -1,0 +1,58 @@
+package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity;
+
+import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
+import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
+import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "sunfyre")
+@Getter @Setter
+@NoArgsConstructor
+public class SunfyreEntity {
+
+    @Id
+    @Column(length = 36)
+    private String id;
+
+    @Column(name = "id_azantys", nullable = false, length = 36)
+    private String idAzantys;
+
+    @Column(name = "id_zentys", nullable = false, length = 36)
+    private String idZentys;
+
+    @Column(name = "sari_inicio", nullable = false)
+    private LocalDateTime sariInicio;
+
+    @Column(name = "sari_fin", nullable = false)
+    private LocalDateTime sariFin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private SunfyreKastor kastor;
+
+    @Embedded
+    private AlionEmbeddable alion;
+
+    @Embedded
+    private ValaEmbeddable valaCongelado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dohaerox_jeda", nullable = false, length = 20)
+    private DohaeroxJeda dohaeroxJeda;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Kanez kanez;
+}
