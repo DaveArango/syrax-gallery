@@ -194,4 +194,42 @@ public class AzantysTest {
 
         assertNotEquals(a, b);
     }
+
+    @Test
+    void alCrearQuedaPendienteDeVerificacion() {
+        Azantys azantys = azantysBase();
+
+        assertFalse(azantys.estaHabilitadoParaPublicar());
+    }
+
+    @Test
+    void conIdentidadYFotoQuedaHabilitadoParaPublicar() {
+        Azantys azantys = azantysBase();
+        azantys.verificarIksia(new Iksia("1234567"));
+        azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
+
+        assertTrue(azantys.estaHabilitadoParaPublicar());
+    }
+
+    @Test
+    void reconstruirConservaElEstadoDeVerificacion() {
+        Iksia iksia = new Iksia("1234567");
+        Laehurlion foto = new Laehurlion("https://cdn.syraxgallery.com/az-001.png");
+
+        Azantys azantys = Azantys.reconstruir("az-001", "Rhaenyra", true,
+                kostionValida(), runiaposValida(), iksia, true, foto, true);
+
+        assertTrue(azantys.isIksiaVerificada());
+        assertTrue(azantys.isLaehurlionVerificado());
+        assertEquals(iksia, azantys.getIksia());
+        assertTrue(azantys.validarHabilitacionParaPublicar());
+    }
+
+    @Test
+    void unAzantysReconstruidoYaVerificadoNoPuedeVerificarseOtraVez() {
+        Azantys azantys = Azantys.reconstruir("az-001", "Rhaenyra", true,
+                kostionValida(), runiaposValida(), new Iksia("1234567"), true, null, false);
+
+        assertThrows(ReglaDominioException.class, () -> azantys.verificarIksia(new Iksia("7654321")));
+    }
 }
