@@ -53,7 +53,7 @@ public class AzantysController {
                 .buildAndExpand(azantys.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(response); 
+        return ResponseEntity.created(location).body(response);
     }
 
     @PutMapping("/{id}/identidad")
