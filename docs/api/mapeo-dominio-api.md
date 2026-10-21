@@ -20,4 +20,4 @@
 | Operación del dominio | Método HTTP | Endpoint |
 |---|---|---|
 | Azantys.crear(...) | POST | /api/azantys |
-| azantys.verificarIdentidad(iksia) | PUT | /api/azantys/{id}/identidad |
+| azantys.verificarIksia(iksia) + azantys.subirLaehurlion(laehurlion) | PUT | /api/azantys/{id}/identidad |

@@ -95,8 +95,6 @@ Caraxes) porque la operación también necesita el `azantysId` del actor.
 | nombre | Un Azantys siempre tiene nombre (no vacío) |
 | kostion | Especialidad artística (3 a 100 caracteres); se convierte en el VO Kostion |
 | runiapos | Correo con formato válido; se convierte en el VO Runiapos |
-| lentorId | Estudio al que pertenece. Es opcional: un artista puede ser independiente, pero si viene no puede ser vacío |
-
 No se reciben:
 - `id`: lo genera el servidor.
 - La identidad ni la foto: se completan después, en sus propias operaciones.
@@ -106,6 +104,7 @@ No se reciben:
 | Campo | Por qué es necesario |
 |---|---|
 | iksia | Número de documento (6 a 10 dígitos). Es la base de la regla "el vendedor debe completar su identificación para publicar" |
+| laehurlion | Url de la foto de perfil del artista que va a publicar las obras en el ecommerce |
 
 El `id` del Azantys va en la ruta.
 
@@ -115,9 +114,9 @@ El `id` del Azantys va en la ruta.
 |---|---|
 | id | Identidad del artista |
 | nombre, kostion, runiapos | Datos del perfil |
-| lentorId | Estudio al que pertenece (puede ser nulo) |
 | activo | Si la cuenta está habilitada |
 | iksiaVerificada, laehurlionVerificado | Indican si ya cumple los dos requisitos para publicar |
+| habilitadoParaPublicar | Si la cuenta puede publicar |
 
 No se devuelve el número de documento (`iksia`): es un dato sensible y el cliente solo
 necesita saber si ya fue verificado.
