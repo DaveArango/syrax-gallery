@@ -12,8 +12,9 @@ public record Sari(LocalDateTime inicio,
             throw new ReglaDominioException("Inicio y fin son obligatorios");
         if (!fin.isAfter(inicio))
             throw new ReglaDominioException("El fin debe ser posterior al inicio");
-        if (inicio.isBefore(LocalDateTime.now()))
-            throw new ReglaDominioException("No se permiten ventanas en el pasado");
     }
 
+    public boolean iniciaEnElPasado() {
+        return inicio.isBefore(LocalDateTime.now());
+    }
 }
