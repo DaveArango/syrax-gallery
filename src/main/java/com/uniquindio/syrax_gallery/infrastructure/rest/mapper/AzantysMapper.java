@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class AzantysMapper {
 
     public AzantysDetalleResponse toDetalleResponse(Azantys azantys) {
-
         return new AzantysDetalleResponse(
                 azantys.getId(),
                 azantys.getNombre(),
@@ -16,7 +15,8 @@ public class AzantysMapper {
                 azantys.getRuniapos().direccion(),
                 azantys.isActivo(),
                 azantys.isIksiaVerificada(),
-                azantys.isLaehurlionVerificado()
+                azantys.isLaehurlionVerificado(),
+                azantys.estaHabilitadoParaPublicar()
         );
     }
 }
