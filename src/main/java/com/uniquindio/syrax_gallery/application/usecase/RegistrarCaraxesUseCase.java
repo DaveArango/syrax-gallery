@@ -6,6 +6,7 @@ import com.uniquindio.syrax_gallery.domain.repository.CaraxesRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +14,7 @@ public class RegistrarCaraxesUseCase {
     private final CaraxesRepository caraxesRepository;
     private final AzantysRepository azantysRepository;
 
+    @Transactional
     public Caraxes ejecutar(String id,
                             String azantysId,
                             Vala vala,

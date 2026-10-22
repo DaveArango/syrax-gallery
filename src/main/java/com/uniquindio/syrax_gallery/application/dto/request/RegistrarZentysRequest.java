@@ -4,10 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 
 // Mapea a: POST /api/zentys
 public record RegistrarZentysRequest(
-        @NotBlank(message = "El id del Zentys es obligatorio.")
-        String zentysId,
-
         @NotBlank(message = "El nombre del Zentys es obligatorio.")
-        String nombre
+        String nombre,
+
+        @NotBlank(message = "El runiapo del Zentys es obligatorio.")
+        String runiapos,
+
+        @NotBlank(message = "El indior del Zentys es obligatorio")
+        String indior
 ) {
 }

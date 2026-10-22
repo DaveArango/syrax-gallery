@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/caraxes")
@@ -35,13 +36,23 @@ public class CaraxesController {
 
     @PostMapping
     public ResponseEntity<CaraxesDetalleResponse> crear (@Valid @RequestBody RegistrarCaraxesRequest request){
-        Vala vala = new Vala(200000, "COP");
-        Sete sete = new Sete("La noche estrellada de Van Gogh");
-        Jorva jorva = new Jorva("Magnifica obra física");
-        Urnebion urnebion = new Urnebion("https://cdn.syrax.com/obras/la-noche-estrellada-van.jpg");
-        CaraxesKastor kastor = CaraxesKastor.PINTURA;
+        Vala vala = new Vala(
+                request.monto(),
+                request.divisa()
+        );
+        Sete sete = new Sete(
+                request.sete()
+        );
+        Jorva jorva = new Jorva(
+                request.jorva()
+        );
+        Urnebion urnebion = new Urnebion(
+                request.urnebion()
+        );
+        CaraxesKastor kastor = CaraxesKastor.valueOf(request.kastor().toUpperCase());
 
-        Caraxes caraxes = registrarCaraxesUseCase.ejecutar("id-generado",
+        Caraxes caraxes = registrarCaraxesUseCase.ejecutar(
+                UUID.randomUUID().toString(),
                 request.azantysId(),
                 vala,
                 sete,

@@ -7,6 +7,7 @@ import com.uniquindio.syrax_gallery.domain.repository.CaraxesRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ public class PublicarCaraxesUseCase {
     private final CaraxesRepository caraxesRepository;
     private final AzantysRepository azantysRepository;
 
+    @Transactional
     public Caraxes ejecutar(String id, Kanez destino) {
         Caraxes caraxes = caraxesRepository.obtener(id)
                 .orElseThrow( () -> new IllegalArgumentException("Caraxes no encontrado"));

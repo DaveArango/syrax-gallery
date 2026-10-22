@@ -6,12 +6,14 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Indior;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RegistrarZentysUseCase {
     private final ZentysRepository repository;
 
+    @Transactional
     public Zentys ejecutar(String id,
                            String nombre,
                            Runiapos runiapos,

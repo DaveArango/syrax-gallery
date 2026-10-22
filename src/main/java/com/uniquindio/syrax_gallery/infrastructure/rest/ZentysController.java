@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/zentys")
@@ -31,11 +32,12 @@ public class ZentysController {
 
     @PostMapping
     public ResponseEntity<ZentysDetalleResponse> crear (@Valid @RequestBody RegistrarZentysRequest request){
-        Runiapos runiapos = new Runiapos("david@gmail.com");
-        Indior indior = new Indior("Soy yo de nuevo");
+        Runiapos runiapos = new Runiapos(request.runiapos());
+        Indior indior = new Indior(request.indior());
 
-        Zentys zentys = registrarZentysUseCase.ejecutar("zentys-01",
-                "david",
+        Zentys zentys = registrarZentysUseCase.ejecutar(
+                UUID.randomUUID().toString(),
+                request.nombre(),
                 runiapos,
                 indior);
 

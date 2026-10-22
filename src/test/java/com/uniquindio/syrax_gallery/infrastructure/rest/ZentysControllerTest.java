@@ -43,7 +43,7 @@ public class ZentysControllerTest {
                 """;
 
         Runiapos runiapos = new Runiapos("david@gmail.com");
-        Indior indior = new Indior("Soy yo de nuevo");
+        Indior indior = new Indior("Soy una descripción.");
 
         Zentys zentysSimulado = Zentys.crear("zentys-01",
                 "david",
