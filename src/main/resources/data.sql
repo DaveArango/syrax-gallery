@@ -8,7 +8,7 @@ INSERT INTO sunfyre (id, id_azantys, id_zentys, sari_inicio, sari_fin, kastor, a
                                                                                                                                                                                            ('sf-002', 'az-002', 'zentys-01', '2027-04-02 08:00:00', '2027-04-02 17:00:00', 'MURAL',               'Pereira', 'Colombia', 4.8133, -75.6961, 2500000, 'COP', 'PENDIENTE', 'BORRADOR'),
                                                                                                                                                                                            ('sf-003', 'az-001', 'zentys-01', '2027-05-15 15:00:00', '2027-05-15 17:00:00', 'RETRATO_TRADICIONAL', 'Armenia', 'Colombia', 4.5339, -75.6811,  300000, 'COP', 'ABONADO',   'EXHIBICION');
 
-INSERT INTO zentys (id, nombre, runiapos_direccion, indior_descripcion, activo) VALUES
+INSERT INTO zentys (id, nombre, runiapos_direccion, indior_descripcion, esta_activo) VALUES
                                                                                     ('zentys-01', 'Alicent Hightower', 'alicent.hightower@gmail.com', 'Me interesan los tatuajes realistas, el muralismo urbano y los retratos en vivo.',            TRUE),
                                                                                     ('zentys-02', 'Aegon Targaryen',   'aegon.targaryen@gmail.com',   'Coleccionista de pintura al oleo y esculturas en bronce. Busco obras unicas para mi casa.', TRUE),
                                                                                     ('zentys-03', 'Helaena Targaryen', 'helaena.targaryen@gmail.com', 'Aficionada a la fotografia de paisaje y al grabado artesanal.',                                    FALSE);
