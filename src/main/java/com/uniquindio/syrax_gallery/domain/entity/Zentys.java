@@ -13,17 +13,25 @@ public class Zentys {
     private String nombre;
     private Runiapos runiapos;
     private Indior indior;
-    private boolean activo;
+    private boolean estaActivo;
 
     public Zentys(String id,
                   String nombre,
                   Runiapos runiapos,
-                  Indior indior) {
+                  Indior indior,
+                  boolean estaActivo) {
         this.id = id;
         this.nombre = nombre;
         this.runiapos = runiapos;
         this.indior = indior;
-        this.activo = true;
+        this.estaActivo = estaActivo;
+    }
+
+    private Zentys(String id,
+                   String nombre,
+                   Runiapos runiapos,
+                   Indior indior) {
+        this(id, nombre, runiapos, indior, true);
     }
 
     public static Zentys crear(String id,
@@ -36,6 +44,14 @@ public class Zentys {
             throw new ReglaDominioException("El nombre del Zentys no puede contener caracteres especiales.");
         }
         return new Zentys(id, nombre, runiapos, indior);
+    }
+
+    public static Zentys reconstruir(String id,
+                                     String nombre,
+                                     Runiapos runiapos,
+                                     Indior indior,
+                                     boolean estaActivo){
+        return new Zentys(id, nombre, runiapos, indior, estaActivo);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class ZentysMapper {
                 zentys.getNombre(),
                 zentys.getRuniapos().direccion(),
                 zentys.getIndior().descripcion(),
-                zentys.isActivo()
+                zentys.isEstaActivo()
         );
     }
 }

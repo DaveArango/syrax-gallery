@@ -1,5 +1,6 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity;
 
+import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,5 @@ public class ZentysEntity {
     private IndiorEmbeddable indior;
 
     @Column(nullable = false)
-    private boolean activo;
+    private boolean estaActivo;
 }
