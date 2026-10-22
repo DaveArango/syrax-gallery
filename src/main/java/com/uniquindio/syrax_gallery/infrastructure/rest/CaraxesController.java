@@ -49,7 +49,7 @@ public class CaraxesController {
         Urnebion urnebion = new Urnebion(
                 request.urnebion()
         );
-        CaraxesKastor kastor = CaraxesKastor.valueOf(request.kastor().toUpperCase());
+        CaraxesKastor kastor = CaraxesKastor.desde(request.kastor());
 
         Caraxes caraxes = registrarCaraxesUseCase.ejecutar(
                 UUID.randomUUID().toString(),
