@@ -23,7 +23,8 @@ public class Caraxes {
                     Sete sete,
                     Jorva jorva,
                     Urnebion urnebion,
-                    CaraxesKastor kastor){
+                    CaraxesKastor kastor,
+                    Kanez kanez){
         this.id = id;
         this.idAzantys = azantysId;
         this.vala = vala;
@@ -31,7 +32,18 @@ public class Caraxes {
         this.jorva = jorva;
         this.urnebion = urnebion;
         this.kastor = kastor;
-        this.kanez = Kanez.BORRADOR;
+        this.kanez = kanez;
+    }
+
+    private Caraxes(String id,
+                    String azantysId,
+                    Vala vala,
+                    Sete sete,
+                    Jorva jorva,
+                    Urnebion urnebion,
+                    CaraxesKastor kastor){
+
+        this(id, azantysId, vala, sete, jorva, urnebion, kastor, Kanez.BORRADOR);
     }
 
     public static Caraxes crear(String id,
@@ -49,6 +61,17 @@ public class Caraxes {
         if (urnebion == null) throw new ReglaDominioException("El Urnebion no puede ser nulo.");
         if (kastor == null) throw new ReglaDominioException("El Kastor no puede ser nulo.");
         return new Caraxes(id, idAzantys, vala, sete, jorva, urnebion, kastor);
+    }
+
+    public static Caraxes reconstruir(String id,
+                                      String azantysId,
+                                      Vala vala,
+                                      Sete sete,
+                                      Jorva jorva,
+                                      Urnebion urnebion,
+                                      CaraxesKastor kastor,
+                                      Kanez kanez){
+        return new Caraxes(id, azantysId, vala, sete, jorva, urnebion, kastor, kanez);
     }
 
     public void publicarParaExhibicion() {
