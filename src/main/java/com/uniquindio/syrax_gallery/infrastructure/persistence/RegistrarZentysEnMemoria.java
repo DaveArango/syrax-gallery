@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Repository
+//@Repository
 public class RegistrarZentysEnMemoria implements ZentysRepository {
     private final Map<String, Zentys> zentysMap = new HashMap<>();
 

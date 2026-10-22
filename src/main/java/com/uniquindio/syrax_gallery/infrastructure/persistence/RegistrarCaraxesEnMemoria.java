@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Repository
+//@Repository
 public class RegistrarCaraxesEnMemoria implements CaraxesRepository {
     private final Map<String, Caraxes> caraxesMap = new HashMap<>();
 
