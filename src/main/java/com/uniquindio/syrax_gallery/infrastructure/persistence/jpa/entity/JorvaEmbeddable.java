@@ -14,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JorvaEmbeddable {
 
-    @Column(name = "jorva_descripcion", nullable = false, length = 300)
+    @Column(name = "jorva_descripcion", nullable = false, length = 1000)
     private String descripcion;
 }

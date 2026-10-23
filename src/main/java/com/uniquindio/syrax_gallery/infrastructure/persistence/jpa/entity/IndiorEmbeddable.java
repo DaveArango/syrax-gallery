@@ -14,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class IndiorEmbeddable {
 
-    @Column(name = "indior_descripcion", nullable = false, length = 200)
+    @Column(name = "indior_descripcion", nullable = false, length = 300)
     private String descripcion;
 }
