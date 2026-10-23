@@ -10,6 +10,7 @@ import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -20,17 +21,18 @@ public class CrearSunfyreUseCase {
     private final SunfyreRepository sunfyreRepository;
     private final AzantysRepository azantysRepository;
     private final ZentysRepository zentysRepository;
-
+    
+    @Transactional
     public Sunfyre ejecutar(String id, String azantysId, String zentysId, Sari sari,
                             SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
         azantysRepository.obtener(azantysId)
                 .orElseThrow(() -> new NoSuchElementException("Azantys no encontrado"));
         zentysRepository.obtener(zentysId)
                 .orElseThrow(() -> new NoSuchElementException("Zentys no encontrado"));
+
         Sunfyre sunfyre = Sunfyre.solicitar(id, azantysId, zentysId,
                 sari, kastor, alion, valaCongelado);
         sunfyreRepository.guardar(sunfyre);
-
         return sunfyre;
     }
 }
