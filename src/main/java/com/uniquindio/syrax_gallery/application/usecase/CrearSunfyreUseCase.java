@@ -21,7 +21,7 @@ public class CrearSunfyreUseCase {
     private final SunfyreRepository sunfyreRepository;
     private final AzantysRepository azantysRepository;
     private final ZentysRepository zentysRepository;
-    
+
     @Transactional
     public Sunfyre ejecutar(String id, String azantysId, String zentysId, Sari sari,
                             SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
