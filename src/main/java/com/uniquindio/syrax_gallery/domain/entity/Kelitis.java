@@ -11,22 +11,28 @@ import java.util.Objects;
 public class Kelitis {
 
     private final String id;
+    private final String idSunfyre;
     private final String idAzantys;
     private final String idZentys;
     private final Vala valaCongelado;
     private Gelior gelior;
 
-    private Kelitis(String id, String idAzantys, String idZentys, Vala valaCongelado) {
+    private Kelitis(String id, String idSunfyre, String idAzantys, String idZentys,
+                    Vala valaCongelado, Gelior gelior) {
         this.id = id;
+        this.idSunfyre = idSunfyre;
         this.idAzantys = idAzantys;
         this.idZentys = idZentys;
         this.valaCongelado = valaCongelado;
-        this.gelior = Gelior.RETENIDO;
+        this.gelior = gelior;
     }
 
-    public static Kelitis realizar(String id, String idAzantys, String idZentys, Vala valaCongelado) {
+    public static Kelitis realizar(String id, String idSunfyre, String idAzantys, String idZentys,
+                                   Vala valaCongelado) {
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id del Kelitis es obligatorio");
+        if (idSunfyre == null || idSunfyre.isBlank())
+            throw new ReglaDominioException("El idSunfyre es obligatorio");
         if (idAzantys == null || idAzantys.isBlank())
             throw new ReglaDominioException("El idAzantys es obligatorio");
         if (idZentys == null || idZentys.isBlank())
@@ -34,7 +40,18 @@ public class Kelitis {
         if (valaCongelado == null)
             throw new ReglaDominioException("El monto retenido es obligatorio");
 
-        return new Kelitis(id, idAzantys, idZentys, valaCongelado);
+        return new Kelitis(id, idSunfyre, idAzantys, idZentys, valaCongelado, Gelior.RETENIDO);
+    }
+
+
+    public static Kelitis reconstruir(String id, String idSunfyre, String idAzantys, String idZentys,
+                                      Vala valaCongelado, Gelior gelior) {
+        return new Kelitis(id, idSunfyre, idAzantys, idZentys, valaCongelado, gelior);
+    }
+
+    public void validarCliente(String idZentys) {
+        if (idZentys == null || !this.idZentys.equals(idZentys))
+            throw new ReglaDominioException("Solo el Zentys del servicio puede aprobar este Kelitis");
     }
 
     public void liberarPago() {

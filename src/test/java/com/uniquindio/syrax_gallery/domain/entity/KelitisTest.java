@@ -11,16 +11,17 @@ class KelitisTest {
 
     private Kelitis kelitisRetenido() {
         Vala monto = new Vala(150000, "COP");
-        return Kelitis.realizar("kl-001", "az-001", "ze-001", monto);
+        return Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", monto);
     }
 
     @Test
     void crearKelitisEnEstadoRetenido() {
         Vala monto = new Vala(150000, "COP");
 
-        Kelitis kelitis = Kelitis.realizar("kl-001", "az-001", "ze-001", monto);
+        Kelitis kelitis = Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", monto);
 
         assertEquals(Gelior.RETENIDO, kelitis.getGelior());
+        assertEquals("sf-001", kelitis.getIdSunfyre());
         assertEquals("az-001", kelitis.getIdAzantys());
         assertEquals("ze-001", kelitis.getIdZentys());
         assertEquals(monto, kelitis.getValaCongelado());
@@ -29,12 +30,13 @@ class KelitisTest {
     @Test
     void noDebeCrearKelitisSinMonto() {
         assertThrows(ReglaDominioException.class,
-                () -> Kelitis.realizar(
-                        "kl-001",
-                        "az-001",
-                        "ze-001",
-                        null)
-        );
+                () -> Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", null));
+    }
+
+    @Test
+    void noDebeCrearKelitisSinSunfyre() {
+        assertThrows(ReglaDominioException.class,
+                () -> Kelitis.realizar("kl-001", " ", "az-001", "ze-001", new Vala(150000, "COP")));
     }
 
     @Test
@@ -112,5 +114,28 @@ class KelitisTest {
         assertThrows(ReglaDominioException.class, () -> kelitis.solicitarReembolso("Quiero devolver el dinero"));
 
         assertEquals(Gelior.COMPLETADO, kelitis.getGelior());
+    }
+
+    @Test
+    void validarClienteAceptaAlZentysDelServicio() {
+        Kelitis kelitis = kelitisRetenido();
+
+        assertDoesNotThrow(() -> kelitis.validarCliente("ze-001"));
+    }
+
+    @Test
+    void validarClienteRechazaAOtroZentys() {
+        Kelitis kelitis = kelitisRetenido();
+
+        assertThrows(ReglaDominioException.class, () -> kelitis.validarCliente("ze-999"));
+    }
+
+    @Test
+    void reconstruirConservaElEstado() {
+        Kelitis kelitis = Kelitis.reconstruir("kl-009", "sf-009", "az-001", "ze-001",
+                new Vala(150000, "COP"), Gelior.LIBERADO);
+
+        assertEquals(Gelior.LIBERADO, kelitis.getGelior());
+        assertThrows(ReglaDominioException.class, kelitis::liberarPago);
     }
 }
