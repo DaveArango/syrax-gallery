@@ -1,7 +1,9 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
+import com.uniquindio.syrax_gallery.application.dto.request.AprobarEjecucionKelitisRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.ConstituirKelitisRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.KelitisDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.AprobarEjecucionKelitisUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ConstituirKelitisUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerKelitisUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
@@ -20,13 +22,16 @@ public class KelitisController {
 
     private final ConstituirKelitisUseCase constituirKelitisUseCase;
     private final ObtenerKelitisUseCase obtenerKelitisUseCase;
+    private final AprobarEjecucionKelitisUseCase aprobarEjecucionUseCase;
     private final KelitisMapper mapper;
 
     public KelitisController(ConstituirKelitisUseCase constituirKelitisUseCase,
                              ObtenerKelitisUseCase obtenerKelitisUseCase,
+                             AprobarEjecucionKelitisUseCase aprobarEjecucionUseCase,
                              KelitisMapper mapper) {
         this.constituirKelitisUseCase = constituirKelitisUseCase;
         this.obtenerKelitisUseCase = obtenerKelitisUseCase;
+        this.aprobarEjecucionUseCase = aprobarEjecucionUseCase;
         this.mapper = mapper;
     }
 
@@ -48,4 +53,10 @@ public class KelitisController {
         return ResponseEntity.ok(mapper.toDetalleResponse(obtenerKelitisUseCase.ejecutar(id)));
     }
 
+    @PutMapping("/{id}/aprobar")
+    public ResponseEntity<KelitisDetalleResponse> aprobar(@PathVariable String id,
+                                                          @Valid @RequestBody AprobarEjecucionKelitisRequest request) {
+        Kelitis kelitis = aprobarEjecucionUseCase.ejecutar(id, request.zentysId());
+        return ResponseEntity.ok(mapper.toDetalleResponse(kelitis));
+    }
 }

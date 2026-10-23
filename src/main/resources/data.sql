@@ -38,3 +38,8 @@ INSERT INTO sunfyre (id, id_azantys, id_zentys, sari_inicio, sari_fin, kastor, a
                                                                                                                                                                                            ('sf-007', 'az-004', 'zentys-01', '2027-06-01 10:00:00', '2027-06-01 12:00:00', 'ARTE_PIEL',     'Manizales', 'Colombia', 5.0703, -75.5138,  220000, 'COP', 'PENDIENTE', 'EN_VENTA'),
                                                                                                                                                                                            ('sf-008', 'az-001', 'zentys-02', '2027-07-10 14:00:00', '2027-07-10 17:00:00', 'CUSTOMIZACION', 'Bogota',    'Colombia', 4.7110, -74.0721,   90000, 'COP', 'PENDIENTE', 'EN_VENTA'),
                                                                                                                                                                                            ('sf-009', 'az-004', 'zentys-02', '2027-08-15 08:00:00', '2027-08-15 17:00:00', 'MURAL',         'Armenia',   'Colombia', 4.5339, -75.6811, 1800000, 'COP', 'PENDIENTE', 'EXHIBICION');
+
+
+INSERT INTO kelitis (id, id_sunfyre, id_azantys, id_zentys, vala_monto, vala_divisa, gelior) VALUES
+                                                                                                 ('kl-001', 'sf-003', 'az-001', 'zentys-01', 300000, 'COP', 'RETENIDO'),
+                                                                                                 ('kl-002', 'sf-004', 'az-001', 'zentys-02', 180000, 'COP', 'RETENIDO');
