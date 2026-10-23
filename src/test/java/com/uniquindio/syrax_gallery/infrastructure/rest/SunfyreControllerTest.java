@@ -1,11 +1,13 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.SunfyreDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.SunfyreMapper;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +43,9 @@ class SunfyreControllerTest {
     private PublicarSunfyreUseCase publicarSunfyreUseCase;
 
     @MockitoBean
+    private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
+
+    @MockitoBean
     private SunfyreMapper mapper;
 
     private Sunfyre sunfyreSimulada() {
@@ -49,6 +55,16 @@ class SunfyreControllerTest {
                 new Alion("Armenia", "Colombia", 4.5339, -75.6811),
                 new Vala(150000, "COP"));
     }
+
+    private SunfyreDetalleResponse respuestaDe(Sunfyre sunfyre, String kanez) {
+        return new SunfyreDetalleResponse(
+                sunfyre.getId(), sunfyre.getIdAzantys(), sunfyre.getIdZentys(),
+                sunfyre.getSari().inicio(), sunfyre.getSari().fin(),
+                "ARTE_PIEL", "Armenia", "Colombia",
+                150000, "COP", "PENDIENTE", kanez);
+    }
+
+    // ---------- POST /api/sunfyre ----------
 
     @Test
     void deberiaCrearSunfyreCuandoDatosValidos() throws Exception {
@@ -150,15 +166,13 @@ class SunfyreControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // ---------- GET /api/sunfyre/{id} ----------
+
     @Test
     void deberiaRetornarElDetalleDeLaSunfyre() throws Exception {
         Sunfyre sunfyre = sunfyreSimulada();
         when(obtenerSunfyreUseCase.ejecutar("sf-001")).thenReturn(sunfyre);
-        when(mapper.toDetalleResponse(sunfyre)).thenReturn(new SunfyreDetalleResponse(
-                "sf-001", "az-001", "ze-001",
-                sunfyre.getSari().inicio(), sunfyre.getSari().fin(),
-                "ARTE_PIEL", "Armenia", "Colombia",
-                150000, "COP", "PENDIENTE", "BORRADOR"));
+        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "BORRADOR"));
 
         mockMvc.perform(get("/api/sunfyre/sf-001"))
                 .andExpect(status().isOk())
@@ -176,9 +190,10 @@ class SunfyreControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // ---------- PUT /api/sunfyre/{id}/publicar ----------
+
     @Test
     void deberiaPublicarSunfyreCuandoDatosValidos() throws Exception {
-        // Arrange
         String requestJson = """
                 {
                     "azantysId": "az-001",
@@ -189,7 +204,6 @@ class SunfyreControllerTest {
         sunfyre.publicar(Kanez.EXHIBICION);
         when(publicarSunfyreUseCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION)).thenReturn(sunfyre);
 
-        // Act & Assert
         mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -226,5 +240,37 @@ class SunfyreControllerTest {
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
+    }
+    
+    @Test
+    void deberiaBuscarEnElCatalogoConFiltros() throws Exception {
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.publicar(Kanez.EN_VENTA);
+        when(consultarCatalogoSunfyreUseCase.buscar("armenia", SunfyreKastor.ARTE_PIEL, 0, 5))
+                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 5));
+        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "EN_VENTA"));
+
+        mockMvc.perform(get("/api/sunfyre")
+                        .param("ciudad", "armenia")
+                        .param("kastor", "ARTE_PIEL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.content[0].kanez").value("EN_VENTA"))
+                .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElKastorNoExiste() throws Exception {
+        mockMvc.perform(get("/api/sunfyre").param("kastor", "PINTURA"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaPaginaEsNegativa() throws Exception {
+        when(consultarCatalogoSunfyreUseCase.buscar(null, null, -1, 5))
+                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+
+        mockMvc.perform(get("/api/sunfyre").param("page", "-1"))
+                .andExpect(status().isBadRequest());
     }
 }
