@@ -4,6 +4,7 @@ import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -13,6 +14,7 @@ public class ObtenerSunfyreUseCase {
 
     private final SunfyreRepository repository;
 
+    @Transactional(readOnly = true)
     public Sunfyre ejecutar(String id) {
         return repository.obtener(id)
                 .orElseThrow(() -> new NoSuchElementException("Sunfyre no encontrada"));
