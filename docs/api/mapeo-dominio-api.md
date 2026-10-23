@@ -21,3 +21,6 @@
 |---|---|---|
 | Azantys.crear(...) | POST | /api/azantys |
 | azantys.verificarIksia(iksia) + azantys.subirLaehurlion(laehurlion) | PUT | /api/azantys/{id}/identidad |
+| consultar perfiles (paginado) | GET | /api/azantys?busqueda=&page=&size= |
+| consultar perfil | GET | /api/azantys/{id} |
+| ranking por Sunfyre completadas | GET | /api/azantys/mas-solicitados?limite= |

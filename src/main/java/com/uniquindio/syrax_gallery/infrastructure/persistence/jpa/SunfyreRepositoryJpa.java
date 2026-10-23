@@ -1,16 +1,28 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa;
 
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
+import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
+import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
+import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity.SunfyreEntity;
 import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.mapper.SunfyrePersistenceMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
 public class SunfyreRepositoryJpa implements SunfyreRepository {
+
+    private static final Set<Kanez> PUBLICADAS = EnumSet.of(Kanez.EXHIBICION, Kanez.EN_VENTA);
 
     private final SunfyreJpaDataRepository dataRepository;
     private final SunfyrePersistenceMapper mapper;
@@ -23,5 +35,22 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
     @Override
     public void guardar(Sunfyre sunfyre) {
         dataRepository.save(mapper.toEntity(sunfyre));
+    }
+
+    @Override
+    public Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor, int pagina, int tamano) {
+        String patron = (ciudad == null) ? "" : ciudad.trim();
+        Set<SunfyreKastor> kastores = (kastor == null) ? EnumSet.allOf(SunfyreKastor.class) : EnumSet.of(kastor);
+
+        Page<SunfyreEntity> resultado = dataRepository.buscarPublicadas(
+                PUBLICADAS, DohaeroxJeda.PENDIENTE, kastores, patron,
+                PageRequest.of(pagina, tamano, Sort.by("sariInicio")));
+
+        return new Pagina<>(
+                resultado.getContent().stream().map(mapper::toDomain).toList(),
+                resultado.getTotalElements(),
+                resultado.getTotalPages(),
+                resultado.getNumber(),
+                resultado.getSize());
     }
 }
