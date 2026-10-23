@@ -1,10 +1,16 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.AzantysDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.VerificarIdentidadAzantysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
+import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.repository.AzantysServicios;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
+import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
 import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
+import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
 import org.junit.jupiter.api.Test;
@@ -13,16 +19,16 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
-import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
+
+import java.util.List;
 import java.util.NoSuchElementException;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AzantysController.class)
@@ -38,11 +44,21 @@ class AzantysControllerTest {
     private VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase;
 
     @MockitoBean
+    private ConsultarAzantysUseCase consultarAzantysUseCase;
+
+    @MockitoBean
     private AzantysMapper mapper;
+
+    private Azantys azantysVerificado() {
+        Azantys azantys = Azantys.crear("az-001", "Rhaenyra Targaryen",
+                new Kostion("Tatuaje realista"), new Runiapos("rhaenyra@syraxgallery.com"));
+        azantys.verificarIksia(new Iksia("1234567"));
+        azantys.subirLaehurlion(new Laehurlion("https://cdn.syrax.com/perfiles/az-001.jpg"));
+        return azantys;
+    }
 
     @Test
     void deberiaRegistrarAzantysCuandoDatosValidos() throws Exception {
-        // Arrange
         String requestJson = """
                 {
                     "nombre": "Rhaenyra Targaryen",
@@ -57,7 +73,6 @@ class AzantysControllerTest {
                 "az-001", "Rhaenyra Targaryen", "Tatuaje realista", "rhaenyra@syraxgallery.com",
                 true, false, false, false));
 
-        // Act & Assert
         mockMvc.perform(post("/api/azantys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -99,24 +114,17 @@ class AzantysControllerTest {
 
     @Test
     void deberiaVerificarIdentidadCuandoDatosValidos() throws Exception {
-        // Arrange
         String requestJson = """
                 {
                     "iksia": "1234567",
                     "laehurlion": "https://cdn.syrax.com/perfiles/az-001.jpg"
                 }
                 """;
-        Azantys azantysVerificado = Azantys.crear("az-001", "Rhaenyra Targaryen",
-                new Kostion("Tatuaje realista"), new Runiapos("rhaenyra@syraxgallery.com"));
-        azantysVerificado.verificarIksia(new Iksia("1234567"));
-        azantysVerificado.subirLaehurlion(new Laehurlion("https://cdn.syrax.com/perfiles/az-001.jpg"));
-
-        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), any(), any())).thenReturn(azantysVerificado);
+        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), any(), any())).thenReturn(azantysVerificado());
         when(mapper.toDetalleResponse(any())).thenReturn(new AzantysDetalleResponse(
                 "az-001", "Rhaenyra Targaryen", "Tatuaje realista", "rhaenyra@syraxgallery.com",
                 true, true, true, true));
 
-        // Act & Assert
         mockMvc.perform(put("/api/azantys/az-001/identidad")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -186,5 +194,57 @@ class AzantysControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    void deberiaBuscarAzantysPaginados() throws Exception {
+        when(consultarAzantysUseCase.buscar("tatuaje", 0, 5))
+                .thenReturn(new Pagina<>(List.of(azantysVerificado()), 1, 1, 0, 5));
+
+        mockMvc.perform(get("/api/azantys").param("busqueda", "tatuaje"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("az-001"))
+                .andExpect(jsonPath("$.content[0].kostion").value("Tatuaje realista"))
+                .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElTamanoDePaginaNoEsValido() throws Exception {
+        when(consultarAzantysUseCase.buscar(null, 0, 100))
+                .thenThrow(new ReglaDominioException("El tamaño de la página debe estar entre 1 y 50"));
+
+        mockMvc.perform(get("/api/azantys").param("size", "100"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornarElPerfilDeUnAzantys() throws Exception {
+        when(consultarAzantysUseCase.obtener("az-001")).thenReturn(azantysVerificado());
+
+        mockMvc.perform(get("/api/azantys/az-001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombre").value("Rhaenyra Targaryen"))
+                .andExpect(jsonPath("$.laehurlion").value("https://cdn.syrax.com/perfiles/az-001.jpg"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoElPerfilNoEstaDisponible() throws Exception {
+        when(consultarAzantysUseCase.obtener("az-002"))
+                .thenThrow(new NoSuchElementException("Azantys no encontrado"));
+
+        mockMvc.perform(get("/api/azantys/az-002"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deberiaRetornarElRankingDeMasSolicitados() throws Exception {
+        when(consultarAzantysUseCase.masSolicitados(3))
+                .thenReturn(List.of(new AzantysServicios("az-001", "Rhaenyra Targaryen", 3L)));
+
+        mockMvc.perform(get("/api/azantys/mas-solicitados"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].azantysId").value("az-001"))
+                .andExpect(jsonPath("$[0].servicios").value(3));
     }
 }
