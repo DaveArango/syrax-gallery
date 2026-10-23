@@ -25,3 +25,11 @@
 | consultar perfiles (paginado) | GET | /api/azantys?busqueda=&page=&size= |
 | consultar perfil | GET | /api/azantys/{id} |
 | ranking por Sunfyre completadas | GET | /api/azantys/mas-solicitados?limite= |
+
+# API - Kelitis
+
+| Operación del dominio | Método HTTP | Endpoint |
+|---|---|---|
+| Kelitis.realizar(...) + sunfyre.confirmar() | POST | /api/kelitis |
+| consultar un Kelitis | GET | /api/kelitis/{id} |
+| kelitis.liberarPago() | PUT | /api/kelitis/{id}/aprobar |
