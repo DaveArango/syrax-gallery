@@ -1,5 +1,6 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
+import com.uniquindio.syrax_gallery.application.dto.response.SunfyreDetalleResponse;
 import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -144,6 +146,32 @@ class SunfyreControllerTest {
         mockMvc.perform(post("/api/sunfyre")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deberiaRetornarElDetalleDeLaSunfyre() throws Exception {
+        Sunfyre sunfyre = sunfyreSimulada();
+        when(obtenerSunfyreUseCase.ejecutar("sf-001")).thenReturn(sunfyre);
+        when(mapper.toDetalleResponse(sunfyre)).thenReturn(new SunfyreDetalleResponse(
+                "sf-001", "az-001", "ze-001",
+                sunfyre.getSari().inicio(), sunfyre.getSari().fin(),
+                "ARTE_PIEL", "Armenia", "Colombia",
+                150000, "COP", "PENDIENTE", "BORRADOR"));
+
+        mockMvc.perform(get("/api/sunfyre/sf-001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("sf-001"))
+                .andExpect(jsonPath("$.ciudad").value("Armenia"))
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoLaSunfyreNoExiste() throws Exception {
+        when(obtenerSunfyreUseCase.ejecutar("no-existe"))
+                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+
+        mockMvc.perform(get("/api/sunfyre/no-existe"))
                 .andExpect(status().isNotFound());
     }
 }
