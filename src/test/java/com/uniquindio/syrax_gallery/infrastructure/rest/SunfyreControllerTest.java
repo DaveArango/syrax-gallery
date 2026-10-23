@@ -241,7 +241,7 @@ class SunfyreControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
-    
+
     @Test
     void deberiaBuscarEnElCatalogoConFiltros() throws Exception {
         Sunfyre sunfyre = sunfyreSimulada();
