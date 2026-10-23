@@ -5,6 +5,7 @@ import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.SunfyreMapper;
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,9 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SunfyreController.class)
@@ -173,5 +174,57 @@ class SunfyreControllerTest {
 
         mockMvc.perform(get("/api/sunfyre/no-existe"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deberiaPublicarSunfyreCuandoDatosValidos() throws Exception {
+        // Arrange
+        String requestJson = """
+                {
+                    "azantysId": "az-001",
+                    "destino": "EXHIBICION"
+                }
+                """;
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.publicar(Kanez.EXHIBICION);
+        when(publicarSunfyreUseCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION)).thenReturn(sunfyre);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltaElDestino() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElAzantysNoEstaVerificado() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-002",
+                    "destino": "EN_VENTA"
+                }
+                """;
+        when(publicarSunfyreUseCase.ejecutar(eq("az-002"), eq("sf-001"), any()))
+                .thenThrow(new ReglaDominioException("No puede publicar sin verificar su identidad."));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 }
