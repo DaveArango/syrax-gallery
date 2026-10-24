@@ -18,6 +18,7 @@ interface AzantysJpaDataRepository extends JpaRepository<AzantysEntity, String> 
             WHERE a.activo = true
             AND a.iksiaVerificada = true
             AND a.laehurlionVerificado = true
+            AND a.identidadAprobada = true
             AND (LOWER(a.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
                  OR LOWER(a.kostion) LIKE LOWER(CONCAT('%', :texto, '%')))
             """)
