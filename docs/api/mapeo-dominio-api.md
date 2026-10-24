@@ -18,6 +18,7 @@
 | sunfyre.iniciarEjecucion() | PUT | /api/sunfyre/{id}/iniciar |
 | sunfyre.finalizar() | PUT | /api/sunfyre/{id}/finalizar |
 | sunfyre.cancelar(motivo) + kelitis.solicitarReembolso(motivo) | PUT | /api/sunfyre/{id}/cancelar |
+| sunfyre.reprogramar(nuevoSari) | PUT | /api/sunfyre/{id}/reprogramar |
 
 # API - Azantys
 
