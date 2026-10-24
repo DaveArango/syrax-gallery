@@ -49,6 +49,9 @@ class SunfyreControllerTest {
     private CancelarSunfyreUseCase cancelarSunfyreUseCase;
 
     @MockitoBean
+    private ReprogramarSunfyreUseCase reprogramarSunfyreUseCase;
+
+    @MockitoBean
     private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
 
     @MockitoBean
@@ -474,5 +477,75 @@ class SunfyreControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
+    }
+
+    // ---------- PUT /api/sunfyre/{id}/reprogramar ----------
+
+    @Test
+    void deberiaReprogramarCuandoDatosValidos() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001",
+                    "inicio": "2030-05-20T10:00:00",
+                    "fin": "2030-05-20T12:00:00"
+                }
+                """;
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.confirmar();
+        when(reprogramarSunfyreUseCase.ejecutar(eq("az-001"), eq("sf-001"), any())).thenReturn(sunfyre);
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltanLasFechas() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElNuevoHorarioSeCruza() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001",
+                    "inicio": "2030-05-20T10:00:00",
+                    "fin": "2030-05-20T12:00:00"
+                }
+                """;
+        when(reprogramarSunfyreUseCase.ejecutar(eq("az-001"), eq("sf-001"), any()))
+                .thenThrow(new ReglaDominioException("El Azantys ya tiene una cita en ese horario"));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("El Azantys ya tiene una cita en ese horario"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElFinEsAntesDelInicioAlReprogramar() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001",
+                    "inicio": "2030-05-20T12:00:00",
+                    "fin": "2030-05-20T10:00:00"
+                }
+                """;
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
     }
 }
