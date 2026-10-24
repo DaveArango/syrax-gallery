@@ -73,6 +73,12 @@ public class Sunfyre {
             throw new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre");
     }
 
+    public void validarParticipante(String idParticipante) {
+        if (idParticipante == null
+                || (!idParticipante.equals(this.idAzantys) && !idParticipante.equals(this.idZentys)))
+            throw new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden cancelarla");
+    }
+
     public void publicar(Kanez kanez) {
         if (kanez == null)
             throw new ReglaDominioException("El destino de publicación es obligatorio");

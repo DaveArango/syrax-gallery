@@ -187,4 +187,49 @@ public class SunfyreTest {
 
         assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
     }
+
+    @Test
+    void cancelarUnaSunfyreAbonada() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+
+        sunfyre.cancelar("El cliente viaja esa semana");
+
+        assertEquals(DohaeroxJeda.CANCELADO, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void noPermitirCancelarUnaSunfyreEnEjecucion() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+        sunfyre.iniciarEjecucion();
+
+        assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar("Ya no la quiero"));
+
+        assertEquals(DohaeroxJeda.EN_EJECUCION, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void noPermitirCancelarSinMotivo() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar(""));
+
+        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void validarParticipanteAceptaAlAzantysYAlZentys() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertDoesNotThrow(() -> sunfyre.validarParticipante("az-001"));
+        assertDoesNotThrow(() -> sunfyre.validarParticipante("ze-001"));
+    }
+
+    @Test
+    void validarParticipanteRechazaAUnTercero() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertThrows(ReglaDominioException.class, () -> sunfyre.validarParticipante("ze-999"));
+    }
 }
