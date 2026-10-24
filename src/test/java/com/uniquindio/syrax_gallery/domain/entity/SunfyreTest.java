@@ -232,4 +232,16 @@ public class SunfyreTest {
 
         assertThrows(ReglaDominioException.class, () -> sunfyre.validarParticipante("ze-999"));
     }
+
+    @Test
+    void reprogramarUnaSunfyreAbonada() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+        Sari nuevo = new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2));
+
+        sunfyre.reprogramar(nuevo);
+
+        assertEquals(nuevo, sunfyre.getSari());
+        assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
+    }
 }

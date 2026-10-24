@@ -17,4 +17,8 @@ public record Sari(LocalDateTime inicio,
     public boolean iniciaEnElPasado() {
         return inicio.isBefore(LocalDateTime.now());
     }
+
+    public boolean seSolapaCon(Sari otro) {
+        return this.inicio.isBefore(otro.fin()) && otro.inicio().isBefore(this.fin);
+    }
 }
