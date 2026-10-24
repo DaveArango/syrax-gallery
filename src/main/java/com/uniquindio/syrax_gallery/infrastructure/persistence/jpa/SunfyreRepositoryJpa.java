@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -52,5 +53,12 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
                 resultado.getTotalPages(),
                 resultado.getNumber(),
                 resultado.getSize());
+    }
+
+    @Override
+    public List<Sunfyre> obtenerAbonadasDeAzantys(String idAzantys) {
+        return dataRepository.findByIdAzantysAndDohaeroxJeda(idAzantys, DohaeroxJeda.ABONADO).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

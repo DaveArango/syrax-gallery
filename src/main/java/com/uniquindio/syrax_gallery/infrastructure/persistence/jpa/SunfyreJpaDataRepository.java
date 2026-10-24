@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 
 interface SunfyreJpaDataRepository extends JpaRepository<SunfyreEntity, String> {
 
@@ -26,4 +27,6 @@ interface SunfyreJpaDataRepository extends JpaRepository<SunfyreEntity, String> 
                                          @Param("kastores") Collection<SunfyreKastor> kastores,
                                          @Param("ciudad") String ciudad,
                                          Pageable pageable);
+
+    List<SunfyreEntity> findByIdAzantysAndDohaeroxJeda(String idAzantys, DohaeroxJeda dohaeroxJeda);
 }
