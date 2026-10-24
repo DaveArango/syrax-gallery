@@ -15,6 +15,7 @@
 | sunfyre.get(...) | GET | /api/sunfyre/{id} |
 | sunfyre.publicar(...) | PUT | /api/sunfyre/{id}/publicar |
 | catálogo de Sunfyre publicadas (paginado) | GET | /api/sunfyre?ciudad=&kastor=&page=&size= |
+| sunfyre.iniciarEjecucion() | PUT | /api/sunfyre/{id}/iniciar |
 
 # API - Azantys
 
