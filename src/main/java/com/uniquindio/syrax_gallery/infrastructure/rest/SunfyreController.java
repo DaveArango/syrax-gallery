@@ -10,6 +10,8 @@ import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.dto.request.FinalizarSunfyreRequest;
+import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
@@ -33,6 +35,7 @@ public class SunfyreController {
     private final ObtenerSunfyreUseCase obtenerSunfyreUseCase;
     private final ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
     private final IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase;
+    private final FinalizarSunfyreUseCase finalizarSunfyreUseCase;
     private final SunfyreMapper mapper;
 
     public SunfyreController(CrearSunfyreUseCase crearSunfyreUseCase,
@@ -40,11 +43,13 @@ public class SunfyreController {
                              PublicarSunfyreUseCase publicarSunfyreUseCase,
                              ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase,
                              IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase,
+                             FinalizarSunfyreUseCase finalizarSunfyreUseCase,
                              SunfyreMapper mapper) {
         this.obtenerSunfyreUseCase = obtenerSunfyreUseCase;
         this.crearSunfyreUseCase = crearSunfyreUseCase;
         this.publicarSunfyreUseCase = publicarSunfyreUseCase;
         this.consultarCatalogoSunfyreUseCase = consultarCatalogoSunfyreUseCase;
+        this.finalizarSunfyreUseCase = finalizarSunfyreUseCase;
         this.iniciarEjecucionSunfyreUseCase = iniciarEjecucionSunfyreUseCase;
         this.mapper = mapper;
     }
@@ -96,6 +101,13 @@ public class SunfyreController {
     public ResponseEntity<SunfyreDetalleResponse> iniciarEjecucion(@PathVariable String id,
                                                                    @Valid @RequestBody IniciarEjecucionSunfyreRequest request) {
         Sunfyre sunfyre = iniciarEjecucionSunfyreUseCase.ejecutar(request.azantysId(), id);
+        return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
+    }
+
+    @PutMapping("/{id}/finalizar")
+    public ResponseEntity<SunfyreDetalleResponse> finalizar(@PathVariable String id,
+                                                            @Valid @RequestBody FinalizarSunfyreRequest request) {
+        Sunfyre sunfyre = finalizarSunfyreUseCase.ejecutar(request.azantysId(), id);
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 }

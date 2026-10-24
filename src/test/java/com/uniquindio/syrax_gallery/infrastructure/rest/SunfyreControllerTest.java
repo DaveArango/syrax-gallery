@@ -6,6 +6,7 @@ import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
@@ -45,6 +46,9 @@ class SunfyreControllerTest {
 
     @MockitoBean
     private IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase;
+
+    @MockitoBean
+    private FinalizarSunfyreUseCase finalizarSunfyreUseCase;
 
     @MockitoBean
     private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
@@ -339,5 +343,69 @@ class SunfyreControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
+    }
+
+    // ---------- PUT /api/sunfyre/{id}/finalizar ----------
+
+    @Test
+    void deberiaFinalizarCuandoDatosValidos() throws Exception {
+        // Arrange
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.confirmar();
+        sunfyre.iniciarEjecucion();
+        sunfyre.finalizar();
+        when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltaElAzantysAlFinalizar() throws Exception {
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaSunfyreNoEstaEnEjecucion() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+        when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001"))
+                .thenThrow(new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar"));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre en ejecución puede finalizar"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoOtroAzantysIntentaFinalizar() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-002"
+                }
+                """;
+        when(finalizarSunfyreUseCase.ejecutar("az-002", "sf-001"))
+                .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre"));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
     }
 }
