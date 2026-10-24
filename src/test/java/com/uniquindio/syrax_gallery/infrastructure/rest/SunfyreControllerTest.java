@@ -1,12 +1,7 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.SunfyreDetalleResponse;
-import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.*;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
@@ -49,6 +44,9 @@ class SunfyreControllerTest {
 
     @MockitoBean
     private FinalizarSunfyreUseCase finalizarSunfyreUseCase;
+
+    @MockitoBean
+    private CancelarSunfyreUseCase cancelarSunfyreUseCase;
 
     @MockitoBean
     private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
@@ -407,5 +405,74 @@ class SunfyreControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ---------- PUT /api/sunfyre/{id}/cancelar ----------
+
+    @Test
+    void deberiaCancelarCuandoDatosValidos() throws Exception {
+        String requestJson = """
+                {
+                    "solicitanteId": "ze-001",
+                    "motivo": "El cliente viaja esa semana"
+                }
+                """;
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.cancelar("El cliente viaja esa semana");
+        when(cancelarSunfyreUseCase.ejecutar("sf-001", "ze-001", "El cliente viaja esa semana")).thenReturn(sunfyre);
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltaElMotivo() throws Exception {
+        String requestJson = """
+                {
+                    "solicitanteId": "ze-001"
+                }
+                """;
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaSunfyreYaInicio() throws Exception {
+        String requestJson = """
+                {
+                    "solicitanteId": "ze-001",
+                    "motivo": "Ya no la quiero"
+                }
+                """;
+        when(cancelarSunfyreUseCase.ejecutar("sf-001", "ze-001", "Ya no la quiero"))
+                .thenThrow(new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoLaSunfyreNoExisteAlCancelar() throws Exception {
+        String requestJson = """
+                {
+                    "solicitanteId": "ze-001",
+                    "motivo": "El cliente viaja esa semana"
+                }
+                """;
+        when(cancelarSunfyreUseCase.ejecutar("no-existe", "ze-001", "El cliente viaja esa semana"))
+                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+
+        mockMvc.perform(put("/api/sunfyre/no-existe/cancelar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isNotFound());
     }
 }

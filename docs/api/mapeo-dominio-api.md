@@ -17,6 +17,7 @@
 | catálogo de Sunfyre publicadas (paginado) | GET | /api/sunfyre?ciudad=&kastor=&page=&size= |
 | sunfyre.iniciarEjecucion() | PUT | /api/sunfyre/{id}/iniciar |
 | sunfyre.finalizar() | PUT | /api/sunfyre/{id}/finalizar |
+| sunfyre.cancelar(motivo) + kelitis.solicitarReembolso(motivo) | PUT | /api/sunfyre/{id}/cancelar |
 
 # API - Azantys
 

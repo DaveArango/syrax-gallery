@@ -12,6 +12,8 @@ import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.dto.request.FinalizarSunfyreRequest;
 import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.dto.request.CancelarSunfyreRequest;
+import com.uniquindio.syrax_gallery.application.usecase.CancelarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
@@ -36,6 +38,7 @@ public class SunfyreController {
     private final ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
     private final IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase;
     private final FinalizarSunfyreUseCase finalizarSunfyreUseCase;
+    private final CancelarSunfyreUseCase cancelarSunfyreUseCase;
     private final SunfyreMapper mapper;
 
     public SunfyreController(CrearSunfyreUseCase crearSunfyreUseCase,
@@ -44,6 +47,7 @@ public class SunfyreController {
                              ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase,
                              IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase,
                              FinalizarSunfyreUseCase finalizarSunfyreUseCase,
+                             CancelarSunfyreUseCase cancelarSunfyreUseCase,
                              SunfyreMapper mapper) {
         this.obtenerSunfyreUseCase = obtenerSunfyreUseCase;
         this.crearSunfyreUseCase = crearSunfyreUseCase;
@@ -51,6 +55,7 @@ public class SunfyreController {
         this.consultarCatalogoSunfyreUseCase = consultarCatalogoSunfyreUseCase;
         this.finalizarSunfyreUseCase = finalizarSunfyreUseCase;
         this.iniciarEjecucionSunfyreUseCase = iniciarEjecucionSunfyreUseCase;
+        this.cancelarSunfyreUseCase = cancelarSunfyreUseCase;
         this.mapper = mapper;
     }
 
@@ -108,6 +113,13 @@ public class SunfyreController {
     public ResponseEntity<SunfyreDetalleResponse> finalizar(@PathVariable String id,
                                                             @Valid @RequestBody FinalizarSunfyreRequest request) {
         Sunfyre sunfyre = finalizarSunfyreUseCase.ejecutar(request.azantysId(), id);
+        return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
+    }
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<SunfyreDetalleResponse> cancelar(@PathVariable String id,
+                                                           @Valid @RequestBody CancelarSunfyreRequest request) {
+        Sunfyre sunfyre = cancelarSunfyreUseCase.ejecutar(id, request.solicitanteId(), request.motivo());
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 }
