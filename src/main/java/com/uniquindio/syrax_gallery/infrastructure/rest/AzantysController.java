@@ -1,6 +1,7 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarAzantysRequest;
+import com.uniquindio.syrax_gallery.application.dto.request.RevisarVerificacionRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.VerificarIdentidadRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.AzantysDetalleResponse;
 import com.uniquindio.syrax_gallery.application.dto.response.AzantysPerfilResponse;
@@ -8,6 +9,7 @@ import com.uniquindio.syrax_gallery.application.dto.response.AzantysRankingRespo
 import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
 import com.uniquindio.syrax_gallery.application.usecase.ConsultarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarAzantysUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.RevisarVerificacionAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.VerificarIdentidadAzantysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.valueobject.Iksia;
@@ -31,15 +33,18 @@ public class AzantysController {
     private final RegistrarAzantysUseCase registrarAzantysUseCase;
     private final VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase;
     private final ConsultarAzantysUseCase consultarAzantysUseCase;
+    private final RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase;
     private final AzantysMapper mapper;
 
     public AzantysController(RegistrarAzantysUseCase registrarAzantysUseCase,
                              VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase,
                              ConsultarAzantysUseCase consultarAzantysUseCase,
+                             RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase,
                              AzantysMapper mapper) {
         this.registrarAzantysUseCase = registrarAzantysUseCase;
         this.verificarIdentidadAzantysUseCase = verificarIdentidadAzantysUseCase;
         this.consultarAzantysUseCase = consultarAzantysUseCase;
+        this.revisarVerificacionAzantysUseCase = revisarVerificacionAzantysUseCase;
         this.mapper = mapper;
     }
 
@@ -96,5 +101,12 @@ public class AzantysController {
     @GetMapping("/{id}")
     public AzantysPerfilResponse obtener(@PathVariable("id") String id) {
         return AzantysPerfilResponse.desde(consultarAzantysUseCase.obtener(id));
+    }
+
+    @PutMapping("/{id}/revision")
+    public ResponseEntity<AzantysDetalleResponse> revisarVerificacion(@PathVariable String id,
+                                                                      @Valid @RequestBody RevisarVerificacionRequest request) {
+        Azantys azantys = revisarVerificacionAzantysUseCase.ejecutar(id, request.aprobada(), request.motivo());
+        return ResponseEntity.ok(mapper.toDetalleResponse(azantys));
     }
 }

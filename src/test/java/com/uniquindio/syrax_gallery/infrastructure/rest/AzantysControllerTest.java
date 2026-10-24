@@ -3,6 +3,7 @@ package com.uniquindio.syrax_gallery.infrastructure.rest;
 import com.uniquindio.syrax_gallery.application.dto.response.AzantysDetalleResponse;
 import com.uniquindio.syrax_gallery.application.usecase.ConsultarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarAzantysUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.RevisarVerificacionAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.VerificarIdentidadAzantysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
@@ -45,6 +46,9 @@ class AzantysControllerTest {
 
     @MockitoBean
     private ConsultarAzantysUseCase consultarAzantysUseCase;
+
+    @MockitoBean
+    private RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase;
 
     @MockitoBean
     private AzantysMapper mapper;
@@ -246,5 +250,67 @@ class AzantysControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].azantysId").value("az-001"))
                 .andExpect(jsonPath("$[0].servicios").value(3));
+    }
+
+    // ---------- PUT /api/azantys/{id}/revision (CU-48) ----------
+
+    @Test
+    void deberiaAprobarLaIdentidad() throws Exception {
+        String requestJson = """
+                {
+                    "aprobada": true
+                }
+                """;
+        when(revisarVerificacionAzantysUseCase.ejecutar(eq("az-001"), eq(true), any())).thenReturn(azantysVerificado());
+        when(mapper.toDetalleResponse(any())).thenReturn(new AzantysDetalleResponse(
+                "az-001", "Rhaenyra Targaryen", "Tatuaje realista", "rhaenyra@syraxgallery.com",
+                true, true, true, true));
+
+        mockMvc.perform(put("/api/azantys/az-001/revision")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilitadoParaPublicar").value(true));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoNoSeIndicaLaDecision() throws Exception {
+        mockMvc.perform(put("/api/azantys/az-001/revision")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoSeRechazaSinMotivo() throws Exception {
+        String requestJson = """
+                {
+                    "aprobada": false
+                }
+                """;
+        when(revisarVerificacionAzantysUseCase.ejecutar(eq("az-002"), eq(false), any()))
+                .thenThrow(new ReglaDominioException("El motivo del rechazo es obligatorio"));
+
+        mockMvc.perform(put("/api/azantys/az-002/revision")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("El motivo del rechazo es obligatorio"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoElAzantysARevisarNoExiste() throws Exception {
+        String requestJson = """
+                {
+                    "aprobada": true
+                }
+                """;
+        when(revisarVerificacionAzantysUseCase.ejecutar(eq("no-existe"), eq(true), any()))
+                .thenThrow(new NoSuchElementException("Azantys no encontrado"));
+
+        mockMvc.perform(put("/api/azantys/no-existe/revision")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isNotFound());
     }
 }

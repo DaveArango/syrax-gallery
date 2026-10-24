@@ -29,6 +29,7 @@
 | consultar perfiles (paginado) | GET | /api/azantys?busqueda=&page=&size= |
 | consultar perfil | GET | /api/azantys/{id} |
 | ranking por Sunfyre completadas | GET | /api/azantys/mas-solicitados?limite= |
+| azantys.aprobarIdentidad() / azantys.rechazarIdentidad(motivo) | PUT | /api/azantys/{id}/revision |
 
 # API - Kelitis
 
