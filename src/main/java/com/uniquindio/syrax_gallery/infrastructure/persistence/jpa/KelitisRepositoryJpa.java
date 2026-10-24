@@ -29,4 +29,9 @@ public class KelitisRepositoryJpa implements KelitisRepository {
     public boolean existePorSunfyre(String idSunfyre) {
         return dataRepository.existsByIdSunfyre(idSunfyre);
     }
+
+    @Override
+    public Optional<Kelitis> obtenerPorSunfyre(String idSunfyre) {
+        return dataRepository.findByIdSunfyre(idSunfyre).map(mapper::toDomain);
+    }
 }

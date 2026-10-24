@@ -11,4 +11,6 @@ public interface KelitisRepository {
     void guardar(Kelitis kelitis);
 
     boolean existePorSunfyre(String idSunfyre);
+
+    Optional<Kelitis> obtenerPorSunfyre(String idSunfyre);
 }
