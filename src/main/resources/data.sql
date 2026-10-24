@@ -1,7 +1,7 @@
-INSERT INTO azantys (id, nombre, activo, kostion, runiapos, iksia, iksia_verificada, laehurlion, laehurlion_verificado) VALUES
-                                                                                                                            ('az-001', 'Rhaenyra Targaryen', TRUE, 'Tatuaje realista y retratos', 'rhaenyra@syraxgallery.com', '1234567', TRUE,  'https://cdn.syrax.com/perfiles/az-001.jpg', TRUE),
-                                                                                                                            ('az-002', 'Daemon Targaryen',   TRUE, 'Muralismo urbano',            'daemon@syraxgallery.com',   NULL,      FALSE, NULL,                                         FALSE),
-                                                                                                                            ('az-003', 'Laena Velaryon',     TRUE, 'Retrato tradicional al oleo', 'laena@syraxgallery.com',    '9876543', TRUE,  NULL,                                         FALSE);
+INSERT INTO azantys (id, nombre, activo, kostion, runiapos, iksia, iksia_verificada, laehurlion, laehurlion_verificado, identidad_aprobada) VALUES
+                                                                                                                                                ('az-001', 'Rhaenyra Targaryen', TRUE, 'Tatuaje realista y retratos', 'rhaenyra@syraxgallery.com', '1234567', TRUE,  'https://cdn.syrax.com/perfiles/az-001.jpg', TRUE,  TRUE),
+                                                                                                                                                ('az-002', 'Daemon Targaryen',   TRUE, 'Muralismo urbano',            'daemon@syraxgallery.com',   NULL,      FALSE, NULL,                                         FALSE, FALSE),
+                                                                                                                                                ('az-003', 'Laena Velaryon',     TRUE, 'Retrato tradicional al oleo', 'laena@syraxgallery.com',    '9876543', TRUE,  NULL,                                         FALSE, FALSE);
 
 INSERT INTO sunfyre (id, id_azantys, id_zentys, sari_inicio, sari_fin, kastor, alion_ciudad, alion_pais, alion_latitud, alion_longitud, vala_monto, vala_divisa, dohaerox_jeda, kanez) VALUES
                                                                                                                                                                                            ('sf-001', 'az-001', 'zentys-01', '2027-03-10 10:00:00', '2027-03-10 13:00:00', 'ARTE_PIEL',           'Armenia', 'Colombia', 4.5339, -75.6811,  150000, 'COP', 'PENDIENTE', 'BORRADOR'),
@@ -25,8 +25,8 @@ INSERT INTO caraxes (id, id_azantys, vala_monto, vala_divisa, sete_nombre, jorva
                                                                                                                                ('cx-009', 'az-003', 1500000, 'COP', 'Rostro de mujer',       'Retrato al oleo sobre lienzo con tecnica tradicional.',              'BORRADOR',   'https://cdn.syrax.com/obras/cx-009.jpg', 'PINTURA');
 
 
-INSERT INTO azantys (id, nombre, activo, kostion, runiapos, iksia, iksia_verificada, laehurlion, laehurlion_verificado) VALUES
-    ('az-004', 'Baela Targaryen', TRUE, 'Tatuaje fine line y lettering', 'baela@syraxgallery.com', '5556667', TRUE, 'https://cdn.syrax.com/perfiles/az-004.jpg', TRUE);
+INSERT INTO azantys (id, nombre, activo, kostion, runiapos, iksia, iksia_verificada, laehurlion, laehurlion_verificado, identidad_aprobada) VALUES
+    ('az-004', 'Baela Targaryen', TRUE, 'Tatuaje fine line y lettering', 'baela@syraxgallery.com', '5556667', TRUE, 'https://cdn.syrax.com/perfiles/az-004.jpg', TRUE, TRUE);
 
 INSERT INTO sunfyre (id, id_azantys, id_zentys, sari_inicio, sari_fin, kastor, alion_ciudad, alion_pais, alion_latitud, alion_longitud, vala_monto, vala_divisa, dohaerox_jeda, kanez) VALUES
                                                                                                                                                                                            ('sf-004', 'az-001', 'zentys-02', '2026-08-10 10:00:00', '2026-08-10 13:00:00', 'ARTE_PIEL',           'Armenia', 'Colombia', 4.5339, -75.6811, 180000, 'COP', 'COMPLETADO', 'EN_VENTA'),

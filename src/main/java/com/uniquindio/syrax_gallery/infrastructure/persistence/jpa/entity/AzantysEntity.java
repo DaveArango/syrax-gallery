@@ -41,4 +41,7 @@ public class AzantysEntity {
 
     @Column(name = "laehurlion_verificado", nullable = false)
     private boolean laehurlionVerificado;
+
+    @Column(name = "identidad_aprobada", nullable = false)
+    private boolean identidadAprobada;
 }

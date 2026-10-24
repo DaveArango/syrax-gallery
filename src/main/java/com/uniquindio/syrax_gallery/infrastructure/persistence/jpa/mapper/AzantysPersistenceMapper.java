@@ -22,6 +22,7 @@ public class AzantysPersistenceMapper {
         entity.setIksiaVerificada(azantys.isIksiaVerificada());
         entity.setLaehurlion(azantys.getLaehurlion() == null ? null : azantys.getLaehurlion().url());
         entity.setLaehurlionVerificado(azantys.isLaehurlionVerificado());
+        entity.setIdentidadAprobada(azantys.isIdentidadAprobada());
         return entity;
     }
 
@@ -35,6 +36,7 @@ public class AzantysPersistenceMapper {
                 entity.getIksia() == null ? null : new Iksia(entity.getIksia()),
                 entity.isIksiaVerificada(),
                 entity.getLaehurlion() == null ? null : new Laehurlion(entity.getLaehurlion()),
-                entity.isLaehurlionVerificado());
+                entity.isLaehurlionVerificado(),
+                entity.isIdentidadAprobada());
     }
 }

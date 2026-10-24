@@ -20,6 +20,13 @@ public class AzantysTest {
         return Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida());
     }
 
+    private Azantys azantysPendienteDeRevision() {
+        Azantys azantys = azantysBase();
+        azantys.verificarIksia(new Iksia("1234567"));
+        azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
+        return azantys;
+    }
+
     @Test
     void crearAzantysValidoConDatosCorrectos() {
         String id = "az-001";
@@ -36,6 +43,7 @@ public class AzantysTest {
         assertTrue(azantys.isActivo());
         assertFalse(azantys.isIksiaVerificada());
         assertFalse(azantys.isLaehurlionVerificado());
+        assertFalse(azantys.isIdentidadAprobada());
         assertNull(azantys.getLaehurlion());
     }
 
@@ -168,17 +176,6 @@ public class AzantysTest {
     }
 
     @Test
-    void publicarConIdentidadVerificadaYFotoDePerfil() {
-        Azantys azantys = azantysBase();
-        azantys.verificarIksia(new Iksia("1234567"));
-        azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
-
-        boolean resultado = azantys.validarHabilitacionParaPublicar();
-
-        assertTrue(resultado);
-    }
-
-    @Test
     void dosAzantysConElMismoIdSonIguales() {
         Azantys a = Azantys.crear("az-001", "Rhaenyra", kostionValida(), runiaposValida());
         Azantys b = Azantys.crear("az-001", "Otro nombre", kostionValida(), runiaposValida());
@@ -203,12 +200,71 @@ public class AzantysTest {
     }
 
     @Test
-    void conIdentidadYFotoQuedaHabilitadoParaPublicar() {
-        Azantys azantys = azantysBase();
-        azantys.verificarIksia(new Iksia("1234567"));
-        azantys.subirLaehurlion(new Laehurlion("https://cdn.syraxgallery.com/az-001.png"));
+    void conIdentidadYFotoQuedaPendienteDeRevisionYAunNoPuedePublicar() {
+        Azantys azantys = azantysPendienteDeRevision();
 
-        assertTrue(azantys.estaHabilitadoParaPublicar());
+        assertTrue(azantys.estaPendienteDeRevision());
+        assertFalse(azantys.estaHabilitadoParaPublicar());
+        assertThrows(ReglaDominioException.class, azantys::validarHabilitacionParaPublicar);
+    }
+
+    @Test
+    void aprobarIdentidadHabilitaParaPublicar() {
+        Azantys azantys = azantysPendienteDeRevision();
+
+        azantys.aprobarIdentidad();
+
+        assertTrue(azantys.isIdentidadAprobada());
+        assertFalse(azantys.estaPendienteDeRevision());
+        assertTrue(azantys.validarHabilitacionParaPublicar());
+    }
+
+    @Test
+    void noAprobarSinDocumentosCargados() {
+        Azantys azantys = azantysBase();
+
+        assertThrows(ReglaDominioException.class, azantys::aprobarIdentidad);
+
+        assertFalse(azantys.isIdentidadAprobada());
+    }
+
+    @Test
+    void noAprobarDosVeces() {
+        Azantys azantys = azantysPendienteDeRevision();
+        azantys.aprobarIdentidad();
+
+        assertThrows(ReglaDominioException.class, azantys::aprobarIdentidad);
+    }
+
+    @Test
+    void rechazarIdentidadBorraLaIksiaParaQueSeCargueDeNuevo() {
+        Azantys azantys = azantysPendienteDeRevision();
+
+        azantys.rechazarIdentidad("El documento no es legible");
+
+        assertFalse(azantys.isIksiaVerificada());
+        assertNull(azantys.getIksia());
+        assertFalse(azantys.isIdentidadAprobada());
+        assertDoesNotThrow(() -> azantys.verificarIksia(new Iksia("7654321")));
+    }
+
+    @Test
+    void noRechazarSinMotivo() {
+        Azantys azantys = azantysPendienteDeRevision();
+
+        assertThrows(ReglaDominioException.class, () -> azantys.rechazarIdentidad(" "));
+
+        assertTrue(azantys.isIksiaVerificada());
+    }
+
+    @Test
+    void noRechazarUnaIdentidadYaAprobada() {
+        Azantys azantys = azantysPendienteDeRevision();
+        azantys.aprobarIdentidad();
+
+        assertThrows(ReglaDominioException.class, () -> azantys.rechazarIdentidad("Cambio de opinión"));
+
+        assertTrue(azantys.isIdentidadAprobada());
     }
 
     @Test
@@ -217,10 +273,11 @@ public class AzantysTest {
         Laehurlion foto = new Laehurlion("https://cdn.syraxgallery.com/az-001.png");
 
         Azantys azantys = Azantys.reconstruir("az-001", "Rhaenyra", true,
-                kostionValida(), runiaposValida(), iksia, true, foto, true);
+                kostionValida(), runiaposValida(), iksia, true, foto, true, true);
 
         assertTrue(azantys.isIksiaVerificada());
         assertTrue(azantys.isLaehurlionVerificado());
+        assertTrue(azantys.isIdentidadAprobada());
         assertEquals(iksia, azantys.getIksia());
         assertTrue(azantys.validarHabilitacionParaPublicar());
     }
@@ -228,7 +285,7 @@ public class AzantysTest {
     @Test
     void unAzantysReconstruidoYaVerificadoNoPuedeVerificarseOtraVez() {
         Azantys azantys = Azantys.reconstruir("az-001", "Rhaenyra", true,
-                kostionValida(), runiaposValida(), new Iksia("1234567"), true, null, false);
+                kostionValida(), runiaposValida(), new Iksia("1234567"), true, null, false, false);
 
         assertThrows(ReglaDominioException.class, () -> azantys.verificarIksia(new Iksia("7654321")));
     }

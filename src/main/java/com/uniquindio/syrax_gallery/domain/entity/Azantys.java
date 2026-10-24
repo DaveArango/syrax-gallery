@@ -21,11 +21,13 @@ public class Azantys {
     private boolean iksiaVerificada;
     private Laehurlion laehurlion;
     private boolean laehurlionVerificado;
+    private boolean identidadAprobada;
 
     private Azantys(String id, String nombre, boolean activo,
                     Kostion kostion, Runiapos runiapos,
                     Iksia iksia, boolean iksiaVerificada,
-                    Laehurlion laehurlion, boolean laehurlionVerificado) {
+                    Laehurlion laehurlion, boolean laehurlionVerificado,
+                    boolean identidadAprobada) {
         this.id = id;
         this.nombre = nombre;
         this.activo = activo;
@@ -35,10 +37,11 @@ public class Azantys {
         this.iksiaVerificada = iksiaVerificada;
         this.laehurlion = laehurlion;
         this.laehurlionVerificado = laehurlionVerificado;
+        this.identidadAprobada = identidadAprobada;
     }
 
     private Azantys(String id, String nombre, Kostion kostion, Runiapos runiapos) {
-        this(id, nombre, true, kostion, runiapos, null, false, null, false);
+        this(id, nombre, true, kostion, runiapos, null, false, null, false, false);
     }
 
     public static Azantys crear(String id, String nombre, Kostion kostion, Runiapos runiapos) {
@@ -56,9 +59,10 @@ public class Azantys {
     public static Azantys reconstruir(String id, String nombre, boolean activo,
                                       Kostion kostion, Runiapos runiapos,
                                       Iksia iksia, boolean iksiaVerificada,
-                                      Laehurlion laehurlion, boolean laehurlionVerificado) {
+                                      Laehurlion laehurlion, boolean laehurlionVerificado,
+                                      boolean identidadAprobada) {
         return new Azantys(id, nombre, activo, kostion, runiapos,
-                iksia, iksiaVerificada, laehurlion, laehurlionVerificado);
+                iksia, iksiaVerificada, laehurlion, laehurlionVerificado, identidadAprobada);
     }
 
     public void verificarIksia(Iksia iksia) {
@@ -77,8 +81,33 @@ public class Azantys {
         this.laehurlionVerificado = true;
     }
 
+    public void aprobarIdentidad() {
+        validarDocumentosCargadosSinRevisar();
+        this.identidadAprobada = true;
+    }
+
+    public void rechazarIdentidad(String motivo) {
+        validarDocumentosCargadosSinRevisar();
+        if (motivo == null || motivo.isBlank())
+            throw new ReglaDominioException("El motivo del rechazo es obligatorio");
+        this.iksia = null;
+        this.iksiaVerificada = false;
+    }
+
+    private void validarDocumentosCargadosSinRevisar() {
+        if (!iksiaVerificada || !laehurlionVerificado)
+            throw new ReglaDominioException("El Azantys aún no ha cargado su identidad y su foto de perfil");
+        if (identidadAprobada)
+            throw new ReglaDominioException("La identidad ya fue aprobada");
+    }
+
+    public boolean estaPendienteDeRevision() {
+        return iksiaVerificada && laehurlionVerificado && !identidadAprobada;
+    }
+
+    /** RN5: documentos cargados Y aprobados por el Administrador. No lanza excepción. */
     public boolean estaHabilitadoParaPublicar() {
-        return iksiaVerificada && laehurlionVerificado;
+        return iksiaVerificada && laehurlionVerificado && identidadAprobada;
     }
 
     public boolean validarHabilitacionParaPublicar() {
