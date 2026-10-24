@@ -5,6 +5,7 @@ import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoSunfyre
 import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
@@ -41,6 +42,9 @@ class SunfyreControllerTest {
 
     @MockitoBean
     private PublicarSunfyreUseCase publicarSunfyreUseCase;
+
+    @MockitoBean
+    private IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase;
 
     @MockitoBean
     private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
@@ -272,5 +276,68 @@ class SunfyreControllerTest {
 
         mockMvc.perform(get("/api/sunfyre").param("page", "-1"))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ---------- PUT /api/sunfyre/{id}/iniciar ----------
+
+    @Test
+    void deberiaIniciarEjecucionCuandoDatosValidos() throws Exception {
+        // Arrange
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.confirmar();
+        sunfyre.iniciarEjecucion();
+        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltaElAzantysAlIniciar() throws Exception {
+        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaSunfyreNoEstaAbonada() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001"))
+                .thenThrow(new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución"));
+
+        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre ABONADA puede iniciar ejecución"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoLaSunfyreNoExisteAlIniciar() throws Exception {
+        String requestJson = """
+                {
+                    "azantysId": "az-001"
+                }
+                """;
+        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "no-existe"))
+                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+
+        mockMvc.perform(put("/api/sunfyre/no-existe/iniciar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isNotFound());
     }
 }
