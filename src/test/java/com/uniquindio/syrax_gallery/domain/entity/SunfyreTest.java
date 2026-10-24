@@ -147,4 +147,44 @@ public class SunfyreTest {
         assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda());
         assertEquals(Kanez.EN_VENTA, sunfyre.getKanez());
     }
+
+    @Test
+    void iniciarEjecucionDeUnaSunfyreAbonada() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+
+        sunfyre.iniciarEjecucion();
+
+        assertEquals(DohaeroxJeda.EN_EJECUCION, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void noPermitirIniciarEjecucionDeUnaSunfyrePendiente() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertThrows(ReglaDominioException.class, sunfyre::iniciarEjecucion);
+
+        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void finalizarUnaSunfyreEnEjecucion() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+        sunfyre.iniciarEjecucion();
+
+        sunfyre.finalizar();
+
+        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda());
+    }
+
+    @Test
+    void noPermitirFinalizarSinHaberIniciadoLaEjecucion() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+
+        assertThrows(ReglaDominioException.class, sunfyre::finalizar);
+
+        assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
+    }
 }

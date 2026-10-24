@@ -70,7 +70,7 @@ public class Sunfyre {
 
     public void validarAutoria(String idAzantys) {
         if (idAzantys == null || !this.idAzantys.equals(idAzantys))
-            throw new ReglaDominioException("Solo el Azantys creador puede publicar esta Sunfyre");
+            throw new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre");
     }
 
     public void publicar(Kanez kanez) {
