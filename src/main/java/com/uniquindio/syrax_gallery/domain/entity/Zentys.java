@@ -54,6 +54,11 @@ public class Zentys {
         return new Zentys(id, nombre, runiapos, indior, estaActivo);
     }
 
+    public void validarPuedeComprar() {
+        if (!estaActivo)
+            throw new ReglaDominioException("Solo un Zentys activo puede comprar un Caraxes");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

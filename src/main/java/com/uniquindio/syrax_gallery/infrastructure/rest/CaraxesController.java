@@ -1,12 +1,12 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
+import com.uniquindio.syrax_gallery.application.dto.request.PublicarCaraxesRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarCaraxesRequest;
+import com.uniquindio.syrax_gallery.application.dto.request.RetirarCaraxesRequest;
+import com.uniquindio.syrax_gallery.application.dto.request.VenderCaraxesRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.CaraxesDetalleResponse;
 import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
-import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.ObtenerCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.PublicarCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.RegistrarCaraxesUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.*;
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.CaraxesMapper;
@@ -25,17 +25,23 @@ public class CaraxesController {
     private final RegistrarCaraxesUseCase registrarCaraxesUseCase;
     private final PublicarCaraxesUseCase publicarCaraxesUseCase;
     private final ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase;
+    private final RetirarCaraxesUseCase retirarCaraxesUseCase;
+    private final VenderCaraxesUseCase venderCaraxesUseCase;
     private final CaraxesMapper mapper;
 
     public CaraxesController(ObtenerCaraxesUseCase obtenerCaraxesUseCase,
                              RegistrarCaraxesUseCase registrarCaraxesUseCase,
                              PublicarCaraxesUseCase publicarCaraxesUseCase,
                              ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase,
+                             RetirarCaraxesUseCase retirarCaraxesUseCase,
+                             VenderCaraxesUseCase venderCaraxesUseCase,
                              CaraxesMapper mapper) {
         this.obtenerCaraxesUseCase = obtenerCaraxesUseCase;
         this.registrarCaraxesUseCase = registrarCaraxesUseCase;
         this.publicarCaraxesUseCase = publicarCaraxesUseCase;
         this.consultarCatalogoCaraxesUseCase = consultarCatalogoCaraxesUseCase;
+        this.retirarCaraxesUseCase = retirarCaraxesUseCase;
+        this.venderCaraxesUseCase = venderCaraxesUseCase;
         this.mapper = mapper;
     }
 
@@ -77,12 +83,27 @@ public class CaraxesController {
                 .body(response);
     }
 
-    @PutMapping("/{id}/publicar/{kanez}")
+    @PutMapping("/{id}/publicar")
     public ResponseEntity<CaraxesDetalleResponse> publicar(@PathVariable String id,
-                                                           @PathVariable Kanez kanez) {
-        Caraxes caraxes = publicarCaraxesUseCase.ejecutar(id, kanez);
-        CaraxesDetalleResponse response = mapper.toDetalleResponse(caraxes);
-        return ResponseEntity.ok(response);
+                                                           @Valid @RequestBody PublicarCaraxesRequest request) {
+        Caraxes caraxes = publicarCaraxesUseCase.ejecutar(request.azantysId(),
+                id,
+                request.destino());
+        return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
+    }
+
+    @PutMapping("/{id}/retirar")
+    public ResponseEntity<CaraxesDetalleResponse> retirar(@PathVariable String id,
+                                                          @Valid @RequestBody RetirarCaraxesRequest request) {
+        Caraxes caraxes = retirarCaraxesUseCase.ejecutar(request.azantysId(), id);
+        return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
+    }
+
+    @PutMapping("/{id}/vender")
+    public ResponseEntity<CaraxesDetalleResponse> vender(@PathVariable String id,
+                                                         @Valid @RequestBody VenderCaraxesRequest request) {
+        Caraxes caraxes = venderCaraxesUseCase.ejecutar(request.zentysId(), id);
+        return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
     }
 
     @GetMapping("/{id}")

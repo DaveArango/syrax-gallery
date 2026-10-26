@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 public class ObtenerCaraxesUseCase {
@@ -14,6 +16,6 @@ public class ObtenerCaraxesUseCase {
     @Transactional(readOnly = true)
     public Caraxes ejecutar(String id) {
         return repository.obtener(id)
-                .orElseThrow(() -> new IllegalArgumentException("Caraxes no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Caraxes no encontrado"));
     }
 }

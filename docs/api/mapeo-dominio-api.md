@@ -5,7 +5,9 @@
 |---|---|---|
 | caraxes.crear(...) | POST | /api/caraxes |
 | caraxes.get(...) | GET | /api/caraxes/{id} |
-| caraxes.publicar(...) | PUT | /api/caraxes/{id}/publicar/{kanez} |
+| caraxes.publicar(...) | PUT | /api/caraxes/{id}/publicar |
+| caraxes.retirar(...) | PUT | /api/caraxes/{id}/retirar |
+| caraxes.marcarComoVendido(...) | PUT | /api/caraxes/{id}/vender |
 | catálogo de Caraxes publicadas (paginado) | GET | /api/caraxes?texto=&kastor=&page=&size= |
 
 # API - Sunfyre

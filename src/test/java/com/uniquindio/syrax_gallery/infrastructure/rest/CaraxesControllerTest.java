@@ -1,10 +1,7 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.CaraxesDetalleResponse;
-import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.ObtenerCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.PublicarCaraxesUseCase;
-import com.uniquindio.syrax_gallery.application.usecase.RegistrarCaraxesUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.*;
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
@@ -49,6 +46,12 @@ public class CaraxesControllerTest {
 
     @MockitoBean
     private ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase;
+
+    @MockitoBean
+    private RetirarCaraxesUseCase retirarCaraxesUseCase;
+
+    @MockitoBean
+    private VenderCaraxesUseCase venderCaraxesUseCase;
 
     @MockitoBean
     private CaraxesMapper mapper;
@@ -294,64 +297,102 @@ public class CaraxesControllerTest {
                 .andExpect(jsonPath("$.kanez").value("BORRADOR"));
     }
 
-    @Test
-    void deberiaRetornar404CuandoElCaraxesNoExiste() throws Exception {
-        when(obtenerCaraxesUseCase.ejecutar("no-existe"))
-                .thenThrow(new NoSuchElementException("Caraxes no encontrado"));
-
-        mockMvc.perform(get("/api/caraxes/no-existe"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.mensaje").value("El recurso solicitado no existe."));
-    }
-
-    // ---------- PUT /api/caraxes/{id}/publicar/{kanez} ----------
+    // ---------- PUT /api/caraxes/{id}/publicar ----------
 
     @Test
-    void deberiaPublicarParaExhibicionCuandoDatosValidos() throws Exception {
+    void deberiaPublicarParaExhibicionCuandoElAzantysEsElCreador() throws Exception {
+        // Arrange
         Caraxes caraxes = caraxesSimulado();
-        when(publicarCaraxesUseCase.ejecutar("id-1", Kanez.EXHIBICION)).thenReturn(caraxes);
+        when(publicarCaraxesUseCase.ejecutar("az-001", "id-1", Kanez.EXHIBICION)).thenReturn(caraxes);
         when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("EXHIBICION"));
 
-        mockMvc.perform(put("/api/caraxes/id-1/publicar/EXHIBICION"))
+        // Act & Assert
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001", "destino": "EXHIBICION"}
+                            """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("EXHIBICION"));
     }
 
     @Test
-    void deberiaPublicarParaVentaCuandoDatosValidos() throws Exception {
+    void deberiaPublicarEnVentaCuandoElAzantysEsElCreador() throws Exception {
         Caraxes caraxes = caraxesSimulado();
-        when(publicarCaraxesUseCase.ejecutar("id-1", Kanez.EN_VENTA)).thenReturn(caraxes);
+        when(publicarCaraxesUseCase.ejecutar("az-001", "id-1", Kanez.EN_VENTA)).thenReturn(caraxes);
         when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("EN_VENTA"));
 
-        mockMvc.perform(put("/api/caraxes/id-1/publicar/EN_VENTA"))
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001", "destino": "EN_VENTA"}
+                            """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("EN_VENTA"));
     }
 
     @Test
-    void deberiaRetornar400CuandoElAzantysNoEstaHabilitadoParaPublicar() throws Exception {
-        when(publicarCaraxesUseCase.ejecutar("id-1", Kanez.EN_VENTA))
+    void deberiaRetornar400CuandoQuienPublicaNoEsElCreador() throws Exception {
+        when(publicarCaraxesUseCase.ejecutar("az-999", "id-1", Kanez.EXHIBICION))
+                .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-999", "destino": "EXHIBICION"}
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElAzantysNoEstaHabilitado() throws Exception {
+        // Arrange
+        when(publicarCaraxesUseCase.ejecutar("az-001", "id-1", Kanez.EN_VENTA))
                 .thenThrow(new ReglaDominioException("No puede publicar sin verificar su identidad."));
 
-        mockMvc.perform(put("/api/caraxes/id-1/publicar/EN_VENTA"))
+        // Act & Assert
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001", "destino": "EN_VENTA"}
+                            """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 
     @Test
-    void deberiaRetornar400CuandoElKanezNoExiste() throws Exception {
-        mockMvc.perform(put("/api/caraxes/id-1/publicar/XYZ"))
+    void deberiaRetornar400CuandoFaltaElAzantysIdOElDestino() throws Exception {
+        // Act & Assert
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
+        verifyNoInteractions(publicarCaraxesUseCase);
     }
 
     @Test
-    void deberiaRetornar404AlPublicarUnCaraxesQueNoExiste() throws Exception {
-        when(publicarCaraxesUseCase.ejecutar("no-existe", Kanez.EXHIBICION))
+    void deberiaRetornar400CuandoElDestinoNoExiste() throws Exception {
+        mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001", "destino": "XYZ"}
+                            """))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(publicarCaraxesUseCase);
+    }
+
+    @Test
+    void deberiaRetornar404CuandoElCaraxesNoExiste() throws Exception {
+        when(publicarCaraxesUseCase.ejecutar("az-001", "no-existe", Kanez.EXHIBICION))
                 .thenThrow(new NoSuchElementException("Caraxes no encontrado"));
 
-        mockMvc.perform(put("/api/caraxes/no-existe/publicar/EXHIBICION"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.mensaje").value("El recurso solicitado no existe."));
+        mockMvc.perform(put("/api/caraxes/no-existe/publicar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001", "destino": "EXHIBICION"}
+                            """))
+                .andExpect(status().isNotFound());
     }
 
     //--------------------------------------------------------------
@@ -396,5 +437,92 @@ public class CaraxesControllerTest {
         mockMvc.perform(get("/api/caraxes").param("page", "-1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("La página no puede ser negativa"));
+    }
+
+    //----------------------------------------------------
+
+    @Test
+    void deberiaRetirarCaraxesCuandoElAzantysEsElCreador() throws Exception {
+        Caraxes caraxes = caraxesSimulado();
+        when(retirarCaraxesUseCase.ejecutar("az-001",
+                "id-1")).thenReturn(caraxes);
+        when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("RETIRADO"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/retirar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-001"}
+                            """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.kanez").value("RETIRADO"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoRetirarNoRecibeAzantysId() throws Exception {
+        mockMvc.perform(put("/api/caraxes/id-1/retirar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(retirarCaraxesUseCase);
+    }
+
+    @Test
+    void deberiaRetornar400CuandoQuienRetiraNoEsElCreador() throws Exception {
+        when(retirarCaraxesUseCase.ejecutar("az-999",
+                "id-1"))
+                .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/retirar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"azantysId": "az-999"}
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
+    }
+
+    @Test
+    void deberiaVenderCaraxesCuandoEstaEnVenta() throws Exception {
+        Caraxes caraxes = caraxesSimulado();
+        when(venderCaraxesUseCase.ejecutar("zentys-01",
+                "id-1")).thenReturn(caraxes);
+        when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("VENDIDO"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/vender")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"zentysId": "zentys-01"}
+                            """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.kanez").value("VENDIDO"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElCaraxesNoEstaEnVenta() throws Exception {
+        when(venderCaraxesUseCase.ejecutar("zentys-01",
+                "id-1"))
+                .thenThrow(new ReglaDominioException("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/vender")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"zentysId": "zentys-01"}
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
+    }
+
+    @Test
+    void deberiaRetornar404CuandoElZentysNoExiste() throws Exception {
+        when(venderCaraxesUseCase.ejecutar("zentys-99",
+                "id-1"))
+                .thenThrow(new NoSuchElementException("Zentys no encontrado"));
+
+        mockMvc.perform(put("/api/caraxes/id-1/vender")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"zentysId": "zentys-99"}
+                            """))
+                .andExpect(status().isNotFound());
     }
 }

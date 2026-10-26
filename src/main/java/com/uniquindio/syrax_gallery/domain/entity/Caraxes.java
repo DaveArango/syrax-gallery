@@ -118,6 +118,11 @@ public class Caraxes {
         }
     }
 
+    public void validarAutoria(String idAzantys) {
+        if (idAzantys == null || !this.idAzantys.equals(idAzantys))
+            throw new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

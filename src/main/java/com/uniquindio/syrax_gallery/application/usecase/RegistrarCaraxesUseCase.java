@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 public class RegistrarCaraxesUseCase {
@@ -23,7 +25,7 @@ public class RegistrarCaraxesUseCase {
                             Urnebion urnebion,
                             CaraxesKastor kastor) {
         azantysRepository.obtener(azantysId)
-                .orElseThrow(() -> new IllegalArgumentException("Azantys no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Azantys no encontrado"));
 
         Caraxes caraxes = Caraxes.crear(id,
                 azantysId,
