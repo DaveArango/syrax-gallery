@@ -16,6 +16,7 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,7 +34,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AzantysController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class AzantysControllerTest {
+
 
     @Autowired
     private MockMvc mockMvc;
