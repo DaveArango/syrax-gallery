@@ -2,6 +2,8 @@ package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarCaraxesRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.CaraxesDetalleResponse;
+import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarCaraxesUseCase;
@@ -22,15 +24,18 @@ public class CaraxesController {
     private final ObtenerCaraxesUseCase obtenerCaraxesUseCase;
     private final RegistrarCaraxesUseCase registrarCaraxesUseCase;
     private final PublicarCaraxesUseCase publicarCaraxesUseCase;
+    private final ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase;
     private final CaraxesMapper mapper;
 
     public CaraxesController(ObtenerCaraxesUseCase obtenerCaraxesUseCase,
                              RegistrarCaraxesUseCase registrarCaraxesUseCase,
                              PublicarCaraxesUseCase publicarCaraxesUseCase,
+                             ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase,
                              CaraxesMapper mapper) {
         this.obtenerCaraxesUseCase = obtenerCaraxesUseCase;
         this.registrarCaraxesUseCase = registrarCaraxesUseCase;
         this.publicarCaraxesUseCase = publicarCaraxesUseCase;
+        this.consultarCatalogoCaraxesUseCase = consultarCatalogoCaraxesUseCase;
         this.mapper = mapper;
     }
 
@@ -86,5 +91,16 @@ public class CaraxesController {
         CaraxesDetalleResponse response = mapper.toDetalleResponse(caraxes);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public PageResponse<CaraxesDetalleResponse> buscar(
+            @RequestParam(name = "texto", required = false) String texto,
+            @RequestParam(name = "kastor", required = false) CaraxesKastor kastor,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size) {
+        return PageResponse.desde(
+                consultarCatalogoCaraxesUseCase.buscar(texto, kastor, page, size),
+                mapper::toDetalleResponse);
     }
 }

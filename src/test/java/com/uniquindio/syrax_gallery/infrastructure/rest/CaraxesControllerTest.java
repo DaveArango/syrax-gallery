@@ -1,11 +1,13 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.CaraxesDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarCaraxesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarCaraxesUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.CaraxesMapper;
 import org.junit.jupiter.api.Test;
@@ -16,13 +18,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -44,6 +46,9 @@ public class CaraxesControllerTest {
 
     @MockitoBean
     private PublicarCaraxesUseCase publicarCaraxesUseCase;
+
+    @MockitoBean
+    private ConsultarCatalogoCaraxesUseCase consultarCatalogoCaraxesUseCase;
 
     @MockitoBean
     private CaraxesMapper mapper;
@@ -347,5 +352,49 @@ public class CaraxesControllerTest {
         mockMvc.perform(put("/api/caraxes/no-existe/publicar/EXHIBICION"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje").value("El recurso solicitado no existe."));
+    }
+
+    //--------------------------------------------------------------
+
+    @Test
+    void deberiaBuscarCaraxesPublicadasCuandoHayResultados() throws Exception {
+        Caraxes caraxes = caraxesSimulado();
+        when(consultarCatalogoCaraxesUseCase.buscar("noche",
+                CaraxesKastor.PINTURA,
+                0,
+                5))
+                .thenReturn(new Pagina<>(List.of(caraxes), 1,
+                        1,
+                        0,
+                        5));
+        when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("EXHIBICION"));
+
+        mockMvc.perform(get("/api/caraxes")
+                        .param("texto", "noche")
+                        .param("kastor", "PINTURA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("id-1"))
+                .andExpect(jsonPath("$.content[0].kanez").value("EXHIBICION"))
+                .andExpect(jsonPath("$.totalElementos").value(1));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElKastorDelCatalogoNoExiste() throws Exception {
+        mockMvc.perform(get("/api/caraxes").param("kastor", "XYZ"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(consultarCatalogoCaraxesUseCase);
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaPaginaDelCatalogoEsNegativa() throws Exception {
+        when(consultarCatalogoCaraxesUseCase.buscar(null,
+                null,
+                -1,
+                5))
+                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+
+        mockMvc.perform(get("/api/caraxes").param("page", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("La página no puede ser negativa"));
     }
 }

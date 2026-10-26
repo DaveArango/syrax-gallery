@@ -10,14 +10,4 @@ public record ZentysDetalleResponse(
         String descripcion,
         boolean activo
 ) {
-
-    public static ZentysDetalleResponse desde(Zentys zentys){
-        return new ZentysDetalleResponse(
-                zentys.getId(),
-                zentys.getNombre(),
-                zentys.getRuniapos().direccion(),
-                zentys.getIndior().descripcion(),
-                zentys.isEstaActivo()
-        );
-    }
 }

@@ -6,6 +6,7 @@
 | caraxes.crear(...) | POST | /api/caraxes |
 | caraxes.get(...) | GET | /api/caraxes/{id} |
 | caraxes.publicar(...) | PUT | /api/caraxes/{id}/publicar/{kanez} |
+| catálogo de Caraxes publicadas (paginado) | GET | /api/caraxes?texto=&kastor=&page=&size= |
 
 # API - Sunfyre
 
@@ -38,3 +39,12 @@
 | Kelitis.realizar(...) + sunfyre.confirmar() | POST | /api/kelitis |
 | consultar un Kelitis | GET | /api/kelitis/{id} |
 | kelitis.liberarPago() | PUT | /api/kelitis/{id}/aprobar |
+
+# API - Zentys
+
+| Operación del dominio | Método HTTP | Endpoint |
+|---|---|---|
+| Zentys.crear(...) | POST | /api/zentys |
+| consultar un Zentys | GET | /api/zentys/{id} |
+| buscar Zentys activos (paginado) | GET | /api/zentys?busqueda=&page=&size= |
+| ranking por Sunfyre completadas | GET | /api/zentys/mas-activos?limite= |

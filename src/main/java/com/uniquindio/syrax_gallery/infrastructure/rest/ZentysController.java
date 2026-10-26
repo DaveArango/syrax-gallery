@@ -1,7 +1,11 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarZentysRequest;
+import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
 import com.uniquindio.syrax_gallery.application.dto.response.ZentysDetalleResponse;
+import com.uniquindio.syrax_gallery.application.dto.response.ZentysPerfilResponse;
+import com.uniquindio.syrax_gallery.application.dto.response.ZentysRankingResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarZentysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerZentysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarZentysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Zentys;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,13 +25,16 @@ import java.util.UUID;
 public class ZentysController {
     private final RegistrarZentysUseCase registrarZentysUseCase;
     private final ObtenerZentysUseCase obtenerZentysUseCase;
+    private final ConsultarZentysUseCase consultarZentysUseCase;
     private final ZentysMapper mapper;
 
     public ZentysController(RegistrarZentysUseCase registrarZentysUseCase,
                             ObtenerZentysUseCase obtenerZentysUseCase,
+                            ConsultarZentysUseCase consultarZentysUseCase,
                             ZentysMapper mapper) {
         this.registrarZentysUseCase = registrarZentysUseCase;
         this.obtenerZentysUseCase = obtenerZentysUseCase;
+        this.consultarZentysUseCase = consultarZentysUseCase;
         this.mapper = mapper;
     }
 
@@ -59,5 +67,23 @@ public class ZentysController {
         ZentysDetalleResponse response = mapper.toDetalleResponse(zentys);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public PageResponse<ZentysPerfilResponse> buscar(
+            @RequestParam(name = "busqueda", required = false) String busqueda,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size) {
+        return PageResponse.desde(
+                consultarZentysUseCase.buscar(busqueda, page, size),
+                ZentysPerfilResponse::desde);
+    }
+
+    @GetMapping("/mas-activos")
+    public List<ZentysRankingResponse> masActivos(
+            @RequestParam(name = "limite", defaultValue = "3") int limite) {
+        return consultarZentysUseCase.masActivos(limite).stream()
+                .map(ZentysRankingResponse::desde)
+                .toList();
     }
 }

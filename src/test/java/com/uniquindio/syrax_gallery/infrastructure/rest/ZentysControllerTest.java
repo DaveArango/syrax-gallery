@@ -1,10 +1,13 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.response.ZentysDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarZentysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerZentysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarZentysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Zentys;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
+import com.uniquindio.syrax_gallery.domain.repository.ZentysServicios;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.ZentysMapper;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +42,9 @@ public class ZentysControllerTest {
 
     @MockitoBean
     private ObtenerZentysUseCase obtenerZentysUseCase;
+
+    @MockitoBean
+    private ConsultarZentysUseCase consultarZentysUseCase;
 
     @MockitoBean
     private ZentysMapper mapper;
@@ -230,5 +237,58 @@ public class ZentysControllerTest {
         mockMvc.perform(get("/api/zentys/no-existe"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensaje").value("El recurso solicitado no existe."));
+    }
+
+    //--------------------------------------------------
+
+    @Test
+    void deberiaBuscarZentysActivosCuandoHayResultados() throws Exception {
+        Pagina<Zentys> pagina = new Pagina<>(List.of(zentysSimulado()),
+                1,
+                1,
+                0,
+                5);
+        when(consultarZentysUseCase.buscar("david", 0, 5)).thenReturn(pagina);
+
+        mockMvc.perform(get("/api/zentys").param("busqueda", "david"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("zentys-01"))
+                .andExpect(jsonPath("$.content[0].nombre").value("David Vivas"))
+                .andExpect(jsonPath("$.totalElementos").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(5));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElTamanoDeLaPaginaEsInvalido() throws Exception {
+        when(consultarZentysUseCase.buscar(null,
+                0,
+                100))
+                .thenThrow(new ReglaDominioException("El tamaño de la página debe estar entre 1 y 50"));
+
+        mockMvc.perform(get("/api/zentys").param("size", "100"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("El tamaño de la página debe estar entre 1 y 50"));
+    }
+
+    @Test
+    void deberiaObtenerElRankingDeZentysMasActivos() throws Exception {
+        when(consultarZentysUseCase.masActivos(3))
+                .thenReturn(List.of(new ZentysServicios("zentys-02", "Aegon Targaryen", 2L)));
+
+        mockMvc.perform(get("/api/zentys/mas-activos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].zentysId").value("zentys-02"))
+                .andExpect(jsonPath("$[0].servicios").value(2));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElLimiteDelRankingEsInvalido() throws Exception {
+        when(consultarZentysUseCase.masActivos(50))
+                .thenThrow(new ReglaDominioException("El límite debe estar entre 1 y 20"));
+
+        mockMvc.perform(get("/api/zentys/mas-activos").param("limite", "50"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("El límite debe estar entre 1 y 20"));
     }
 }
