@@ -17,9 +17,10 @@ public class VerificarIdentidadAzantysUseCase {
     private final AzantysRepository repository;
 
     @Transactional
-    public Azantys ejecutar(String id, Iksia iksia, Laehurlion laehurlion) {
+    public Azantys ejecutar(String id, String solicitanteId, Iksia iksia, Laehurlion laehurlion) {
         Azantys azantys = repository.obtener(id)
                 .orElseThrow(() -> new NoSuchElementException("Azantys no encontrado"));
+        azantys.validarTitular(solicitanteId);
         azantys.verificarIksia(iksia);
         azantys.subirLaehurlion(laehurlion);
         repository.guardar(azantys);

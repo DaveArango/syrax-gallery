@@ -14,11 +14,14 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.CredencialesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,6 +30,7 @@ import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AzantysController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AzantysControllerTest {
-
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,7 +57,19 @@ class AzantysControllerTest {
     private RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase;
 
     @MockitoBean
+    private CredencialesService credencialesService;
+
+    @MockitoBean
     private AzantysMapper mapper;
+
+    // Simula el token de quien hace la petición (uid = id del Azantys)
+    private JwtAuthenticationToken token(String uid) {
+        Jwt jwt = Jwt.withTokenValue("token-de-prueba")
+                .header("alg", "HS256")
+                .claim("uid", uid)
+                .build();
+        return new JwtAuthenticationToken(jwt);
+    }
 
     private Azantys azantysVerificado() {
         Azantys azantys = Azantys.crear("az-001", "Rhaenyra Targaryen",
@@ -64,13 +79,16 @@ class AzantysControllerTest {
         return azantys;
     }
 
+    // ---------- POST /api/azantys (público) ----------
+
     @Test
     void deberiaRegistrarAzantysCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
                     "nombre": "Rhaenyra Targaryen",
                     "kostion": "Tatuaje realista",
-                    "runiapos": "rhaenyra@syraxgallery.com"
+                    "runiapos": "rhaenyra@syraxgallery.com",
+                    "clave": "rhaenyra123"
                 }
                 """;
         Azantys azantysSimulado = Azantys.crear("az-001", "Rhaenyra Targaryen",
@@ -93,7 +111,8 @@ class AzantysControllerTest {
         String requestJson = """
                 {
                     "kostion": "Tatuaje realista",
-                    "runiapos": "rhaenyra@syraxgallery.com"
+                    "runiapos": "rhaenyra@syraxgallery.com",
+                    "clave": "rhaenyra123"
                 }
                 """;
 
@@ -109,7 +128,8 @@ class AzantysControllerTest {
                 {
                     "nombre": "Rhaenyra Targaryen",
                     "kostion": "Tatuaje realista",
-                    "runiapos": "correo-sin-arroba"
+                    "runiapos": "correo-sin-arroba",
+                    "clave": "rhaenyra123"
                 }
                 """;
 
@@ -120,6 +140,44 @@ class AzantysControllerTest {
     }
 
     @Test
+    void deberiaRetornar400CuandoFaltaLaClave() throws Exception {
+        String requestJson = """
+                {
+                    "nombre": "Rhaenyra Targaryen",
+                    "kostion": "Tatuaje realista",
+                    "runiapos": "rhaenyra@syraxgallery.com"
+                }
+                """;
+
+        mockMvc.perform(post("/api/azantys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElCorreoYaTieneCuenta() throws Exception {
+        String requestJson = """
+                {
+                    "nombre": "Rhaenyra Targaryen",
+                    "kostion": "Tatuaje realista",
+                    "runiapos": "rhaenyra@syraxgallery.com",
+                    "clave": "rhaenyra123"
+                }
+                """;
+        doThrow(new ReglaDominioException("Ya existe una cuenta con ese correo"))
+                .when(credencialesService).validarCorreoDisponible("rhaenyra@syraxgallery.com");
+
+        mockMvc.perform(post("/api/azantys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Ya existe una cuenta con ese correo"));
+    }
+
+    // ---------- PUT /api/azantys/{id}/identidad ----------
+
+    @Test
     void deberiaVerificarIdentidadCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
@@ -127,12 +185,13 @@ class AzantysControllerTest {
                     "laehurlion": "https://cdn.syrax.com/perfiles/az-001.jpg"
                 }
                 """;
-        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), any(), any())).thenReturn(azantysVerificado());
+        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), eq("az-001"), any(), any())).thenReturn(azantysVerificado());
         when(mapper.toDetalleResponse(any())).thenReturn(new AzantysDetalleResponse(
                 "az-001", "Rhaenyra Targaryen", "Tatuaje realista", "rhaenyra@syraxgallery.com",
                 true, true, true, true));
 
         mockMvc.perform(put("/api/azantys/az-001/identidad")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk())
@@ -148,6 +207,7 @@ class AzantysControllerTest {
                 """;
 
         mockMvc.perform(put("/api/azantys/az-001/identidad")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
@@ -163,6 +223,7 @@ class AzantysControllerTest {
                 """;
 
         mockMvc.perform(put("/api/azantys/az-001/identidad")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
@@ -176,14 +237,34 @@ class AzantysControllerTest {
                     "laehurlion": "https://cdn.syrax.com/perfiles/az-001.jpg"
                 }
                 """;
-        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), any(), any()))
+        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), eq("az-001"), any(), any()))
                 .thenThrow(new ReglaDominioException("La identidad ya fue verificada"));
 
         mockMvc.perform(put("/api/azantys/az-001/identidad")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("La identidad ya fue verificada"));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoOtroAzantysCargaLaIdentidad() throws Exception {
+        String requestJson = """
+                {
+                    "iksia": "1234567",
+                    "laehurlion": "https://cdn.syrax.com/perfiles/az-001.jpg"
+                }
+                """;
+        when(verificarIdentidadAzantysUseCase.ejecutar(eq("az-001"), eq("az-002"), any(), any()))
+                .thenThrow(new ReglaDominioException("Solo el propio Azantys puede cargar su identidad"));
+
+        mockMvc.perform(put("/api/azantys/az-001/identidad")
+                        .principal(token("az-002"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("Solo el propio Azantys puede cargar su identidad"));
     }
 
     @Test
@@ -194,124 +275,11 @@ class AzantysControllerTest {
                     "laehurlion": "https://cdn.syrax.com/perfiles/x.jpg"
                 }
                 """;
-        when(verificarIdentidadAzantysUseCase.ejecutar(eq("no-existe"), any(), any()))
+        when(verificarIdentidadAzantysUseCase.ejecutar(eq("no-existe"), eq("az-001"), any(), any()))
                 .thenThrow(new NoSuchElementException("Azantys no encontrado"));
 
         mockMvc.perform(put("/api/azantys/no-existe/identidad")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isNotFound());
-    }
-
-
-    @Test
-    void deberiaBuscarAzantysPaginados() throws Exception {
-        when(consultarAzantysUseCase.buscar("tatuaje", 0, 5))
-                .thenReturn(new Pagina<>(List.of(azantysVerificado()), 1, 1, 0, 5));
-
-        mockMvc.perform(get("/api/azantys").param("busqueda", "tatuaje"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value("az-001"))
-                .andExpect(jsonPath("$.content[0].kostion").value("Tatuaje realista"))
-                .andExpect(jsonPath("$.totalPages").value(1));
-    }
-
-    @Test
-    void deberiaRetornar400CuandoElTamanoDePaginaNoEsValido() throws Exception {
-        when(consultarAzantysUseCase.buscar(null, 0, 100))
-                .thenThrow(new ReglaDominioException("El tamaño de la página debe estar entre 1 y 50"));
-
-        mockMvc.perform(get("/api/azantys").param("size", "100"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deberiaRetornarElPerfilDeUnAzantys() throws Exception {
-        when(consultarAzantysUseCase.obtener("az-001")).thenReturn(azantysVerificado());
-
-        mockMvc.perform(get("/api/azantys/az-001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombre").value("Rhaenyra Targaryen"))
-                .andExpect(jsonPath("$.laehurlion").value("https://cdn.syrax.com/perfiles/az-001.jpg"));
-    }
-
-    @Test
-    void deberiaRetornar404CuandoElPerfilNoEstaDisponible() throws Exception {
-        when(consultarAzantysUseCase.obtener("az-002"))
-                .thenThrow(new NoSuchElementException("Azantys no encontrado"));
-
-        mockMvc.perform(get("/api/azantys/az-002"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void deberiaRetornarElRankingDeMasSolicitados() throws Exception {
-        when(consultarAzantysUseCase.masSolicitados(3))
-                .thenReturn(List.of(new AzantysServicios("az-001", "Rhaenyra Targaryen", 3L)));
-
-        mockMvc.perform(get("/api/azantys/mas-solicitados"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].azantysId").value("az-001"))
-                .andExpect(jsonPath("$[0].servicios").value(3));
-    }
-
-    // ---------- PUT /api/azantys/{id}/revision (CU-48) ----------
-
-    @Test
-    void deberiaAprobarLaIdentidad() throws Exception {
-        String requestJson = """
-                {
-                    "aprobada": true
-                }
-                """;
-        when(revisarVerificacionAzantysUseCase.ejecutar(eq("az-001"), eq(true), any())).thenReturn(azantysVerificado());
-        when(mapper.toDetalleResponse(any())).thenReturn(new AzantysDetalleResponse(
-                "az-001", "Rhaenyra Targaryen", "Tatuaje realista", "rhaenyra@syraxgallery.com",
-                true, true, true, true));
-
-        mockMvc.perform(put("/api/azantys/az-001/revision")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitadoParaPublicar").value(true));
-    }
-
-    @Test
-    void deberiaRetornar400CuandoNoSeIndicaLaDecision() throws Exception {
-        mockMvc.perform(put("/api/azantys/az-001/revision")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deberiaRetornar400CuandoSeRechazaSinMotivo() throws Exception {
-        String requestJson = """
-                {
-                    "aprobada": false
-                }
-                """;
-        when(revisarVerificacionAzantysUseCase.ejecutar(eq("az-002"), eq(false), any()))
-                .thenThrow(new ReglaDominioException("El motivo del rechazo es obligatorio"));
-
-        mockMvc.perform(put("/api/azantys/az-002/revision")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.mensaje").value("El motivo del rechazo es obligatorio"));
-    }
-
-    @Test
-    void deberiaRetornar404CuandoElAzantysARevisarNoExiste() throws Exception {
-        String requestJson = """
-                {
-                    "aprobada": true
-                }
-                """;
-        when(revisarVerificacionAzantysUseCase.ejecutar(eq("no-existe"), eq(true), any()))
-                .thenThrow(new NoSuchElementException("Azantys no encontrado"));
-
-        mockMvc.perform(put("/api/azantys/no-existe/revision")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());

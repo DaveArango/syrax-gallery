@@ -17,8 +17,11 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Kostion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Laehurlion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.CredencialesService;
+import com.uniquindio.syrax_gallery.infrastructure.security.UsuarioActual;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,17 +37,20 @@ public class AzantysController {
     private final VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase;
     private final ConsultarAzantysUseCase consultarAzantysUseCase;
     private final RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase;
+    private final CredencialesService credencialesService;
     private final AzantysMapper mapper;
 
     public AzantysController(RegistrarAzantysUseCase registrarAzantysUseCase,
                              VerificarIdentidadAzantysUseCase verificarIdentidadAzantysUseCase,
                              ConsultarAzantysUseCase consultarAzantysUseCase,
                              RevisarVerificacionAzantysUseCase revisarVerificacionAzantysUseCase,
+                             CredencialesService credencialesService,
                              AzantysMapper mapper) {
         this.registrarAzantysUseCase = registrarAzantysUseCase;
         this.verificarIdentidadAzantysUseCase = verificarIdentidadAzantysUseCase;
         this.consultarAzantysUseCase = consultarAzantysUseCase;
         this.revisarVerificacionAzantysUseCase = revisarVerificacionAzantysUseCase;
+        this.credencialesService = credencialesService;
         this.mapper = mapper;
     }
 
@@ -52,11 +58,14 @@ public class AzantysController {
     public ResponseEntity<AzantysDetalleResponse> crear(@Valid @RequestBody RegistrarAzantysRequest request) {
         Kostion kostion = new Kostion(request.kostion());
         Runiapos runiapos = new Runiapos(request.runiapos());
+        credencialesService.validarCorreoDisponible(runiapos.direccion());
+
         Azantys azantys = registrarAzantysUseCase.ejecutar(
                 UUID.randomUUID().toString(),
                 request.nombre(),
                 kostion,
                 runiapos);
+        credencialesService.registrar(azantys.getId(), runiapos.direccion(), request.clave());
 
         AzantysDetalleResponse response = mapper.toDetalleResponse(azantys);
 
@@ -71,9 +80,11 @@ public class AzantysController {
 
     @PutMapping("/{id}/identidad")
     public ResponseEntity<AzantysDetalleResponse> verificarIdentidad(@PathVariable String id,
-                                                                     @Valid @RequestBody VerificarIdentidadRequest request) {
+                                                                     @Valid @RequestBody VerificarIdentidadRequest request,
+                                                                     JwtAuthenticationToken token) {
         Azantys azantys = verificarIdentidadAzantysUseCase.ejecutar(
                 id,
+                UsuarioActual.id(token),
                 new Iksia(request.iksia()),
                 new Laehurlion(request.laehurlion()));
 
