@@ -76,7 +76,12 @@ public class Sunfyre {
     public void validarParticipante(String idParticipante) {
         if (idParticipante == null
                 || (!idParticipante.equals(this.idAzantys) && !idParticipante.equals(this.idZentys)))
-            throw new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden cancelarla");
+            throw new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden realizar esta acción");
+    }
+
+    public void validarCliente(String idZentys) {
+        if (idZentys == null || !this.idZentys.equals(idZentys))
+            throw new ReglaDominioException("Solo el Zentys de la Sunfyre puede constituir su Kelitis");
     }
 
     public void publicar(Kanez kanez) {

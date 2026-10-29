@@ -138,4 +138,20 @@ class KelitisTest {
         assertEquals(Gelior.LIBERADO, kelitis.getGelior());
         assertThrows(ReglaDominioException.class, kelitis::liberarPago);
     }
+
+    @Test
+    void validarParticipanteAceptaAlAzantysYAlZentys() {
+        Kelitis kelitis = kelitisRetenido();
+
+        assertDoesNotThrow(() -> kelitis.validarParticipante("az-001"));
+        assertDoesNotThrow(() -> kelitis.validarParticipante("ze-001"));
+    }
+
+    @Test
+    void validarParticipanteRechazaAUnTercero() {
+        Kelitis kelitis = kelitisRetenido();
+
+        assertThrows(ReglaDominioException.class, () -> kelitis.validarParticipante("ze-999"));
+        assertThrows(ReglaDominioException.class, () -> kelitis.validarParticipante(null));
+    }
 }

@@ -54,6 +54,12 @@ public class Kelitis {
             throw new ReglaDominioException("Solo el Zentys del servicio puede aprobar este Kelitis");
     }
 
+    public void validarParticipante(String idParticipante) {
+        if (idParticipante == null
+                || (!idParticipante.equals(this.idAzantys) && !idParticipante.equals(this.idZentys)))
+            throw new ReglaDominioException("Solo el Azantys o el Zentys del servicio pueden consultar este Kelitis");
+    }
+
     public void liberarPago() {
         if (gelior != Gelior.RETENIDO)
             throw new ReglaDominioException("Solo un Kelitis RETENIDO puede liberar el pago");

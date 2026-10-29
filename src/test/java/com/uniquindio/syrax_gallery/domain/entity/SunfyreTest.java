@@ -244,4 +244,19 @@ public class SunfyreTest {
         assertEquals(nuevo, sunfyre.getSari());
         assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
     }
+
+    @Test
+    void validarClienteAceptaAlZentysDeLaSunfyre() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertDoesNotThrow(() -> sunfyre.validarCliente("ze-001"));
+    }
+
+    @Test
+    void validarClienteRechazaAlAzantysYAOtroZentys() {
+        Sunfyre sunfyre = sunfyrePendiente();
+
+        assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("az-001"));
+        assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("ze-999"));
+    }
 }

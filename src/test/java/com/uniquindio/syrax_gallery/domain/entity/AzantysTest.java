@@ -289,4 +289,21 @@ public class AzantysTest {
 
         assertThrows(ReglaDominioException.class, () -> azantys.verificarIksia(new Iksia("7654321")));
     }
+    
+    @Test
+    void validarTitularAceptaAlPropioAzantys() {
+        Azantys azantys = azantysBase();
+
+        assertDoesNotThrow(() -> azantys.validarTitular("az-001"));
+    }
+
+    @Test
+    void validarTitularRechazaAOtroAzantys() {
+        Azantys azantys = azantysBase();
+
+        ReglaDominioException ex = assertThrows(ReglaDominioException.class,
+                () -> azantys.validarTitular("az-002"));
+
+        assertEquals("Solo el propio Azantys puede cargar su identidad", ex.getMessage());
+    }
 }

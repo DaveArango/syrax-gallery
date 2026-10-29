@@ -65,6 +65,11 @@ public class Azantys {
                 iksia, iksiaVerificada, laehurlion, laehurlionVerificado, identidadAprobada);
     }
 
+    public void validarTitular(String idSolicitante) {
+        if (idSolicitante == null || !this.id.equals(idSolicitante))
+            throw new ReglaDominioException("Solo el propio Azantys puede cargar su identidad");
+    }
+
     public void verificarIksia(Iksia iksia) {
         if (iksiaVerificada)
             throw new ReglaDominioException("La identidad ya fue verificada");
