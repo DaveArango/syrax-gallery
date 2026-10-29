@@ -289,7 +289,7 @@ public class AzantysTest {
 
         assertThrows(ReglaDominioException.class, () -> azantys.verificarIksia(new Iksia("7654321")));
     }
-    
+
     @Test
     void validarTitularAceptaAlPropioAzantys() {
         Azantys azantys = azantysBase();

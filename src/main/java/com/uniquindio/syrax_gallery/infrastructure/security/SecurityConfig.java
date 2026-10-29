@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/error",
                                 "/api-docs/**",
+                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/h2-console/**"
@@ -54,6 +55,9 @@ public class SecurityConfig {
                                 "/api/caraxes",               // catálogo (solo obras publicadas)
                                 "/api/sunfyre"                // catálogo (solo servicios publicados)
                         ).permitAll()
+
+                        // Registro público de Azantys (crea también su cuenta de login)
+                        .requestMatchers(HttpMethod.POST, "/api/azantys").permitAll()
 
                         // Admin
                         .requestMatchers(HttpMethod.PUT, "/api/azantys/*/revision").hasAuthority("ADMIN")
