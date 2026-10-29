@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,6 +61,15 @@ class SunfyreControllerTest {
     @MockitoBean
     private SunfyreMapper mapper;
 
+    // Simula el token de quien hace la petición (uid = id del Azantys o del Zentys)
+    private JwtAuthenticationToken token(String uid) {
+        Jwt jwt = Jwt.withTokenValue("token-de-prueba")
+                .header("alg", "HS256")
+                .claim("uid", uid)
+                .build();
+        return new JwtAuthenticationToken(jwt);
+    }
+
     private Sunfyre sunfyreSimulada() {
         return Sunfyre.solicitar("sf-001", "az-001", "ze-001",
                 new Sari(LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3).plusHours(2)),
@@ -81,7 +92,6 @@ class SunfyreControllerTest {
     void deberiaCrearSunfyreCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "zentysId": "ze-001",
                     "inicio": "2030-03-10T10:00:00",
                     "fin": "2030-03-10T13:00:00",
@@ -94,10 +104,11 @@ class SunfyreControllerTest {
                     "divisa": "COP"
                 }
                 """;
-        when(crearSunfyreUseCase.ejecutar(any(), any(), any(), any(), any(), any(), any()))
+        when(crearSunfyreUseCase.ejecutar(any(), eq("az-001"), eq("ze-001"), any(), any(), any(), any()))
                 .thenReturn(sunfyreSimulada());
 
         mockMvc.perform(post("/api/sunfyre")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isCreated())
@@ -105,10 +116,9 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaElAzantys() throws Exception {
+    void deberiaRetornar400CuandoFaltaElZentys() throws Exception {
         String requestJson = """
                 {
-                    "zentysId": "ze-001",
                     "inicio": "2030-03-10T10:00:00",
                     "fin": "2030-03-10T13:00:00",
                     "kastor": "ARTE_PIEL",
@@ -122,6 +132,7 @@ class SunfyreControllerTest {
                 """;
 
         mockMvc.perform(post("/api/sunfyre")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
@@ -131,7 +142,6 @@ class SunfyreControllerTest {
     void deberiaRetornar400CuandoElFinEsAntesDelInicio() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "zentysId": "ze-001",
                     "inicio": "2030-03-10T13:00:00",
                     "fin": "2030-03-10T10:00:00",
@@ -146,6 +156,7 @@ class SunfyreControllerTest {
                 """;
 
         mockMvc.perform(post("/api/sunfyre")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
@@ -155,7 +166,6 @@ class SunfyreControllerTest {
     void deberiaRetornar404CuandoElZentysNoExiste() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "zentysId": "no-existe",
                     "inicio": "2030-03-10T10:00:00",
                     "fin": "2030-03-10T13:00:00",
@@ -168,10 +178,11 @@ class SunfyreControllerTest {
                     "divisa": "COP"
                 }
                 """;
-        when(crearSunfyreUseCase.ejecutar(any(), any(), any(), any(), any(), any(), any()))
+        when(crearSunfyreUseCase.ejecutar(any(), eq("az-001"), eq("no-existe"), any(), any(), any(), any()))
                 .thenThrow(new NoSuchElementException("Zentys no encontrado"));
 
         mockMvc.perform(post("/api/sunfyre")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
@@ -182,10 +193,10 @@ class SunfyreControllerTest {
     @Test
     void deberiaRetornarElDetalleDeLaSunfyre() throws Exception {
         Sunfyre sunfyre = sunfyreSimulada();
-        when(obtenerSunfyreUseCase.ejecutar("sf-001")).thenReturn(sunfyre);
+        when(obtenerSunfyreUseCase.ejecutar("sf-001", "az-001")).thenReturn(sunfyre);
         when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "BORRADOR"));
 
-        mockMvc.perform(get("/api/sunfyre/sf-001"))
+        mockMvc.perform(get("/api/sunfyre/sf-001").principal(token("az-001")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("sf-001"))
                 .andExpect(jsonPath("$.ciudad").value("Armenia"))
@@ -193,11 +204,20 @@ class SunfyreControllerTest {
     }
 
     @Test
+    void deberiaRetornar400CuandoUnTerceroConsultaLaSunfyre() throws Exception {
+        when(obtenerSunfyreUseCase.ejecutar("sf-001", "ze-999"))
+                .thenThrow(new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden realizar esta acción"));
+
+        mockMvc.perform(get("/api/sunfyre/sf-001").principal(token("ze-999")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void deberiaRetornar404CuandoLaSunfyreNoExiste() throws Exception {
-        when(obtenerSunfyreUseCase.ejecutar("no-existe"))
+        when(obtenerSunfyreUseCase.ejecutar("no-existe", "az-001"))
                 .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
 
-        mockMvc.perform(get("/api/sunfyre/no-existe"))
+        mockMvc.perform(get("/api/sunfyre/no-existe").principal(token("az-001")))
                 .andExpect(status().isNotFound());
     }
 
@@ -207,7 +227,6 @@ class SunfyreControllerTest {
     void deberiaPublicarSunfyreCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "destino": "EXHIBICION"
                 }
                 """;
@@ -216,6 +235,7 @@ class SunfyreControllerTest {
         when(publicarSunfyreUseCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION)).thenReturn(sunfyre);
 
         mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk());
@@ -223,15 +243,10 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltaElDestino() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
-
         mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -239,7 +254,6 @@ class SunfyreControllerTest {
     void deberiaRetornar400CuandoElAzantysNoEstaVerificado() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-002",
                     "destino": "EN_VENTA"
                 }
                 """;
@@ -247,11 +261,14 @@ class SunfyreControllerTest {
                 .thenThrow(new ReglaDominioException("No puede publicar sin verificar su identidad."));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+                        .principal(token("az-002"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
+
+    // ---------- GET /api/sunfyre (catálogo público, sin token) ----------
 
     @Test
     void deberiaBuscarEnElCatalogoConFiltros() throws Exception {
@@ -285,79 +302,45 @@ class SunfyreControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // ---------- PUT /api/sunfyre/{id}/iniciar ----------
+    // ---------- PUT /api/sunfyre/{id}/iniciar (sin cuerpo) ----------
 
     @Test
     void deberiaIniciarEjecucionCuandoDatosValidos() throws Exception {
         // Arrange
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
         Sunfyre sunfyre = sunfyreSimulada();
         sunfyre.confirmar();
         sunfyre.iniciarEjecucion();
         when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
 
         // Act & Assert
-        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar").principal(token("az-001")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaElAzantysAlIniciar() throws Exception {
-        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void deberiaRetornar400CuandoLaSunfyreNoEstaAbonada() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
         when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar").principal(token("az-001")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre ABONADA puede iniciar ejecución"));
     }
 
     @Test
     void deberiaRetornar404CuandoLaSunfyreNoExisteAlIniciar() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
         when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "no-existe"))
                 .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
 
-        mockMvc.perform(put("/api/sunfyre/no-existe/iniciar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/no-existe/iniciar").principal(token("az-001")))
                 .andExpect(status().isNotFound());
     }
 
-    // ---------- PUT /api/sunfyre/{id}/finalizar ----------
+    // ---------- PUT /api/sunfyre/{id}/finalizar (sin cuerpo) ----------
 
     @Test
     void deberiaFinalizarCuandoDatosValidos() throws Exception {
         // Arrange
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
         Sunfyre sunfyre = sunfyreSimulada();
         sunfyre.confirmar();
         sunfyre.iniciarEjecucion();
@@ -365,50 +348,26 @@ class SunfyreControllerTest {
         when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
 
         // Act & Assert
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-001")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaElAzantysAlFinalizar() throws Exception {
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void deberiaRetornar400CuandoLaSunfyreNoEstaEnEjecucion() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
         when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-001")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre en ejecución puede finalizar"));
     }
 
     @Test
     void deberiaRetornar400CuandoOtroAzantysIntentaFinalizar() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-002"
-                }
-                """;
         when(finalizarSunfyreUseCase.ejecutar("az-002", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-002")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -418,7 +377,6 @@ class SunfyreControllerTest {
     void deberiaCancelarCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
-                    "solicitanteId": "ze-001",
                     "motivo": "El cliente viaja esa semana"
                 }
                 """;
@@ -427,6 +385,7 @@ class SunfyreControllerTest {
         when(cancelarSunfyreUseCase.ejecutar("sf-001", "ze-001", "El cliente viaja esa semana")).thenReturn(sunfyre);
 
         mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk());
@@ -434,15 +393,10 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltaElMotivo() throws Exception {
-        String requestJson = """
-                {
-                    "solicitanteId": "ze-001"
-                }
-                """;
-
         mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -450,7 +404,6 @@ class SunfyreControllerTest {
     void deberiaRetornar400CuandoLaSunfyreYaInicio() throws Exception {
         String requestJson = """
                 {
-                    "solicitanteId": "ze-001",
                     "motivo": "Ya no la quiero"
                 }
                 """;
@@ -458,6 +411,7 @@ class SunfyreControllerTest {
                 .thenThrow(new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+                        .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
@@ -468,7 +422,6 @@ class SunfyreControllerTest {
     void deberiaRetornar404CuandoLaSunfyreNoExisteAlCancelar() throws Exception {
         String requestJson = """
                 {
-                    "solicitanteId": "ze-001",
                     "motivo": "El cliente viaja esa semana"
                 }
                 """;
@@ -476,6 +429,7 @@ class SunfyreControllerTest {
                 .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
 
         mockMvc.perform(put("/api/sunfyre/no-existe/cancelar")
+                        .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
@@ -487,7 +441,6 @@ class SunfyreControllerTest {
     void deberiaReprogramarCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "inicio": "2030-05-20T10:00:00",
                     "fin": "2030-05-20T12:00:00"
                 }
@@ -497,6 +450,7 @@ class SunfyreControllerTest {
         when(reprogramarSunfyreUseCase.ejecutar(eq("az-001"), eq("sf-001"), any())).thenReturn(sunfyre);
 
         mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk());
@@ -504,15 +458,10 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltanLasFechas() throws Exception {
-        String requestJson = """
-                {
-                    "azantysId": "az-001"
-                }
-                """;
-
         mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -520,7 +469,6 @@ class SunfyreControllerTest {
     void deberiaRetornar400CuandoElNuevoHorarioSeCruza() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "inicio": "2030-05-20T10:00:00",
                     "fin": "2030-05-20T12:00:00"
                 }
@@ -529,6 +477,7 @@ class SunfyreControllerTest {
                 .thenThrow(new ReglaDominioException("El Azantys ya tiene una cita en ese horario"));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
@@ -539,13 +488,13 @@ class SunfyreControllerTest {
     void deberiaRetornar400CuandoElFinEsAntesDelInicioAlReprogramar() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "az-001",
                     "inicio": "2030-05-20T12:00:00",
                     "fin": "2030-05-20T10:00:00"
                 }
                 """;
 
         mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());

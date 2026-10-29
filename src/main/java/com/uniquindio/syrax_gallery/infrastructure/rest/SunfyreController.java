@@ -1,20 +1,18 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
+import com.uniquindio.syrax_gallery.application.dto.request.CancelarSunfyreRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.CrearSunfyreRequest;
-import com.uniquindio.syrax_gallery.application.dto.request.IniciarEjecucionSunfyreRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.PublicarSunfyreRequest;
+import com.uniquindio.syrax_gallery.application.dto.request.ReprogramarSunfyreRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
 import com.uniquindio.syrax_gallery.application.dto.response.SunfyreDetalleResponse;
+import com.uniquindio.syrax_gallery.application.usecase.CancelarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ConsultarCatalogoSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.CrearSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.dto.request.FinalizarSunfyreRequest;
-import com.uniquindio.syrax_gallery.application.usecase.FinalizarSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.dto.request.CancelarSunfyreRequest;
-import com.uniquindio.syrax_gallery.application.usecase.CancelarSunfyreUseCase;
-import com.uniquindio.syrax_gallery.application.dto.request.ReprogramarSunfyreRequest;
 import com.uniquindio.syrax_gallery.application.usecase.ReprogramarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
@@ -22,8 +20,10 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.SunfyreMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.UsuarioActual;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -65,10 +65,11 @@ public class SunfyreController {
     }
 
     @PostMapping
-    public ResponseEntity<SunfyreDetalleResponse> crear(@Valid @RequestBody CrearSunfyreRequest request) {
+    public ResponseEntity<SunfyreDetalleResponse> crear(@Valid @RequestBody CrearSunfyreRequest request,
+                                                        JwtAuthenticationToken token) {
         Sunfyre sunfyre = crearSunfyreUseCase.ejecutar(
                 UUID.randomUUID().toString(),
-                request.azantysId(),
+                UsuarioActual.id(token),
                 request.zentysId(),
                 new Sari(request.inicio(), request.fin()),
                 request.kastor(),
@@ -96,43 +97,48 @@ public class SunfyreController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SunfyreDetalleResponse> obtener(@PathVariable String id) {
-        return ResponseEntity.ok(mapper.toDetalleResponse(obtenerSunfyreUseCase.ejecutar(id)));
+    public ResponseEntity<SunfyreDetalleResponse> obtener(@PathVariable String id,
+                                                          JwtAuthenticationToken token) {
+        Sunfyre sunfyre = obtenerSunfyreUseCase.ejecutar(id, UsuarioActual.id(token));
+        return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 
     @PutMapping("/{id}/publicar")
     public ResponseEntity<SunfyreDetalleResponse> publicar(@PathVariable String id,
-                                                           @Valid @RequestBody PublicarSunfyreRequest request) {
-        Sunfyre sunfyre = publicarSunfyreUseCase.ejecutar(request.azantysId(), id, request.destino());
+                                                           @Valid @RequestBody PublicarSunfyreRequest request,
+                                                           JwtAuthenticationToken token) {
+        Sunfyre sunfyre = publicarSunfyreUseCase.ejecutar(UsuarioActual.id(token), id, request.destino());
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 
     @PutMapping("/{id}/iniciar")
     public ResponseEntity<SunfyreDetalleResponse> iniciarEjecucion(@PathVariable String id,
-                                                                   @Valid @RequestBody IniciarEjecucionSunfyreRequest request) {
-        Sunfyre sunfyre = iniciarEjecucionSunfyreUseCase.ejecutar(request.azantysId(), id);
+                                                                   JwtAuthenticationToken token) {
+        Sunfyre sunfyre = iniciarEjecucionSunfyreUseCase.ejecutar(UsuarioActual.id(token), id);
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 
     @PutMapping("/{id}/finalizar")
     public ResponseEntity<SunfyreDetalleResponse> finalizar(@PathVariable String id,
-                                                            @Valid @RequestBody FinalizarSunfyreRequest request) {
-        Sunfyre sunfyre = finalizarSunfyreUseCase.ejecutar(request.azantysId(), id);
+                                                            JwtAuthenticationToken token) {
+        Sunfyre sunfyre = finalizarSunfyreUseCase.ejecutar(UsuarioActual.id(token), id);
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<SunfyreDetalleResponse> cancelar(@PathVariable String id,
-                                                           @Valid @RequestBody CancelarSunfyreRequest request) {
-        Sunfyre sunfyre = cancelarSunfyreUseCase.ejecutar(id, request.solicitanteId(), request.motivo());
+                                                           @Valid @RequestBody CancelarSunfyreRequest request,
+                                                           JwtAuthenticationToken token) {
+        Sunfyre sunfyre = cancelarSunfyreUseCase.ejecutar(id, UsuarioActual.id(token), request.motivo());
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 
     @PutMapping("/{id}/reprogramar")
     public ResponseEntity<SunfyreDetalleResponse> reprogramar(@PathVariable String id,
-                                                              @Valid @RequestBody ReprogramarSunfyreRequest request) {
+                                                              @Valid @RequestBody ReprogramarSunfyreRequest request,
+                                                              JwtAuthenticationToken token) {
         Sunfyre sunfyre = reprogramarSunfyreUseCase.ejecutar(
-                request.azantysId(), id, new Sari(request.inicio(), request.fin()));
+                UsuarioActual.id(token), id, new Sari(request.inicio(), request.fin()));
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
     }
 }

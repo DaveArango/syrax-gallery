@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 
 public record CrearSunfyreRequest(
 
-        @NotBlank(message = "El id del Azantys es obligatorio.")
-        String azantysId,
-
         @NotBlank(message = "El id del Zentys es obligatorio.")
         String zentysId,
 

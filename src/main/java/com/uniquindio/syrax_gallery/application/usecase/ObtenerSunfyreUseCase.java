@@ -15,8 +15,11 @@ public class ObtenerSunfyreUseCase {
     private final SunfyreRepository repository;
 
     @Transactional(readOnly = true)
-    public Sunfyre ejecutar(String id) {
-        return repository.obtener(id)
+    public Sunfyre ejecutar(String id, String solicitanteId) {
+        Sunfyre sunfyre = repository.obtener(id)
                 .orElseThrow(() -> new NoSuchElementException("Sunfyre no encontrada"));
+
+        sunfyre.validarParticipante(solicitanteId);
+        return sunfyre;
     }
 }
