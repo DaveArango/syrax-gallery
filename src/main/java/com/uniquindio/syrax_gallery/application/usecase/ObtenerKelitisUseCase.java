@@ -15,8 +15,11 @@ public class ObtenerKelitisUseCase {
     private final KelitisRepository repository;
 
     @Transactional(readOnly = true)
-    public Kelitis ejecutar(String id) {
-        return repository.obtener(id)
+    public Kelitis ejecutar(String id, String solicitanteId) {
+        Kelitis kelitis = repository.obtener(id)
                 .orElseThrow(() -> new NoSuchElementException("Kelitis no encontrado"));
+
+        kelitis.validarParticipante(solicitanteId);
+        return kelitis;
     }
 }

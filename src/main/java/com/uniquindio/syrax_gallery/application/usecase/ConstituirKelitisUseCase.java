@@ -22,9 +22,10 @@ public class ConstituirKelitisUseCase {
     private final VerificadorDeAgenda verificadorDeAgenda;
 
     @Transactional
-    public Kelitis ejecutar(String id, String sunfyreId) {
+    public Kelitis ejecutar(String id, String sunfyreId, String zentysId) {
         Sunfyre sunfyre = sunfyreRepository.obtener(sunfyreId)
                 .orElseThrow(() -> new NoSuchElementException("Sunfyre no encontrada"));
+        sunfyre.validarCliente(zentysId);
         if (kelitisRepository.existePorSunfyre(sunfyreId)) {
             throw new ReglaDominioException("La Sunfyre ya tiene un Kelitis constituido");
         }

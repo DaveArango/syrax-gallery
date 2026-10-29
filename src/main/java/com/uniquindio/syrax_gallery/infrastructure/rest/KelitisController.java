@@ -1,6 +1,5 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
-import com.uniquindio.syrax_gallery.application.dto.request.AprobarEjecucionKelitisRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.ConstituirKelitisRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.KelitisDetalleResponse;
 import com.uniquindio.syrax_gallery.application.usecase.AprobarEjecucionKelitisUseCase;
@@ -8,8 +7,10 @@ import com.uniquindio.syrax_gallery.application.usecase.ConstituirKelitisUseCase
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerKelitisUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.KelitisMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.UsuarioActual;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -36,8 +37,10 @@ public class KelitisController {
     }
 
     @PostMapping
-    public ResponseEntity<KelitisDetalleResponse> constituir(@Valid @RequestBody ConstituirKelitisRequest request) {
-        Kelitis kelitis = constituirKelitisUseCase.ejecutar(UUID.randomUUID().toString(), request.sunfyreId());
+    public ResponseEntity<KelitisDetalleResponse> constituir(@Valid @RequestBody ConstituirKelitisRequest request,
+                                                             JwtAuthenticationToken token) {
+        Kelitis kelitis = constituirKelitisUseCase.ejecutar(
+                UUID.randomUUID().toString(), request.sunfyreId(), UsuarioActual.id(token));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -49,14 +52,16 @@ public class KelitisController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<KelitisDetalleResponse> obtener(@PathVariable String id) {
-        return ResponseEntity.ok(mapper.toDetalleResponse(obtenerKelitisUseCase.ejecutar(id)));
+    public ResponseEntity<KelitisDetalleResponse> obtener(@PathVariable String id,
+                                                          JwtAuthenticationToken token) {
+        Kelitis kelitis = obtenerKelitisUseCase.ejecutar(id, UsuarioActual.id(token));
+        return ResponseEntity.ok(mapper.toDetalleResponse(kelitis));
     }
 
     @PutMapping("/{id}/aprobar")
     public ResponseEntity<KelitisDetalleResponse> aprobar(@PathVariable String id,
-                                                          @Valid @RequestBody AprobarEjecucionKelitisRequest request) {
-        Kelitis kelitis = aprobarEjecucionUseCase.ejecutar(id, request.zentysId());
+                                                          JwtAuthenticationToken token) {
+        Kelitis kelitis = aprobarEjecucionUseCase.ejecutar(id, UsuarioActual.id(token));
         return ResponseEntity.ok(mapper.toDetalleResponse(kelitis));
     }
 }
