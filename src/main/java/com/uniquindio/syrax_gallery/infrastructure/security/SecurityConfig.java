@@ -27,6 +27,7 @@ public class SecurityConfig {
 
     private final JwtDecoder jwtDecoder;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final RespuestasSeguridad respuestasSeguridad;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -59,13 +60,34 @@ public class SecurityConfig {
                         // Registro público de Azantys (crea también su cuenta de login)
                         .requestMatchers(HttpMethod.POST, "/api/azantys").permitAll()
 
-                        // Admin
+                        // Solo el Jovennio (ADMIN)
                         .requestMatchers(HttpMethod.PUT, "/api/azantys/*/revision").hasAuthority("ADMIN")
+
+                        // Solo el Azantys (vendedor)
+                        .requestMatchers(HttpMethod.POST, "/api/sunfyre").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/sunfyre/*/publicar",
+                                "/api/sunfyre/*/iniciar",
+                                "/api/sunfyre/*/finalizar",
+                                "/api/sunfyre/*/reprogramar",
+                                "/api/azantys/*/identidad"
+                        ).hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
+
+                        // Solo el Zentys (comprador)
+                        .requestMatchers(HttpMethod.POST, "/api/kelitis").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.PUT, "/api/kelitis/*/aprobar").hasAuthority("ZENTYS")
 
                         // Todo lo demás exige token
                         .anyRequest().authenticated()
                 )
+                // 401 y 403 con JSON claro (mismo formato que GlobalExceptionHandler)
+                .exceptionHandling(errores -> errores
+                        .authenticationEntryPoint(respuestasSeguridad)
+                        .accessDeniedHandler(respuestasSeguridad))
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(respuestasSeguridad)
+                        .accessDeniedHandler(respuestasSeguridad)
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter)))
