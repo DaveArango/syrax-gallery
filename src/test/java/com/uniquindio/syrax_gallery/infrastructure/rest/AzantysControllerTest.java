@@ -88,7 +88,7 @@ class AzantysControllerTest {
                     "nombre": "Rhaenyra Targaryen",
                     "kostion": "Tatuaje realista",
                     "runiapos": "rhaenyra@syraxgallery.com",
-                    "clave": "rhaenyra123"
+                    "clave": "Rhaenyra123"
                 }
                 """;
         Azantys azantysSimulado = Azantys.crear("az-001", "Rhaenyra Targaryen",
@@ -112,7 +112,7 @@ class AzantysControllerTest {
                 {
                     "kostion": "Tatuaje realista",
                     "runiapos": "rhaenyra@syraxgallery.com",
-                    "clave": "rhaenyra123"
+                    "clave": "Rhaenyra123"
                 }
                 """;
 
@@ -129,7 +129,7 @@ class AzantysControllerTest {
                     "nombre": "Rhaenyra Targaryen",
                     "kostion": "Tatuaje realista",
                     "runiapos": "correo-sin-arroba",
-                    "clave": "rhaenyra123"
+                    "clave": "Rhaenyra123"
                 }
                 """;
 
@@ -162,7 +162,7 @@ class AzantysControllerTest {
                     "nombre": "Rhaenyra Targaryen",
                     "kostion": "Tatuaje realista",
                     "runiapos": "rhaenyra@syraxgallery.com",
-                    "clave": "rhaenyra123"
+                    "clave": "Rhaenyra123"
                 }
                 """;
         doThrow(new ReglaDominioException("Ya existe una cuenta con ese correo"))
