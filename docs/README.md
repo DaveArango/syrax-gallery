@@ -104,7 +104,7 @@ Quien hace la acción (Azantys o Zentys) se toma del token, no del cuerpo de la 
 ### Zentys
 | Método | Endpoint | Acceso |
 |---|---|---|
-| POST | /api/zentys | Registro |
+| POST | /api/zentys | Público (registro, crea también la cuenta de login) |
 | GET | /api/zentys/{id} | Con token |
 | GET | /api/zentys?busqueda=&page=&size= | Con token |
 | GET | /api/zentys/mas-activos?limite= | Con token (ranking) |
@@ -113,11 +113,11 @@ Quien hace la acción (Azantys o Zentys) se toma del token, no del cuerpo de la 
 | Método | Endpoint | Acceso |
 |---|---|---|
 | GET | /api/caraxes?texto=&kastor=&page=&size= | Público (catálogo) |
-| POST | /api/caraxes | Con token |
+| POST | /api/caraxes | AZANTYS |
 | GET | /api/caraxes/{id} | Con token |
-| PUT | /api/caraxes/{id}/publicar | Con token |
-| PUT | /api/caraxes/{id}/retirar | Con token |
-| PUT | /api/caraxes/{id}/vender | Con token |
+| PUT | /api/caraxes/{id}/publicar | AZANTYS (el creador) |
+| PUT | /api/caraxes/{id}/retirar | AZANTYS (el creador) |
+| PUT | /api/caraxes/{id}/vender | ZENTYS |
 
 ### Códigos de error
 

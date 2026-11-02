@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,6 +61,15 @@ public class CaraxesControllerTest {
     private CaraxesMapper mapper;
 
 
+    // Simula el token de quien hace la petición (uid = id del Azantys o del Zentys)
+    private JwtAuthenticationToken token(String uid) {
+        Jwt jwt = Jwt.withTokenValue("token-de-prueba")
+                .header("alg", "HS256")
+                .claim("uid", uid)
+                .build();
+        return new JwtAuthenticationToken(jwt);
+    }
+
     private Caraxes caraxesSimulado() {
         return Caraxes.crear("id-1",
                 "azantys-1",
@@ -85,7 +96,6 @@ public class CaraxesControllerTest {
     void deberiaCrearCaraxesCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": 1200.50,
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
@@ -100,6 +110,7 @@ public class CaraxesControllerTest {
         when(mapper.toDetalleResponse(any())).thenReturn(respuestaSimulada("BORRADOR"));
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isCreated())
@@ -119,29 +130,9 @@ public class CaraxesControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaAzantysId() throws Exception {
-        String requestJson = """
-                {
-                    "monto": 1200.50,
-                    "divisa": "USD",
-                    "sete": "Noche Estrellada",
-                    "jorva": "Paisaje al atardecer pintado al oleo",
-                    "urnebion": "https://cdn.syrax.com/obras/noche-estrellada.jpg",
-                    "kastor": "PINTURA"
-                }
-                """;
-
-        mockMvc.perform(post("/api/caraxes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void deberiaRetornar400CuandoFaltaElMonto() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
                     "jorva": "Paisaje al atardecer pintado al oleo",
@@ -151,6 +142,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
@@ -160,7 +152,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar422CuandoElMontoEsNegativo() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": -5,
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
@@ -171,6 +162,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
@@ -181,7 +173,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar422CuandoLaDivisaNoTieneTresLetras() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": 1200.50,
                     "divisa": "US",
                     "sete": "Noche Estrellada",
@@ -192,6 +183,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
@@ -202,7 +194,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar422CuandoElSeteEsMuyCorto() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": 1200.50,
                     "divisa": "USD",
                     "sete": "ab",
@@ -213,6 +204,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
@@ -223,7 +215,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar422CuandoElJorvaEsMuyCorto() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": 1200.50,
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
@@ -234,6 +225,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
@@ -244,7 +236,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar400CuandoElKastorNoExiste() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "azantys-1",
                     "monto": 1200.50,
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
@@ -255,6 +246,7 @@ public class CaraxesControllerTest {
                 """;
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("azantys-1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(jsonPath("$.mensaje", containsString("XYZ")));
@@ -264,7 +256,6 @@ public class CaraxesControllerTest {
     void deberiaRetornar404CuandoElAzantysNoExiste() throws Exception {
         String requestJson = """
                 {
-                    "azantysId": "no-existe",
                     "monto": 1200.50,
                     "divisa": "USD",
                     "sete": "Noche Estrellada",
@@ -277,6 +268,7 @@ public class CaraxesControllerTest {
                 .thenThrow(new NoSuchElementException("Azantys no encontrado"));
 
         mockMvc.perform(post("/api/caraxes")
+                        .principal(token("no-existe"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound())
@@ -310,9 +302,10 @@ public class CaraxesControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-001", "destino": "EXHIBICION"}
+                            {"destino": "EXHIBICION"}
                             """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("EXHIBICION"));
@@ -325,9 +318,10 @@ public class CaraxesControllerTest {
         when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("EN_VENTA"));
 
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-001", "destino": "EN_VENTA"}
+                            {"destino": "EN_VENTA"}
                             """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("EN_VENTA"));
@@ -339,9 +333,10 @@ public class CaraxesControllerTest {
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
 
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-999"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-999", "destino": "EXHIBICION"}
+                            {"destino": "EXHIBICION"}
                             """))
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
@@ -355,18 +350,20 @@ public class CaraxesControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-001", "destino": "EN_VENTA"}
+                            {"destino": "EN_VENTA"}
                             """))
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaElAzantysIdOElDestino() throws Exception {
+    void deberiaRetornar400CuandoFaltaElDestino() throws Exception {
         // Act & Assert
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
@@ -376,9 +373,10 @@ public class CaraxesControllerTest {
     @Test
     void deberiaRetornar400CuandoElDestinoNoExiste() throws Exception {
         mockMvc.perform(put("/api/caraxes/id-1/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-001", "destino": "XYZ"}
+                            {"destino": "XYZ"}
                             """))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(publicarCaraxesUseCase);
@@ -390,9 +388,10 @@ public class CaraxesControllerTest {
                 .thenThrow(new NoSuchElementException("Caraxes no encontrado"));
 
         mockMvc.perform(put("/api/caraxes/no-existe/publicar")
+                        .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"azantysId": "az-001", "destino": "EXHIBICION"}
+                            {"destino": "EXHIBICION"}
                             """))
                 .andExpect(status().isNotFound());
     }
@@ -451,21 +450,9 @@ public class CaraxesControllerTest {
         when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("RETIRADO"));
 
         mockMvc.perform(put("/api/caraxes/id-1/retirar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"azantysId": "az-001"}
-                            """))
+                        .principal(token("az-001")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("RETIRADO"));
-    }
-
-    @Test
-    void deberiaRetornar400CuandoRetirarNoRecibeAzantysId() throws Exception {
-        mockMvc.perform(put("/api/caraxes/id-1/retirar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
-        verifyNoInteractions(retirarCaraxesUseCase);
     }
 
     @Test
@@ -475,10 +462,7 @@ public class CaraxesControllerTest {
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
 
         mockMvc.perform(put("/api/caraxes/id-1/retirar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"azantysId": "az-999"}
-                            """))
+                        .principal(token("az-999")))
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
     }
@@ -491,10 +475,7 @@ public class CaraxesControllerTest {
         when(mapper.toDetalleResponse(caraxes)).thenReturn(respuestaSimulada("VENDIDO"));
 
         mockMvc.perform(put("/api/caraxes/id-1/vender")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"zentysId": "zentys-01"}
-                            """))
+                        .principal(token("zentys-01")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kanez").value("VENDIDO"));
     }
@@ -506,10 +487,7 @@ public class CaraxesControllerTest {
                 .thenThrow(new ReglaDominioException("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
 
         mockMvc.perform(put("/api/caraxes/id-1/vender")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"zentysId": "zentys-01"}
-                            """))
+                        .principal(token("zentys-01")))
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
     }
@@ -521,10 +499,7 @@ public class CaraxesControllerTest {
                 .thenThrow(new NoSuchElementException("Zentys no encontrado"));
 
         mockMvc.perform(put("/api/caraxes/id-1/vender")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"zentysId": "zentys-99"}
-                            """))
+                        .principal(token("zentys-99")))
                 .andExpect(status().isNotFound());
     }
 }
