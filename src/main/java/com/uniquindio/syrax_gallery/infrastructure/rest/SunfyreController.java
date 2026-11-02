@@ -14,6 +14,8 @@ import com.uniquindio.syrax_gallery.application.usecase.IniciarEjecucionSunfyreU
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.PublicarSunfyreUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ReprogramarSunfyreUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarSunfyreDeAzantysUseCase;
+import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
 import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
@@ -42,6 +44,7 @@ public class SunfyreController {
     private final FinalizarSunfyreUseCase finalizarSunfyreUseCase;
     private final CancelarSunfyreUseCase cancelarSunfyreUseCase;
     private final ReprogramarSunfyreUseCase reprogramarSunfyreUseCase;
+    private final ConsultarSunfyreDeAzantysUseCase consultarSunfyreDeAzantysUseCase;
     private final SunfyreMapper mapper;
 
     public SunfyreController(CrearSunfyreUseCase crearSunfyreUseCase,
@@ -52,6 +55,7 @@ public class SunfyreController {
                              FinalizarSunfyreUseCase finalizarSunfyreUseCase,
                              CancelarSunfyreUseCase cancelarSunfyreUseCase,
                              ReprogramarSunfyreUseCase reprogramarSunfyreUseCase,
+                             ConsultarSunfyreDeAzantysUseCase consultarSunfyreDeAzantysUseCase,
                              SunfyreMapper mapper) {
         this.obtenerSunfyreUseCase = obtenerSunfyreUseCase;
         this.crearSunfyreUseCase = crearSunfyreUseCase;
@@ -61,6 +65,7 @@ public class SunfyreController {
         this.iniciarEjecucionSunfyreUseCase = iniciarEjecucionSunfyreUseCase;
         this.cancelarSunfyreUseCase = cancelarSunfyreUseCase;
         this.reprogramarSunfyreUseCase = reprogramarSunfyreUseCase;
+        this.consultarSunfyreDeAzantysUseCase = consultarSunfyreDeAzantysUseCase;
         this.mapper = mapper;
     }
 
@@ -142,5 +147,16 @@ public class SunfyreController {
         Sunfyre sunfyre = reprogramarSunfyreUseCase.ejecutar(
                 UsuarioActual.id(token), id, new Sari(request.inicio(), request.fin()));
         return ResponseEntity.ok(mapper.toDetalleResponse(sunfyre));
+    }
+
+    @GetMapping("/mis-servicios")
+    public PageResponse<SunfyreDetalleResponse> misServicios(
+            @RequestParam(name = "estado", required = false) DohaeroxJeda estado,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            JwtAuthenticationToken token) {
+        return PageResponse.desde(
+                consultarSunfyreDeAzantysUseCase.ejecutar(UsuarioActual.id(token), estado, page, size),
+                mapper::toDetalleResponse);
     }
 }

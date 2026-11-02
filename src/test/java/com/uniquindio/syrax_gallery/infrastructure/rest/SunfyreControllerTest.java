@@ -59,9 +59,11 @@ class SunfyreControllerTest {
     private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
 
     @MockitoBean
+    private ConsultarSunfyreDeAzantysUseCase consultarSunfyreDeAzantysUseCase;
+
+    @MockitoBean
     private SunfyreMapper mapper;
 
-    // Simula el token de quien hace la petición (uid = id del Azantys o del Zentys)
     private JwtAuthenticationToken token(String uid) {
         Jwt jwt = Jwt.withTokenValue("token-de-prueba")
                 .header("alg", "HS256")
@@ -523,6 +525,42 @@ class SunfyreControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ---------- GET /api/sunfyre/mis-servicios (Azantys del token) ----------
+
+    @Test
+    void deberiaListarLosServiciosDelAzantys() throws Exception {
+        Sunfyre sunfyre = sunfyreSimulada();
+        when(consultarSunfyreDeAzantysUseCase.ejecutar("az-001", DohaeroxJeda.PENDIENTE, 0, 10))
+                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 10));
+        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "BORRADOR"));
+
+        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+                        .param("estado", "PENDIENTE")
+                        .principal(token("az-001")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.totalElementos").value(1));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElEstadoNoExisteEnMisServicios() throws Exception {
+        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+                        .param("estado", "PAGADO")
+                        .principal(token("az-001")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaPaginaEsNegativaEnMisServicios() throws Exception {
+        when(consultarSunfyreDeAzantysUseCase.ejecutar("az-001", null, -1, 10))
+                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+
+        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+                        .param("page", "-1")
+                        .principal(token("az-001")))
                 .andExpect(status().isBadRequest());
     }
 }
