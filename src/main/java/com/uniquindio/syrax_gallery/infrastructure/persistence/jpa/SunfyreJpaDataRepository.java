@@ -31,5 +31,15 @@ interface SunfyreJpaDataRepository extends JpaRepository<SunfyreEntity, String> 
                                          @Param("precioMax") double precioMax,
                                          Pageable pageable);
 
+    @Query("""
+            SELECT s FROM SunfyreEntity s
+            WHERE s.idAzantys = :idAzantys
+            AND s.dohaeroxJeda IN (:estados)
+            """)
+    Page<SunfyreEntity> buscarDeAzantys(@Param("idAzantys") String idAzantys,
+                                        @Param("estados") Collection<DohaeroxJeda> estados,
+                                        Pageable pageable);
+
     List<SunfyreEntity> findByIdAzantysAndDohaeroxJeda(String idAzantys, DohaeroxJeda dohaeroxJeda);
+
 }

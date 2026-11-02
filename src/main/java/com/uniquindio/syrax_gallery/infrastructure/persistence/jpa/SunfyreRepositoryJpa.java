@@ -63,4 +63,25 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public Pagina<Sunfyre> buscarDeAzantys(String idAzantys, DohaeroxJeda estado, int pagina, int tamano) {
+        Page<SunfyreEntity> resultado = dataRepository.buscarDeAzantys(
+                idAzantys, estados(estado),
+                PageRequest.of(pagina, tamano, Sort.by("sariInicio").descending())); // más reciente primero
+        return aPagina(resultado);
+    }
+
+    private Set<DohaeroxJeda> estados(DohaeroxJeda estado) {
+        return (estado == null) ? EnumSet.allOf(DohaeroxJeda.class) : EnumSet.of(estado);
+    }
+
+    private Pagina<Sunfyre> aPagina(Page<SunfyreEntity> resultado) {
+        return new Pagina<>(
+                resultado.getContent().stream().map(mapper::toDomain).toList(),
+                resultado.getTotalElements(),
+                resultado.getTotalPages(),
+                resultado.getNumber(),
+                resultado.getSize());
+    }
 }
