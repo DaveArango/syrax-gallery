@@ -123,7 +123,7 @@ class AzantysControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElCorreoEsInvalido() throws Exception {
+    void deberiaRetornar422CuandoElCorreoEsInvalido() throws Exception {
         String requestJson = """
                 {
                     "nombre": "Rhaenyra Targaryen",
@@ -136,7 +136,7 @@ class AzantysControllerTest {
         mockMvc.perform(post("/api/azantys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     @Test
@@ -156,7 +156,7 @@ class AzantysControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElCorreoYaTieneCuenta() throws Exception {
+    void deberiaRetornar422CuandoElCorreoYaTieneCuenta() throws Exception {
         String requestJson = """
                 {
                     "nombre": "Rhaenyra Targaryen",
@@ -171,7 +171,7 @@ class AzantysControllerTest {
         mockMvc.perform(post("/api/azantys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Ya existe una cuenta con ese correo"));
     }
 
@@ -214,7 +214,7 @@ class AzantysControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoLaIksiaNoTieneFormatoValido() throws Exception {
+    void deberiaRetornar422CuandoLaIksiaNoTieneFormatoValido() throws Exception {
         String requestJson = """
                 {
                     "iksia": "12ab",
@@ -226,11 +226,11 @@ class AzantysControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     @Test
-    void deberiaRetornar400CuandoLaIdentidadYaFueVerificada() throws Exception {
+    void deberiaRetornar422CuandoLaIdentidadYaFueVerificada() throws Exception {
         String requestJson = """
                 {
                     "iksia": "1234567",
@@ -244,12 +244,12 @@ class AzantysControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("La identidad ya fue verificada"));
     }
 
     @Test
-    void deberiaRetornar400CuandoOtroAzantysCargaLaIdentidad() throws Exception {
+    void deberiaRetornar422CuandoOtroAzantysCargaLaIdentidad() throws Exception {
         String requestJson = """
                 {
                     "iksia": "1234567",
@@ -263,7 +263,7 @@ class AzantysControllerTest {
                         .principal(token("az-002"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el propio Azantys puede cargar su identidad"));
     }
 
@@ -303,7 +303,7 @@ class AzantysControllerTest {
     @Test
     void deberiaRetornar400CuandoElTamanoDePaginaNoEsValido() throws Exception {
         when(consultarAzantysUseCase.buscar(null, 0, 100))
-                .thenThrow(new ReglaDominioException("El tamaño de la página debe estar entre 1 y 50"));
+                .thenThrow(new IllegalArgumentException("El tamaño de la página debe estar entre 1 y 50"));
 
         mockMvc.perform(get("/api/azantys").param("size", "100"))
                 .andExpect(status().isBadRequest());
@@ -369,7 +369,7 @@ class AzantysControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoSeRechazaSinMotivo() throws Exception {
+    void deberiaRetornar422CuandoSeRechazaSinMotivo() throws Exception {
         String requestJson = """
                 {
                     "aprobada": false
@@ -381,7 +381,7 @@ class AzantysControllerTest {
         mockMvc.perform(put("/api/azantys/az-002/revision")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("El motivo del rechazo es obligatorio"));
     }
 

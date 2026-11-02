@@ -95,7 +95,7 @@ class KelitisControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoLaSunfyreYaTieneKelitis() throws Exception {
+    void deberiaRetornar422CuandoLaSunfyreYaTieneKelitis() throws Exception {
         String requestJson = """
                 {
                     "sunfyreId": "sf-001"
@@ -108,12 +108,12 @@ class KelitisControllerTest {
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("La Sunfyre ya tiene un Kelitis constituido"));
     }
 
     @Test
-    void deberiaRetornar400CuandoOtroZentysIntentaPagar() throws Exception {
+    void deberiaRetornar422CuandoOtroZentysIntentaPagar() throws Exception {
         String requestJson = """
                 {
                     "sunfyreId": "sf-001"
@@ -126,7 +126,7 @@ class KelitisControllerTest {
                         .principal(token("ze-999"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el Zentys de la Sunfyre puede constituir su Kelitis"));
     }
 
@@ -145,12 +145,12 @@ class KelitisControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoUnTerceroConsultaElKelitis() throws Exception {
+    void deberiaRetornar422CuandoUnTerceroConsultaElKelitis() throws Exception {
         when(obtenerKelitisUseCase.ejecutar("kl-001", "ze-999"))
                 .thenThrow(new ReglaDominioException("Solo el Azantys o el Zentys del servicio pueden consultar este Kelitis"));
 
         mockMvc.perform(get("/api/kelitis/kl-001").principal(token("ze-999")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     @Test
@@ -179,11 +179,11 @@ class KelitisControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElServicioNoSeHaEjecutado() throws Exception {
+    void deberiaRetornar422CuandoElServicioNoSeHaEjecutado() throws Exception {
         when(aprobarEjecucionUseCase.ejecutar("kl-001", "ze-001"))
                 .thenThrow(new ReglaDominioException("Solo se puede aprobar un servicio ya ejecutado"));
 
         mockMvc.perform(put("/api/kelitis/kl-001/aprobar").principal(token("ze-001")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 }

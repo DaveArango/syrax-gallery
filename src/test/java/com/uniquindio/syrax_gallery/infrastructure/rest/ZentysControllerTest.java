@@ -143,7 +143,7 @@ public class ZentysControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElEmailEsInvalido() throws Exception {
+    void deberiaRetornar422CuandoElEmailEsInvalido() throws Exception {
         String requestJson = """
                 {
                     "nombre": "David Vivas",
@@ -155,12 +155,12 @@ public class ZentysControllerTest {
         mockMvc.perform(post("/api/zentys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Email inválido"));
     }
 
     @Test
-    void deberiaRetornar400CuandoElIndiorEsMuyCorto() throws Exception {
+    void deberiaRetornar422CuandoElIndiorEsMuyCorto() throws Exception {
         String requestJson = """
                 {
                     "nombre": "David Vivas",
@@ -172,12 +172,12 @@ public class ZentysControllerTest {
         mockMvc.perform(post("/api/zentys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje", containsString("10 caracteres")));
     }
 
     @Test
-    void deberiaRetornar400CuandoElIndiorTieneCaracteresNoPermitidos() throws Exception {
+    void deberiaRetornar422CuandoElIndiorTieneCaracteresNoPermitidos() throws Exception {
         // Arrange
         String requestJson = """
                 {
@@ -191,12 +191,12 @@ public class ZentysControllerTest {
         mockMvc.perform(post("/api/zentys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje", containsString("caracteres no permitidos")));
     }
 
     @Test
-    void deberiaRetornar400CuandoElNombreTieneCaracteresEspeciales() throws Exception {
+    void deberiaRetornar422CuandoElNombreTieneCaracteresEspeciales() throws Exception {
         String requestJson = """
                 {
                     "nombre": "David@#$",
@@ -211,7 +211,7 @@ public class ZentysControllerTest {
         mockMvc.perform(post("/api/zentys")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje")
                         .value("El nombre del Zentys no puede contener caracteres especiales."));
     }
@@ -266,7 +266,7 @@ public class ZentysControllerTest {
         when(consultarZentysUseCase.buscar(null,
                 0,
                 100))
-                .thenThrow(new ReglaDominioException("El tamaño de la página debe estar entre 1 y 50"));
+                .thenThrow(new IllegalArgumentException("El tamaño de la página debe estar entre 1 y 50"));
 
         mockMvc.perform(get("/api/zentys").param("size", "100"))
                 .andExpect(status().isBadRequest())
@@ -287,7 +287,7 @@ public class ZentysControllerTest {
     @Test
     void deberiaRetornar400CuandoElLimiteDelRankingEsInvalido() throws Exception {
         when(consultarZentysUseCase.masActivos(50))
-                .thenThrow(new ReglaDominioException("El límite debe estar entre 1 y 20"));
+                .thenThrow(new IllegalArgumentException("El límite debe estar entre 1 y 20"));
 
         mockMvc.perform(get("/api/zentys/mas-activos").param("limite", "50"))
                 .andExpect(status().isBadRequest())

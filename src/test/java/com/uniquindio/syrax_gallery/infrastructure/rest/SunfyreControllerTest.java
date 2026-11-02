@@ -141,7 +141,7 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElFinEsAntesDelInicio() throws Exception {
+    void deberiaRetornar422CuandoElFinEsAntesDelInicio() throws Exception {
         String requestJson = """
                 {
                     "zentysId": "ze-001",
@@ -161,7 +161,7 @@ class SunfyreControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     @Test
@@ -206,12 +206,12 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoUnTerceroConsultaLaSunfyre() throws Exception {
+    void deberiaRetornar422CuandoUnTerceroConsultaLaSunfyre() throws Exception {
         when(obtenerSunfyreUseCase.ejecutar("sf-001", "ze-999"))
                 .thenThrow(new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden realizar esta acción"));
 
         mockMvc.perform(get("/api/sunfyre/sf-001").principal(token("ze-999")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     @Test
@@ -253,7 +253,7 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElAzantysNoEstaVerificado() throws Exception {
+    void deberiaRetornar422CuandoElAzantysNoEstaVerificado() throws Exception {
         String requestJson = """
                 {
                     "destino": "EN_VENTA"
@@ -266,7 +266,7 @@ class SunfyreControllerTest {
                         .principal(token("az-002"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 
@@ -296,7 +296,7 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoLaPaginaEsNegativa() throws Exception {
-        when(consultarCatalogoSunfyreUseCase.buscar(null, null, null, null, -1, 10))                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+        when(consultarCatalogoSunfyreUseCase.buscar(null, null, null, null, -1, 10))                .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
 
         mockMvc.perform(get("/api/sunfyre").param("page", "-1"))
                 .andExpect(status().isBadRequest());
@@ -321,7 +321,7 @@ class SunfyreControllerTest {
     @Test
     void deberiaRetornar400CuandoElPrecioMinimoEsMayorQueElMaximo() throws Exception {
         when(consultarCatalogoSunfyreUseCase.buscar(null, null, 500000.0, 100000.0, 0, 10))
-                .thenThrow(new ReglaDominioException("El precio mínimo no puede ser mayor que el máximo"));
+                .thenThrow(new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo"));
 
         mockMvc.perform(get("/api/sunfyre")
                         .param("precioMin", "500000")
@@ -329,7 +329,7 @@ class SunfyreControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("El precio mínimo no puede ser mayor que el máximo"));
     }
-    
+
     // ---------- PUT /api/sunfyre/{id}/iniciar (sin cuerpo) ----------
 
     @Test
@@ -346,12 +346,12 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoLaSunfyreNoEstaAbonada() throws Exception {
+    void deberiaRetornar422CuandoLaSunfyreNoEstaAbonada() throws Exception {
         when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución"));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/iniciar").principal(token("az-001")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre ABONADA puede iniciar ejecución"));
     }
 
@@ -381,22 +381,22 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoLaSunfyreNoEstaEnEjecucion() throws Exception {
+    void deberiaRetornar422CuandoLaSunfyreNoEstaEnEjecucion() throws Exception {
         when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar"));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-001")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre en ejecución puede finalizar"));
     }
 
     @Test
-    void deberiaRetornar400CuandoOtroAzantysIntentaFinalizar() throws Exception {
+    void deberiaRetornar422CuandoOtroAzantysIntentaFinalizar() throws Exception {
         when(finalizarSunfyreUseCase.ejecutar("az-002", "sf-001"))
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre"));
 
         mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-002")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     // ---------- PUT /api/sunfyre/{id}/cancelar ----------
@@ -429,7 +429,7 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoLaSunfyreYaInicio() throws Exception {
+    void deberiaRetornar422CuandoLaSunfyreYaInicio() throws Exception {
         String requestJson = """
                 {
                     "motivo": "Ya no la quiero"
@@ -442,7 +442,7 @@ class SunfyreControllerTest {
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
     }
 
@@ -494,7 +494,7 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElNuevoHorarioSeCruza() throws Exception {
+    void deberiaRetornar422CuandoElNuevoHorarioSeCruza() throws Exception {
         String requestJson = """
                 {
                     "inicio": "2030-05-20T10:00:00",
@@ -508,12 +508,12 @@ class SunfyreControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("El Azantys ya tiene una cita en ese horario"));
     }
 
     @Test
-    void deberiaRetornar400CuandoElFinEsAntesDelInicioAlReprogramar() throws Exception {
+    void deberiaRetornar422CuandoElFinEsAntesDelInicioAlReprogramar() throws Exception {
         String requestJson = """
                 {
                     "inicio": "2030-05-20T12:00:00",
@@ -525,7 +525,7 @@ class SunfyreControllerTest {
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
     }
 
     // ---------- GET /api/sunfyre/mis-servicios (Azantys del token) ----------
@@ -556,7 +556,7 @@ class SunfyreControllerTest {
     @Test
     void deberiaRetornar400CuandoLaPaginaEsNegativaEnMisServicios() throws Exception {
         when(consultarSunfyreDeAzantysUseCase.ejecutar("az-001", null, -1, 10))
-                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+                .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
 
         mockMvc.perform(get("/api/sunfyre/mis-servicios")
                         .param("page", "-1")

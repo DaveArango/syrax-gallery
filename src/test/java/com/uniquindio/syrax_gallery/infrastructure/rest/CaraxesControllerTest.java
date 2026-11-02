@@ -157,7 +157,7 @@ public class CaraxesControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElMontoEsNegativo() throws Exception {
+    void deberiaRetornar422CuandoElMontoEsNegativo() throws Exception {
         String requestJson = """
                 {
                     "azantysId": "azantys-1",
@@ -173,12 +173,12 @@ public class CaraxesControllerTest {
         mockMvc.perform(post("/api/caraxes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Monto inválido: no puede ser negativo"));
     }
 
     @Test
-    void deberiaRetornar400CuandoLaDivisaNoTieneTresLetras() throws Exception {
+    void deberiaRetornar422CuandoLaDivisaNoTieneTresLetras() throws Exception {
         String requestJson = """
                 {
                     "azantysId": "azantys-1",
@@ -194,12 +194,12 @@ public class CaraxesControllerTest {
         mockMvc.perform(post("/api/caraxes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("La divisa debe ser un código ISO de 3 letras"));
     }
 
     @Test
-    void deberiaRetornar400CuandoElSeteEsMuyCorto() throws Exception {
+    void deberiaRetornar422CuandoElSeteEsMuyCorto() throws Exception {
         String requestJson = """
                 {
                     "azantysId": "azantys-1",
@@ -215,12 +215,12 @@ public class CaraxesControllerTest {
         mockMvc.perform(post("/api/caraxes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje", containsString("al menos 3 caracteres")));
     }
 
     @Test
-    void deberiaRetornar400CuandoElJorvaEsMuyCorto() throws Exception {
+    void deberiaRetornar422CuandoElJorvaEsMuyCorto() throws Exception {
         String requestJson = """
                 {
                     "azantysId": "azantys-1",
@@ -236,7 +236,7 @@ public class CaraxesControllerTest {
         mockMvc.perform(post("/api/caraxes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje", containsString("al menos 10 caracteres")));
     }
 
@@ -334,7 +334,7 @@ public class CaraxesControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoQuienPublicaNoEsElCreador() throws Exception {
+    void deberiaRetornar422CuandoQuienPublicaNoEsElCreador() throws Exception {
         when(publicarCaraxesUseCase.ejecutar("az-999", "id-1", Kanez.EXHIBICION))
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
 
@@ -343,12 +343,12 @@ public class CaraxesControllerTest {
                         .content("""
                             {"azantysId": "az-999", "destino": "EXHIBICION"}
                             """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
     }
 
     @Test
-    void deberiaRetornar400CuandoElAzantysNoEstaHabilitado() throws Exception {
+    void deberiaRetornar422CuandoElAzantysNoEstaHabilitado() throws Exception {
         // Arrange
         when(publicarCaraxesUseCase.ejecutar("az-001", "id-1", Kanez.EN_VENTA))
                 .thenThrow(new ReglaDominioException("No puede publicar sin verificar su identidad."));
@@ -359,7 +359,7 @@ public class CaraxesControllerTest {
                         .content("""
                             {"azantysId": "az-001", "destino": "EN_VENTA"}
                             """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 
@@ -434,7 +434,7 @@ public class CaraxesControllerTest {
                 null,
                 -1,
                 5))
-                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+                .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
 
         mockMvc.perform(get("/api/caraxes").param("page", "-1"))
                 .andExpect(status().isBadRequest())
@@ -469,7 +469,7 @@ public class CaraxesControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoQuienRetiraNoEsElCreador() throws Exception {
+    void deberiaRetornar422CuandoQuienRetiraNoEsElCreador() throws Exception {
         when(retirarCaraxesUseCase.ejecutar("az-999",
                 "id-1"))
                 .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar este Caraxes"));
@@ -479,7 +479,7 @@ public class CaraxesControllerTest {
                         .content("""
                             {"azantysId": "az-999"}
                             """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo el Azantys creador puede gestionar este Caraxes"));
     }
 
@@ -500,7 +500,7 @@ public class CaraxesControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElCaraxesNoEstaEnVenta() throws Exception {
+    void deberiaRetornar422CuandoElCaraxesNoEstaEnVenta() throws Exception {
         when(venderCaraxesUseCase.ejecutar("zentys-01",
                 "id-1"))
                 .thenThrow(new ReglaDominioException("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
@@ -510,7 +510,7 @@ public class CaraxesControllerTest {
                         .content("""
                             {"zentysId": "zentys-01"}
                             """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Solo un Caraxes EN_VENTA puede marcarse como vendido"));
     }
 
