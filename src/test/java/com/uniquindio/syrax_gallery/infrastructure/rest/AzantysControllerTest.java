@@ -400,4 +400,21 @@ class AzantysControllerTest {
                         .content(requestJson))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void deberiaRetornar400CuandoLaClaveNoEsSegura() throws Exception {
+        String requestJson = """
+                {
+                    "nombre": "Rhaenyra Targaryen",
+                    "kostion": "Tatuaje realista",
+                    "runiapos": "rhaenyra@syraxgallery.com",
+                    "clave": "rhaenyra123"
+                }
+                """;
+
+        mockMvc.perform(post("/api/azantys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
 }

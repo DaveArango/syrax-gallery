@@ -1,7 +1,7 @@
 package com.uniquindio.syrax_gallery.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 // Mapea a: POST /api/azantys (registro público)
 public record RegistrarAzantysRequest(
@@ -16,6 +16,7 @@ public record RegistrarAzantysRequest(
         String runiapos,
 
         @NotBlank(message = "La contraseña es obligatoria.")
-        @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres.")
+        @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
+                message = "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.")
         String clave
 ) {}
