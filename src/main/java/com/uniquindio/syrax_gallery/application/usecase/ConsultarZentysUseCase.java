@@ -25,10 +25,10 @@ public class ConsultarZentysUseCase {
                                  int pagina,
                                  int tamano) {
         if (pagina < 0) {
-            throw new ReglaDominioException("La página no puede ser negativa");
+            throw new IllegalArgumentException("La página no puede ser negativa");
         }
         if (tamano < 1 || tamano > TAMANO_MAXIMO) {
-            throw new ReglaDominioException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
+            throw new IllegalArgumentException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
         }
         return repository.buscarActivos(texto, pagina, tamano);
     }
@@ -36,7 +36,7 @@ public class ConsultarZentysUseCase {
     @Transactional(readOnly = true)
     public List<ZentysServicios> masActivos(int limite) {
         if (limite < 1 || limite > RANKING_MAXIMO) {
-            throw new ReglaDominioException("El límite debe estar entre 1 y " + RANKING_MAXIMO);
+            throw new IllegalArgumentException("El límite debe estar entre 1 y " + RANKING_MAXIMO);
         }
         return repository.masActivos(limite);
     }

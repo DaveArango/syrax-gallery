@@ -20,10 +20,10 @@ public class ConsultarSunfyreDeAzantysUseCase {
     @Transactional(readOnly = true)
     public Pagina<Sunfyre> ejecutar(String azantysId, DohaeroxJeda estado, int pagina, int tamano) {
         if (pagina < 0) {
-            throw new ReglaDominioException("La página no puede ser negativa");
+            throw new IllegalArgumentException("La página no puede ser negativa");
         }
         if (tamano < 1 || tamano > TAMANO_MAXIMO) {
-            throw new ReglaDominioException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
+            throw new IllegalArgumentException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
         }
         return repository.buscarDeAzantys(azantysId, estado, pagina, tamano);
     }

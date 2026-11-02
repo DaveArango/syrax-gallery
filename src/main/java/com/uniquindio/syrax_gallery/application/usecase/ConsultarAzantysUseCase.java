@@ -1,7 +1,6 @@
 package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
-import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysServicios;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
@@ -24,10 +23,10 @@ public class ConsultarAzantysUseCase {
     @Transactional(readOnly = true)
     public Pagina<Azantys> buscar(String texto, int pagina, int tamano) {
         if (pagina < 0) {
-            throw new ReglaDominioException("La página no puede ser negativa");
+            throw new IllegalArgumentException("La página no puede ser negativa");
         }
         if (tamano < 1 || tamano > TAMANO_MAXIMO) {
-            throw new ReglaDominioException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
+            throw new IllegalArgumentException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
         }
         return repository.buscarHabilitados(texto, pagina, tamano);
     }
@@ -43,7 +42,7 @@ public class ConsultarAzantysUseCase {
     @Transactional(readOnly = true)
     public List<AzantysServicios> masSolicitados(int limite) {
         if (limite < 1 || limite > RANKING_MAXIMO) {
-            throw new ReglaDominioException("El límite debe estar entre 1 y " + RANKING_MAXIMO);
+            throw new IllegalArgumentException("El límite debe estar entre 1 y " + RANKING_MAXIMO);
         }
         return repository.masSolicitados(limite);
     }
