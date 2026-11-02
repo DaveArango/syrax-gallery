@@ -259,4 +259,24 @@ public class SunfyreTest {
         assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("az-001"));
         assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("ze-999"));
     }
+    
+    @Test
+    void validarCompletadaAceptaUnaSunfyreCompletada() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+        sunfyre.iniciarEjecucion();
+        sunfyre.finalizar();
+
+        assertDoesNotThrow(sunfyre::validarCompletada);
+    }
+
+    @Test
+    void validarCompletadaRechazaUnaSunfyreQueAunNoTermina() {
+        Sunfyre sunfyre = sunfyrePendiente();
+        sunfyre.confirmar();
+
+        ReglaDominioException ex = assertThrows(ReglaDominioException.class, sunfyre::validarCompletada);
+
+        assertEquals("Solo se puede aprobar un servicio ya ejecutado", ex.getMessage());
+    }
 }

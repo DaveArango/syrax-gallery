@@ -138,6 +138,11 @@ public class Sunfyre {
         this.dohaeroxJeda = DohaeroxJeda.COMPLETADO;
     }
 
+    public void validarCompletada() {
+        if (dohaeroxJeda != DohaeroxJeda.COMPLETADO)
+            throw new ReglaDominioException("Solo se puede aprobar un servicio ya ejecutado");
+    }
+
     public void cancelar(String motivo) {
         if (dohaeroxJeda != DohaeroxJeda.PENDIENTE && dohaeroxJeda != DohaeroxJeda.ABONADO)
             throw new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse");
