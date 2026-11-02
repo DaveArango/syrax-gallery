@@ -10,6 +10,7 @@ import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.repository.ZentysServicios;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.ZentysMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.CredencialesService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -49,6 +51,9 @@ public class ZentysControllerTest {
     private ConsultarZentysUseCase consultarZentysUseCase;
 
     @MockitoBean
+    private CredencialesService credencialesService;
+
+    @MockitoBean
     private ZentysMapper mapper;
 
     private Zentys zentysSimulado() {
@@ -72,6 +77,7 @@ public class ZentysControllerTest {
     void deberiaCrearZentysCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "runiapos": "david@gmail.com",
                     "indior": "Galeria de arte moderno en Armenia."
@@ -101,6 +107,7 @@ public class ZentysControllerTest {
     void deberiaRetornar400CuandoFaltaElNombre() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "runiapos": "david@gmail.com",
                     "indior": "Galeria de arte moderno en Armenia."
                 }
@@ -116,6 +123,7 @@ public class ZentysControllerTest {
     void deberiaRetornar400CuandoFaltaElRuniapos() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "indior": "Galeria de arte moderno en Armenia."
                 }
@@ -131,6 +139,7 @@ public class ZentysControllerTest {
     void deberiaRetornar400CuandoFaltaElIndior() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "runiapos": "david@gmail.com"
                 }
@@ -146,6 +155,7 @@ public class ZentysControllerTest {
     void deberiaRetornar422CuandoElEmailEsInvalido() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "runiapos": "correo-sin-arroba",
                     "indior": "Galeria de arte moderno en Armenia."
@@ -163,6 +173,7 @@ public class ZentysControllerTest {
     void deberiaRetornar422CuandoElIndiorEsMuyCorto() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "runiapos": "david@gmail.com",
                     "indior": "corta"
@@ -181,6 +192,7 @@ public class ZentysControllerTest {
         // Arrange
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David Vivas",
                     "runiapos": "david@gmail.com",
                     "indior": "Descripcion con <etiqueta> no valida"
@@ -199,6 +211,7 @@ public class ZentysControllerTest {
     void deberiaRetornar422CuandoElNombreTieneCaracteresEspeciales() throws Exception {
         String requestJson = """
                 {
+                    "clave": "Segura123",
                     "nombre": "David@#$",
                     "runiapos": "david@gmail.com",
                     "indior": "Galeria de arte moderno en Armenia."
@@ -214,6 +227,59 @@ public class ZentysControllerTest {
                 .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje")
                         .value("El nombre del Zentys no puede contener caracteres especiales."));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoFaltaLaClave() throws Exception {
+        String requestJson = """
+                {
+                    "nombre": "David Vivas",
+                    "runiapos": "david@gmail.com",
+                    "indior": "Galeria de arte moderno en Armenia."
+                }
+                """;
+
+        mockMvc.perform(post("/api/zentys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar400CuandoLaClaveNoEsSegura() throws Exception {
+        String requestJson = """
+                {
+                    "clave": "segura",
+                    "nombre": "David Vivas",
+                    "runiapos": "david@gmail.com",
+                    "indior": "Galeria de arte moderno en Armenia."
+                }
+                """;
+
+        mockMvc.perform(post("/api/zentys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deberiaRetornar422CuandoElCorreoYaTieneCuenta() throws Exception {
+        String requestJson = """
+                {
+                    "clave": "Segura123",
+                    "nombre": "David Vivas",
+                    "runiapos": "david@gmail.com",
+                    "indior": "Galeria de arte moderno en Armenia."
+                }
+                """;
+        doThrow(new ReglaDominioException("Ya existe una cuenta con ese correo"))
+                .when(credencialesService).validarCorreoDisponible("david@gmail.com");
+
+        mockMvc.perform(post("/api/zentys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.mensaje").value("Ya existe una cuenta con ese correo"));
     }
 
     // ---------- GET /api/zentys/{id} ----------

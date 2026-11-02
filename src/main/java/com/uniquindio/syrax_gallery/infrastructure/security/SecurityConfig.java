@@ -57,8 +57,8 @@ public class SecurityConfig {
                                 "/api/sunfyre"                // catálogo (solo servicios publicados)
                         ).permitAll()
 
-                        // Registro público de Azantys (crea también su cuenta de login)
-                        .requestMatchers(HttpMethod.POST, "/api/azantys").permitAll()
+                        // Registro público de Azantys y Zentys (crea también su cuenta de login)
+                        .requestMatchers(HttpMethod.POST, "/api/azantys", "/api/zentys").permitAll()
 
                         // Solo el Jovennio (ADMIN)
                         .requestMatchers(HttpMethod.PUT, "/api/azantys/*/revision").hasAuthority("ADMIN")

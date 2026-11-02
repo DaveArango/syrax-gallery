@@ -10,7 +10,9 @@ import com.uniquindio.syrax_gallery.application.usecase.ObtenerZentysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarZentysUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Zentys;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
+import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity.RolSeguridad;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.ZentysMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.CredencialesService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,31 +25,37 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/zentys")
 public class ZentysController {
+
     private final RegistrarZentysUseCase registrarZentysUseCase;
     private final ObtenerZentysUseCase obtenerZentysUseCase;
     private final ConsultarZentysUseCase consultarZentysUseCase;
+    private final CredencialesService credencialesService;
     private final ZentysMapper mapper;
 
     public ZentysController(RegistrarZentysUseCase registrarZentysUseCase,
                             ObtenerZentysUseCase obtenerZentysUseCase,
                             ConsultarZentysUseCase consultarZentysUseCase,
+                            CredencialesService credencialesService,
                             ZentysMapper mapper) {
         this.registrarZentysUseCase = registrarZentysUseCase;
         this.obtenerZentysUseCase = obtenerZentysUseCase;
         this.consultarZentysUseCase = consultarZentysUseCase;
+        this.credencialesService = credencialesService;
         this.mapper = mapper;
     }
 
     @PostMapping
-    public ResponseEntity<ZentysDetalleResponse> crear (@Valid @RequestBody RegistrarZentysRequest request){
+    public ResponseEntity<ZentysDetalleResponse> crear(@Valid @RequestBody RegistrarZentysRequest request) {
         Runiapos runiapos = new Runiapos(request.runiapos());
         Indior indior = new Indior(request.indior());
+        credencialesService.validarCorreoDisponible(runiapos.direccion());
 
         Zentys zentys = registrarZentysUseCase.ejecutar(
                 UUID.randomUUID().toString(),
                 request.nombre(),
                 runiapos,
                 indior);
+        credencialesService.registrar(zentys.getId(), runiapos.direccion(), request.clave(), RolSeguridad.ZENTYS);
 
         ZentysDetalleResponse response = mapper.toDetalleResponse(zentys);
 
@@ -62,10 +70,9 @@ public class ZentysController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ZentysDetalleResponse> obtener (@PathVariable String id){
+    public ResponseEntity<ZentysDetalleResponse> obtener(@PathVariable String id) {
         Zentys zentys = obtenerZentysUseCase.ejecutar(id);
         ZentysDetalleResponse response = mapper.toDetalleResponse(zentys);
-
         return ResponseEntity.ok(response);
     }
 
