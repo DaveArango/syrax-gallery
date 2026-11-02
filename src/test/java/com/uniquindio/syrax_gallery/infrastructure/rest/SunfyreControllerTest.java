@@ -274,8 +274,7 @@ class SunfyreControllerTest {
     void deberiaBuscarEnElCatalogoConFiltros() throws Exception {
         Sunfyre sunfyre = sunfyreSimulada();
         sunfyre.publicar(Kanez.EN_VENTA);
-        when(consultarCatalogoSunfyreUseCase.buscar("armenia", SunfyreKastor.ARTE_PIEL, 0, 5))
-                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 5));
+        when(consultarCatalogoSunfyreUseCase.buscar("armenia", SunfyreKastor.ARTE_PIEL, null, null, 0, 10))                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 5));
         when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "EN_VENTA"));
 
         mockMvc.perform(get("/api/sunfyre")
@@ -295,13 +294,40 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoLaPaginaEsNegativa() throws Exception {
-        when(consultarCatalogoSunfyreUseCase.buscar(null, null, -1, 5))
-                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
+        when(consultarCatalogoSunfyreUseCase.buscar(null, null, null, null, -1, 10))                .thenThrow(new ReglaDominioException("La página no puede ser negativa"));
 
         mockMvc.perform(get("/api/sunfyre").param("page", "-1"))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void deberiaFiltrarElCatalogoPorRangoDePrecio() throws Exception {
+        Sunfyre sunfyre = sunfyreSimulada();
+        sunfyre.publicar(Kanez.EN_VENTA);
+        when(consultarCatalogoSunfyreUseCase.buscar(null, null, 100000.0, 200000.0, 0, 10))
+                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 10));
+        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "EN_VENTA"));
+
+        mockMvc.perform(get("/api/sunfyre")
+                        .param("precioMin", "100000")
+                        .param("precioMax", "200000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
+    void deberiaRetornar400CuandoElPrecioMinimoEsMayorQueElMaximo() throws Exception {
+        when(consultarCatalogoSunfyreUseCase.buscar(null, null, 500000.0, 100000.0, 0, 10))
+                .thenThrow(new ReglaDominioException("El precio mínimo no puede ser mayor que el máximo"));
+
+        mockMvc.perform(get("/api/sunfyre")
+                        .param("precioMin", "500000")
+                        .param("precioMax", "100000"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value("El precio mínimo no puede ser mayor que el máximo"));
+    }
+    
     // ---------- PUT /api/sunfyre/{id}/iniciar (sin cuerpo) ----------
 
     @Test

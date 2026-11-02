@@ -89,10 +89,12 @@ public class SunfyreController {
     public PageResponse<SunfyreDetalleResponse> buscar(
             @RequestParam(name = "ciudad", required = false) String ciudad,
             @RequestParam(name = "kastor", required = false) SunfyreKastor kastor,
+            @RequestParam(name = "precioMin", required = false) Double precioMin,
+            @RequestParam(name = "precioMax", required = false) Double precioMax,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size) {
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         return PageResponse.desde(
-                consultarCatalogoSunfyreUseCase.buscar(ciudad, kastor, page, size),
+                consultarCatalogoSunfyreUseCase.buscar(ciudad, kastor, precioMin, precioMax, page, size),
                 mapper::toDetalleResponse);
     }
 
