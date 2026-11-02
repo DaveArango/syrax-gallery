@@ -2,16 +2,16 @@ package com.uniquindio.syrax_gallery.infrastructure.rest;
 
 import com.uniquindio.syrax_gallery.application.dto.request.PublicarCaraxesRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarCaraxesRequest;
-import com.uniquindio.syrax_gallery.application.dto.request.RetirarCaraxesRequest;
-import com.uniquindio.syrax_gallery.application.dto.request.VenderCaraxesRequest;
 import com.uniquindio.syrax_gallery.application.dto.response.CaraxesDetalleResponse;
 import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
 import com.uniquindio.syrax_gallery.application.usecase.*;
 import com.uniquindio.syrax_gallery.domain.entity.Caraxes;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.CaraxesMapper;
+import com.uniquindio.syrax_gallery.infrastructure.security.UsuarioActual;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -21,6 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/caraxes")
 public class CaraxesController {
+
     private final ObtenerCaraxesUseCase obtenerCaraxesUseCase;
     private final RegistrarCaraxesUseCase registrarCaraxesUseCase;
     private final PublicarCaraxesUseCase publicarCaraxesUseCase;
@@ -46,25 +47,17 @@ public class CaraxesController {
     }
 
     @PostMapping
-    public ResponseEntity<CaraxesDetalleResponse> crear (@Valid @RequestBody RegistrarCaraxesRequest request){
-        Vala vala = new Vala(
-                request.monto(),
-                request.divisa()
-        );
-        Sete sete = new Sete(
-                request.sete()
-        );
-        Jorva jorva = new Jorva(
-                request.jorva()
-        );
-        Urnebion urnebion = new Urnebion(
-                request.urnebion()
-        );
+    public ResponseEntity<CaraxesDetalleResponse> crear(@Valid @RequestBody RegistrarCaraxesRequest request,
+                                                        JwtAuthenticationToken token) {
+        Vala vala = new Vala(request.monto(), request.divisa());
+        Sete sete = new Sete(request.sete());
+        Jorva jorva = new Jorva(request.jorva());
+        Urnebion urnebion = new Urnebion(request.urnebion());
         CaraxesKastor kastor = CaraxesKastor.desde(request.kastor());
 
         Caraxes caraxes = registrarCaraxesUseCase.ejecutar(
                 UUID.randomUUID().toString(),
-                request.azantysId(),
+                UsuarioActual.id(token),
                 vala,
                 sete,
                 jorva,
@@ -83,34 +76,33 @@ public class CaraxesController {
                 .body(response);
     }
 
+
     @PutMapping("/{id}/publicar")
     public ResponseEntity<CaraxesDetalleResponse> publicar(@PathVariable String id,
-                                                           @Valid @RequestBody PublicarCaraxesRequest request) {
-        Caraxes caraxes = publicarCaraxesUseCase.ejecutar(request.azantysId(),
-                id,
-                request.destino());
+                                                           @Valid @RequestBody PublicarCaraxesRequest request,
+                                                           JwtAuthenticationToken token) {
+        Caraxes caraxes = publicarCaraxesUseCase.ejecutar(UsuarioActual.id(token), id, request.destino());
         return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
     }
 
     @PutMapping("/{id}/retirar")
     public ResponseEntity<CaraxesDetalleResponse> retirar(@PathVariable String id,
-                                                          @Valid @RequestBody RetirarCaraxesRequest request) {
-        Caraxes caraxes = retirarCaraxesUseCase.ejecutar(request.azantysId(), id);
+                                                          JwtAuthenticationToken token) {
+        Caraxes caraxes = retirarCaraxesUseCase.ejecutar(UsuarioActual.id(token), id);
         return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
     }
 
     @PutMapping("/{id}/vender")
     public ResponseEntity<CaraxesDetalleResponse> vender(@PathVariable String id,
-                                                         @Valid @RequestBody VenderCaraxesRequest request) {
-        Caraxes caraxes = venderCaraxesUseCase.ejecutar(request.zentysId(), id);
+                                                         JwtAuthenticationToken token) {
+        Caraxes caraxes = venderCaraxesUseCase.ejecutar(UsuarioActual.id(token), id);
         return ResponseEntity.ok(mapper.toDetalleResponse(caraxes));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CaraxesDetalleResponse> obtener (@PathVariable String id){
+    public ResponseEntity<CaraxesDetalleResponse> obtener(@PathVariable String id) {
         Caraxes caraxes = obtenerCaraxesUseCase.ejecutar(id);
         CaraxesDetalleResponse response = mapper.toDetalleResponse(caraxes);
-
         return ResponseEntity.ok(response);
     }
 

@@ -3,12 +3,8 @@ package com.uniquindio.syrax_gallery.application.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-
-// Mapea a: POST /api/caraxes
+// Mapea a: POST /api/caraxes   (el Azantys que la registra sale del token)
 public record RegistrarCaraxesRequest(
-        @NotBlank(message = "El id del Azantys es obligatorio.")
-        String azantysId,
-
         @NotNull(message = "El monto del Vala es obligatorio.")
         Double monto,
 

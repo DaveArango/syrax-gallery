@@ -73,10 +73,16 @@ public class SecurityConfig {
                                 "/api/azantys/*/identidad"
                         ).hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.POST, "/api/caraxes").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/caraxes/*/publicar",
+                                "/api/caraxes/*/retirar"
+                        ).hasAuthority("AZANTYS")
 
                         // Solo el Zentys (comprador)
                         .requestMatchers(HttpMethod.POST, "/api/kelitis").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/kelitis/*/aprobar").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.PUT, "/api/caraxes/*/vender").hasAuthority("ZENTYS")
 
                         // Todo lo demás exige token
                         .anyRequest().authenticated()
