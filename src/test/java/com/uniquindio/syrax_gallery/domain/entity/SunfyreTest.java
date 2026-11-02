@@ -259,7 +259,7 @@ public class SunfyreTest {
         assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("az-001"));
         assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("ze-999"));
     }
-    
+
     @Test
     void validarCompletadaAceptaUnaSunfyreCompletada() {
         Sunfyre sunfyre = sunfyrePendiente();
