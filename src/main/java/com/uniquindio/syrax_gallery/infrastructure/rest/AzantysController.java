@@ -19,6 +19,7 @@ import com.uniquindio.syrax_gallery.domain.valueobject.Runiapos;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.AzantysMapper;
 import com.uniquindio.syrax_gallery.infrastructure.security.CredencialesService;
 import com.uniquindio.syrax_gallery.infrastructure.security.UsuarioActual;
+import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity.RolSeguridad;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -65,8 +66,7 @@ public class AzantysController {
                 request.nombre(),
                 kostion,
                 runiapos);
-        credencialesService.registrar(azantys.getId(), runiapos.direccion(), request.clave());
-
+        credencialesService.registrar(azantys.getId(), runiapos.direccion(), request.clave(), RolSeguridad.AZANTYS);
         AzantysDetalleResponse response = mapper.toDetalleResponse(azantys);
 
         URI location = ServletUriComponentsBuilder

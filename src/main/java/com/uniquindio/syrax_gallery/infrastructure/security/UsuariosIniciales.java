@@ -30,31 +30,31 @@ public class UsuariosIniciales implements CommandLineRunner {
                 new Semilla("az-001",
                         "rhaenyra@syraxgallery.com",
                         "rhaenyra123",
-                        RolSeguridad.USER),
+                        RolSeguridad.AZANTYS),
                 new Semilla("az-002",
                         "daemon@syraxgallery.com",
                         "daemon123",
-                        RolSeguridad.USER),
+                        RolSeguridad.AZANTYS),
                 new Semilla("az-003",
                         "laena@syraxgallery.com",
                         "laena123",
-                        RolSeguridad.USER),
+                        RolSeguridad.AZANTYS),
                 new Semilla("az-004",
                         "baela@syraxgallery.com",
                         "baela123",
-                        RolSeguridad.USER),
+                        RolSeguridad.AZANTYS),
 
                 new Semilla("zentys-01",
                         "alicent.hightower@gmail.com",
                         "alicent123",
-                        RolSeguridad.USER),
+                        RolSeguridad.ZENTYS),
                 new Semilla("zentys-02",
                         "aegon.targaryen@gmail.com",
                         "aegon123",
-                        RolSeguridad.USER),
+                        RolSeguridad.ZENTYS),
                 new Semilla("zentys-03",
                         "helaena.targaryen@gmail.com",
-                        "helaena123",  RolSeguridad.USER)
+                        "helaena123",  RolSeguridad.ZENTYS)
         );
         for (Semilla s : semillas) {
             repository.save(new UsuarioEntity(s.id(), s.email(), encoder.encode(s.clave()), s.rol()));

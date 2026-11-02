@@ -20,7 +20,7 @@ public class CredencialesService {
             throw new ReglaDominioException("Ya existe una cuenta con ese correo");
     }
 
-    public void registrar(String id, String email, String clave) {
-        repository.save(new UsuarioEntity(id, email, encoder.encode(clave), RolSeguridad.USER));
+    public void registrar(String id, String email, String clave, RolSeguridad rol) {
+        repository.save(new UsuarioEntity(id, email, encoder.encode(clave), rol));
     }
 }
