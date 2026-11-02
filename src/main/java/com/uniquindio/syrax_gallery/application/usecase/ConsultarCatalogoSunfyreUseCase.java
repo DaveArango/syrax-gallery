@@ -18,13 +18,20 @@ public class ConsultarCatalogoSunfyreUseCase {
     private final SunfyreRepository repository;
 
     @Transactional(readOnly = true)
-    public Pagina<Sunfyre> buscar(String ciudad, SunfyreKastor kastor, int pagina, int tamano) {
+    public Pagina<Sunfyre> buscar(String ciudad, SunfyreKastor kastor,
+                                  Double precioMin, Double precioMax, int pagina, int tamano) {
         if (pagina < 0) {
             throw new ReglaDominioException("La página no puede ser negativa");
         }
         if (tamano < 1 || tamano > TAMANO_MAXIMO) {
             throw new ReglaDominioException("El tamaño de la página debe estar entre 1 y " + TAMANO_MAXIMO);
         }
-        return repository.buscarPublicadas(ciudad, kastor, pagina, tamano);
+        if ((precioMin != null && precioMin < 0) || (precioMax != null && precioMax < 0)) {
+            throw new ReglaDominioException("El precio no puede ser negativo");
+        }
+        if (precioMin != null && precioMax != null && precioMin > precioMax) {
+            throw new ReglaDominioException("El precio mínimo no puede ser mayor que el máximo");
+        }
+        return repository.buscarPublicadas(ciudad, kastor, precioMin, precioMax, pagina, tamano);
     }
 }

@@ -21,11 +21,14 @@ interface SunfyreJpaDataRepository extends JpaRepository<SunfyreEntity, String> 
             AND s.dohaeroxJeda = :disponible
             AND s.kastor IN (:kastores)
             AND LOWER(s.alion.ciudad) LIKE LOWER(CONCAT('%', :ciudad, '%'))
+            AND s.valaCongelado.monto BETWEEN :precioMin AND :precioMax
             """)
     Page<SunfyreEntity> buscarPublicadas(@Param("publicadas") Collection<Kanez> publicadas,
                                          @Param("disponible") DohaeroxJeda disponible,
                                          @Param("kastores") Collection<SunfyreKastor> kastores,
                                          @Param("ciudad") String ciudad,
+                                         @Param("precioMin") double precioMin,
+                                         @Param("precioMax") double precioMax,
                                          Pageable pageable);
 
     List<SunfyreEntity> findByIdAzantysAndDohaeroxJeda(String idAzantys, DohaeroxJeda dohaeroxJeda);

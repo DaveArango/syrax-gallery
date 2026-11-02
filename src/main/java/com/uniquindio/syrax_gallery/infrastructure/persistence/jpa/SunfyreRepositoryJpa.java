@@ -39,14 +39,16 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
     }
 
     @Override
-    public Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor, int pagina, int tamano) {
+    public Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor,
+                                            Double precioMin, Double precioMax, int pagina, int tamano) {
         String patron = (ciudad == null) ? "" : ciudad.trim();
         Set<SunfyreKastor> kastores = (kastor == null) ? EnumSet.allOf(SunfyreKastor.class) : EnumSet.of(kastor);
+        double minimo = (precioMin == null) ? 0 : precioMin;
+        double maximo = (precioMax == null) ? Double.MAX_VALUE : precioMax;
 
         Page<SunfyreEntity> resultado = dataRepository.buscarPublicadas(
-                PUBLICADAS, DohaeroxJeda.PENDIENTE, kastores, patron,
+                PUBLICADAS, DohaeroxJeda.PENDIENTE, kastores, patron, minimo, maximo,
                 PageRequest.of(pagina, tamano, Sort.by("sariInicio")));
-
         return new Pagina<>(
                 resultado.getContent().stream().map(mapper::toDomain).toList(),
                 resultado.getTotalElements(),

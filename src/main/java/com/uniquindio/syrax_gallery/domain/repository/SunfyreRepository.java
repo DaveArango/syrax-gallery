@@ -12,7 +12,8 @@ public interface SunfyreRepository {
 
     void guardar(Sunfyre sunfyre);
 
-    Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor, int pagina, int tamano);
+    Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor,
+                                     Double precioMin, Double precioMax, int pagina, int tamano);
 
     List<Sunfyre> obtenerAbonadasDeAzantys(String idAzantys);
 }
