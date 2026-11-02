@@ -9,7 +9,7 @@ Proyecto final de Programación Avanzada (01N), Universidad del Quindío. **Entr
 | Integrante | Parte principal |
 |---|---|
 | Valery Andrea Ortiz Mesa | Azantys, Sunfyre y Kelitis (dominio, casos de uso, API, persistencia, consultas y seguridad por usuario) |
-| [nombre completo de Dave] | Zentys y Caraxes, configuración JWT, Swagger y manejo de errores |
+| Jhonatan David Vivas Arango | Zentys y Caraxes, configuración JWT, Swagger y manejo de errores |
 
 ## Lenguaje ubicuo (alto valyrio)
 
@@ -147,11 +147,13 @@ Errores para mostrar:
 
 ## Correcciones de la Entrega 1
 
-| Observación que nos dieron | Qué cambiamos | Dónde se ve (archivo o rama) |
-|---|---|---|
-| No hubieron observaciones | Los estados se renombraron al lenguaje ubicuo: EstadoSunfyre pasó a DohaeroxJeda y EstadoKelitis a Gelior | `DohaeroxJeda.java`, `Gelior.java`, rama `fix/correccion-lenguaje-ubicuo` |
-| " | Se corrigieron las invariantes de Sunfyre y Kelitis | `docs/diagrama-agregado/diagrama-agregados.md`, `Sunfyre.java`, `Kelitis.java`, rama `fix/coherencia-codigo` |
+En la Entrega 1 no recibimos observaciones. Aun así, hicimos estas mejoras sobre lo entregado:
 
+| Mejora | Qué cambiamos | Dónde se ve (archivo o rama) |
+|---|---|---|
+| Lenguaje ubicuo en los estados | EstadoSunfyre pasó a DohaeroxJeda y EstadoKelitis a Gelior | `DohaeroxJeda.java`, `Gelior.java`, rama `fix/correccion-lenguaje-ubicuo` |
+| Invariantes de los agregados | Se corrigieron las invariantes de Sunfyre y Kelitis | `diagrama-agregados.md`, `Sunfyre.java`, `Kelitis.java`, rama `fix/coherencia-codigo` |
+| Reglas fuera de los casos de uso | La regla "solo se aprueba un servicio terminado" pasó a `Sunfyre.validarCompletada()`, y "un solo Kelitis por Sunfyre" al servicio de dominio `VerificadorDeKelitis` | rama `refactor/reglas-kelitis-en-dominio` |
 
 ## Pruebas
 
