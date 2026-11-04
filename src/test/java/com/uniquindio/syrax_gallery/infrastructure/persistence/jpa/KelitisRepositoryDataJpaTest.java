@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Import({KelitisRepositoryJpa.class, KelitisPersistenceMapper.class})
-class KelitisRepositoryJpaTest {
+class KelitisRepositoryDataJpaTest {
 
     @Autowired
     private KelitisRepositoryJpa repository;

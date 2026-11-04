@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class RepositoriosConBaseDeDatosTest {
+class RepositoriosJpaTest {
 
     @Autowired
     private SunfyreRepository sunfyreRepository;

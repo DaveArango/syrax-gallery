@@ -161,14 +161,14 @@ En la Entrega 1 no recibimos observaciones. Aun así, hicimos estas mejoras sobr
 - Pruebas de dominio: entidades, Value Objects y servicios de dominio.
 - Pruebas de casos de uso con Mockito: `CancelarSunfyreUseCaseTest`, `ConstituirKelitisUseCaseTest`, `AprobarEjecucionKelitisUseCaseTest` y `PublicarSunfyreUseCaseTest`, incluidos los casos que fallan por reglas de negocio.
 - Pruebas de controller con `@WebMvcTest`.
-- Prueba de repositorio con `@DataJpaTest`: `SunfyreRepositoryJpaTest`.
+- Prueba de repositorio con `@DataJpaTest`: `SunfyreRepositoryDataJpaTest`.
 
 ## Pruebas avanzadas
 
 **1. ¿Por qué el repositorio no se prueba con Mockito?**
 
 Si se simula el repositorio, la prueba solo comprueba lo que nosotros mismos le dijimos que devolviera. Con H2 de verdad
-(RepositoriosConBaseDeDatosTest, SunfyreRepositoryJpaTest, KelitisRepositoryJpaTest) se comprueba que el mapper
+(RepositoriosJpaTest, SunfyreRepositoryDataJpaTest, KelitisRepositoryDataJpaTest) se comprueba que el mapper
 de persistencia guarda y reconstruye bien los value objects (Sari, Vala, Alion), que las consultas del catálogo paginan
 y ordenan como esperamos y que el ranking de Azantys cuenta solo las Sunfyre COMPLETADAS de data.sql.
 

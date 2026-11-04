@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @DataJpaTest
 @Import({SunfyreRepositoryJpa.class, SunfyrePersistenceMapper.class})
-class SunfyreRepositoryJpaTest {
+class SunfyreRepositoryDataJpaTest {
 
     @Autowired
     private SunfyreRepositoryJpa repository;
