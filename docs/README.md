@@ -162,3 +162,28 @@ En la Entrega 1 no recibimos observaciones. Aun así, hicimos estas mejoras sobr
 - Pruebas de casos de uso con Mockito: `CancelarSunfyreUseCaseTest`, `ConstituirKelitisUseCaseTest`, `AprobarEjecucionKelitisUseCaseTest` y `PublicarSunfyreUseCaseTest`, incluidos los casos que fallan por reglas de negocio.
 - Pruebas de controller con `@WebMvcTest`.
 - Prueba de repositorio con `@DataJpaTest`: `SunfyreRepositoryJpaTest`.
+
+## Pruebas avanzadas
+
+**1. ¿Por qué el repositorio no se prueba con Mockito?**
+
+Si se simula el repositorio, la prueba solo comprueba lo que nosotros mismos le dijimos que devolviera. Con H2 de verdad
+(RepositoriosConBaseDeDatosTest, SunfyreRepositoryJpaTest, KelitisRepositoryJpaTest) se comprueba que el mapper
+de persistencia guarda y reconstruye bien los value objects (Sari, Vala, Alion), que las consultas del catálogo paginan
+y ordenan como esperamos y que el ranking de Azantys cuenta solo las Sunfyre COMPLETADAS de data.sql.
+
+**2. ¿Qué diferencia hay entre @SpringBootTest y @DataJpaTest?**
+
+@DataJpaTest solo levanta JPA y H2: es más rápido, pero no carga nuestros adaptadores, así que se traen con
+@Import(KelitisRepositoryJpa.class, KelitisPersistenceMapper.class). En Spring Boot 4 la anotación cambió de paquete
+a org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest y se necesita el starter
+spring-boot-starter-data-jpa-test. @SpringBootTest levanta toda la aplicación (seguridad incluida) y lo usamos
+para la seguridad y la integración.
+
+**3. ¿Cómo se prueba la seguridad?**
+
+@WebMvcTest no carga nuestro SecurityConfig, por eso SeguridadEndpointTest usa @SpringBootTest +
+@AutoConfigureMockMvc y jwt() de spring-security-test para simular el token con el rol (sin prefijo ROLE_)
+y el uid. Se comprueba 401 sin token o con token falso, 403 cuando el rol no corresponde y 200 cuando sí.
+En FlujoSunfyreIntegracionTest se recorre todo el sistema sin mocks, y en KelitisControllerErroresTest se usa el
+caso de uso real con verify(kelitisRepository, never()).guardar(any()) para asegurar que un error no deja datos a medias.
