@@ -174,16 +174,35 @@ y ordenan como esperamos y que el ranking de Azantys cuenta solo las Sunfyre COM
 
 **2. ¿Qué diferencia hay entre @SpringBootTest y @DataJpaTest?**
 
-@DataJpaTest solo levanta JPA y H2: es más rápido, pero no carga nuestros adaptadores, así que se traen con
-@Import(KelitisRepositoryJpa.class, KelitisPersistenceMapper.class). En Spring Boot 4 la anotación cambió de paquete
-a org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest y se necesita el starter
-spring-boot-starter-data-jpa-test. @SpringBootTest levanta toda la aplicación (seguridad incluida) y lo usamos
-para la seguridad y la integración.
+Con @DataJpaTest solo se levanta la parte de la base de datos, o sea, las entidades, los repositorios de Spring Data y H2.
+Por eso es más rápido, pero no carga nuestras clases, así que el adaptador y su mapper los tuvimos que traer con
+@Import(KelitisRepositoryJpa.class, KelitisPersistenceMapper.class). @SpringBootTest en cambio, levanta toda la
+aplicación, con la seguridad y los casos de uso incluidos. En Spring Boot 4 @DataJpaTest cambió de paquete y ahora se
+importa de org.springframework.boot.data.jpa.test.autoconfigure y hay que agregar el starter
+spring-boot-starter-data-jpa-test en el build.gradle, y así lo solucionamos.
+Lo que más nos costó fue saber cuál usar en cada caso, al final entendimos que si solo queremos probar que algo se guarda
+y se lee bien seria con @DataJpaTest, y que @SpringBootTest lo dejamos para cuando necesitamos la app completa
+como en la seguridad o en la integración.
 
-**3. ¿Cómo se prueba la seguridad?**
+**3. ¿Cómo probamos la seguridad?**
 
-@WebMvcTest no carga nuestro SecurityConfig, por eso SeguridadEndpointTest usa @SpringBootTest +
-@AutoConfigureMockMvc y jwt() de spring-security-test para simular el token con el rol (sin prefijo ROLE_)
-y el uid. Se comprueba 401 sin token o con token falso, 403 cuando el rol no corresponde y 200 cuando sí.
-En FlujoSunfyreIntegracionTest se recorre todo el sistema sin mocks, y en KelitisControllerErroresTest se usa el
-caso de uso real con verify(kelitisRepository, never()).guardar(any()) para asegurar que un error no deja datos a medias.
+Escogimos la ruta GET /api/sunfyre/mis-servicios, que solo puede usar un Azantys. Sin token responderia 401 porque el
+sistema no sabe quién está haciendo la petición. Con el token de un Zentys responde 403 porque sí sabe quién es pero no
+tiene permiso, y con el token de un Azantys responde 200. Como en los tests de controller apagamos los filtros, ahí no se
+puede probar la seguridad, entonces SeguridadEndpointTest usa @SpringBootTest con @AutoConfigureMockMvc para que cargue
+nuestro SecurityConfig de verdad.
+Lo que más nos costó fue entender cómo simular el token, pensábamos que había que hacer login en cada prueba, pero con
+jwt() de spring-security-test se crea un token de mentiras al que le ponemos el uid y el rol, y Spring lo toma como si
+la persona ya se hubiera autenticado.
+
+**4. ¿En qué se diferencia una prueba de integración de una unitaria?**
+
+En FlujoSunfyreIntegracionTest no simulamos nada pues la petición pasa por la seguridad, el controller, el caso de uso,
+el dominio, el repositorio y llega a H2. Por ejemplo un Zentys paga la Sunfyre sf-007 y después revisamos directamente
+en la base de datos que quedó ABONADA y que se creó su Kelitis. Una prueba unitaria prueba una sola clase y lo demás lo
+simula con Mockito, por eso es rápida, y si falla se sabe exactamente dónde está el problema. La de integración es más
+lenta, pero muestra que todas las piezas sí funcionan juntas, así que conviene usarla en los flujos más importantes y no
+en cada caso pequeño.
+Lo que más nos costó fue escoger los datos de data.sql, para pagar necesitábamos una Sunfyre PENDIENTE de ese mismo Zentys,
+y para que cancelar fallara una que ya estuviera COMPLETADA, así que nos tocó revisar el archivo con calma para no
+equivocarnos de estado.
