@@ -33,7 +33,6 @@ class ConstituirKelitisUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        // Los servicios de dominio son reales (no simulados): así la prueba ejercita las reglas de verdad
         useCase = new ConstituirKelitisUseCase(kelitisRepository, sunfyreRepository,
                 new VerificadorDeAgenda(sunfyreRepository), new VerificadorDeKelitis(kelitisRepository));
     }
