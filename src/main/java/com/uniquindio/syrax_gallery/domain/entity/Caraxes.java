@@ -97,6 +97,11 @@ public class Caraxes {
         this.kanez = Kanez.VENDIDO;
     }
 
+    public void validarEnVenta() {
+        if (kanez != Kanez.EN_VENTA)
+            throw new ReglaDominioException("Solo se puede comprar un Caraxes EN_VENTA");
+    }
+
     public void retirar() {
         if (kanez == Kanez.VENDIDO)
             throw new ReglaDominioException("Un Caraxes VENDIDO no puede retirarse");
