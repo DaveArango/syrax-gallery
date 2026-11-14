@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/api/azantys/mas-solicitados",
                                 "/api/azantys/*",             // perfil público
                                 "/api/caraxes",               // catálogo (solo obras publicadas)
-                                "/api/sunfyre"                // catálogo (solo servicios publicados)
+                                "/api/sunfyre",               // catálogo (solo servicios publicados)
+                                "/api/gida"                   // Gida de una obra
                         ).permitAll()
 
                         // Registro público de Azantys y Zentys (crea también su cuenta de login)
@@ -78,11 +79,15 @@ public class SecurityConfig {
                                 "/api/caraxes/*/publicar",
                                 "/api/caraxes/*/retirar"
                         ).hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.PUT, "/api/sindes/*/confirmar").hasAuthority("AZANTYS")
 
                         // Solo el Zentys (comprador)
                         .requestMatchers(HttpMethod.POST, "/api/kelitis").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/kelitis/*/aprobar").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/caraxes/*/vender").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.POST, "/api/sindes", "/api/gida").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.PUT, "/api/sindes/*/cancelar").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/sindes/mis-compras").hasAuthority("ZENTYS")
 
                         // Todo lo demás exige token
                         .anyRequest().authenticated()
