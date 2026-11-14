@@ -51,3 +51,15 @@ INSERT INTO sindes (id, id_caraxes, id_azantys, id_zentys, vala_monto, vala_divi
 
 INSERT INTO gida (id, id_zentys, id_caraxes, texto, fecha) VALUES
     ('gd-001', 'zentys-02', 'cx-006', 'El retrato quedó precioso, los colores son tal cual los imaginé.', '2026-09-25 10:00:00');
+
+
+-- Mas obras publicadas para que el catalogo tenga varias paginas
+INSERT INTO caraxes (id, id_azantys, vala_monto, vala_divisa, sete_nombre, jorva_descripcion, kanez, urnebion_url, kastor) VALUES
+                                                                                                                               ('cx-010', 'az-001',  980000, 'COP', 'Atardecer en Filandia',  'Oleo sobre lienzo con los colores del atardecer quindiano.',   'EN_VENTA',   'https://cdn.syrax.com/obras/cx-010.jpg', 'PINTURA'),
+                                                                                                                               ('cx-011', 'az-001', 2100000, 'COP', 'Guardian de piedra',     'Escultura tallada en piedra volcanica de la region.',          'EN_VENTA',   'https://cdn.syrax.com/obras/cx-011.jpg', 'ESCULTURA'),
+                                                                                                                               ('cx-012', 'az-002',  320000, 'COP', 'Palmas de cera',         'Fotografia en blanco y negro del valle del Cocora.',           'EN_VENTA',   'https://cdn.syrax.com/obras/cx-012.jpg', 'FOTOGRAFIA'),
+                                                                                                                               ('cx-013', 'az-002',  270000, 'COP', 'Retrato a lapiz',        'Dibujo a lapiz de grafito sobre papel de alto gramaje.',       'EXHIBICION', 'https://cdn.syrax.com/obras/cx-013.jpg', 'DIBUJO'),
+                                                                                                                               ('cx-014', 'az-001',  540000, 'COP', 'Cafetal en linoleo',     'Grabado en linoleo a dos tintas de un cafetal en cosecha.',    'EN_VENTA',   'https://cdn.syrax.com/obras/cx-014.jpg', 'GRABADO'),
+                                                                                                                               ('cx-015', 'az-003', 1750000, 'COP', 'Mujer con sombrero',     'Pintura acrilica de gran formato con tecnica de espatula.',    'EN_VENTA',   'https://cdn.syrax.com/obras/cx-015.jpg', 'PINTURA'),
+                                                                                                                               ('cx-016', 'az-003',  690000, 'COP', 'Colibri en vuelo',       'Fotografia macro impresa en papel fotografico mate.',          'EXHIBICION', 'https://cdn.syrax.com/obras/cx-016.jpg', 'FOTOGRAFIA'),
+                                                                                                                               ('cx-017', 'az-002', 1300000, 'COP', 'Manos de barro',         'Escultura en ceramica esmaltada hecha a mano.',                'EN_VENTA',   'https://cdn.syrax.com/obras/cx-017.jpg', 'ESCULTURA');
