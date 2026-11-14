@@ -43,3 +43,11 @@ INSERT INTO sunfyre (id, id_azantys, id_zentys, sari_inicio, sari_fin, kastor, a
 INSERT INTO kelitis (id, id_sunfyre, id_azantys, id_zentys, vala_monto, vala_divisa, gelior) VALUES
                                                                                                  ('kl-001', 'sf-003', 'az-001', 'zentys-01', 300000, 'COP', 'RETENIDO'),
                                                                                                  ('kl-002', 'sf-004', 'az-001', 'zentys-02', 180000, 'COP', 'RETENIDO');
+
+
+-- Sindes: cx-006 (VENDIDO) ya lo compró zentys-02, por eso puede dejarle un Gida
+INSERT INTO sindes (id, id_caraxes, id_azantys, id_zentys, vala_monto, vala_divisa, fecha, sindes_jeda) VALUES
+    ('sd-001', 'cx-006', 'az-001', 'zentys-02', 2800000, 'COP', '2026-09-20 15:30:00', 'COMPLETADA');
+
+INSERT INTO gida (id, id_zentys, id_caraxes, texto, fecha) VALUES
+    ('gd-001', 'zentys-02', 'cx-006', 'El retrato quedó precioso, los colores son tal cual los imaginé.', '2026-09-25 10:00:00');
