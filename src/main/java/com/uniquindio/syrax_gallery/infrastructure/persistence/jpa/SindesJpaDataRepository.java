@@ -13,4 +13,6 @@ interface SindesJpaDataRepository extends JpaRepository<SindesEntity, String> {
     boolean existsByIdCaraxesAndSindesJeda(String idCaraxes, SindesJeda sindesJeda);
 
     boolean existsByIdZentysAndIdCaraxesAndSindesJeda(String idZentys, String idCaraxes, SindesJeda sindesJeda);
+
+    List<SindesEntity> findByIdAzantysOrderByFechaDesc(String idAzantys);
 }

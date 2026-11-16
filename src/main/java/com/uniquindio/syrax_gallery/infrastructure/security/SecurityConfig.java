@@ -50,6 +50,7 @@ public class SecurityConfig {
 
                         // Va antes del bloque público: "/api/sunfyre/*" también cubriría esta ruta
                         .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/caraxes/mis-obras").hasAuthority("AZANTYS")
 
                         // Público
                         .requestMatchers(HttpMethod.GET,
@@ -57,6 +58,7 @@ public class SecurityConfig {
                                 "/api/azantys/mas-solicitados",
                                 "/api/azantys/*",             // perfil público
                                 "/api/caraxes",               // catálogo (solo obras publicadas)
+                                "/api/caraxes/*",             // detalle de una obra
                                 "/api/dohaeragon",            // reservas publicadas (se retira al ligar la reserva a su Sunfyre)
                                 "/api/gida",                  // Gida de una obra
                                 "/api/sunfyre",               // catálogo de servicios ofrecidos
@@ -87,6 +89,7 @@ public class SecurityConfig {
                                 "/api/caraxes/*/retirar"
                         ).hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/sindes/*/confirmar").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/sindes/mis-ventas").hasAuthority("AZANTYS")
 
                         // Solo el Zentys (comprador)
                         .requestMatchers(HttpMethod.POST, "/api/kelitis").hasAuthority("ZENTYS")
@@ -97,6 +100,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/sindes/mis-compras").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.POST, "/api/sunfyre/*/reservas").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.GET, "/api/dohaeragon/mis-reservas").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/kelitis/mis-pagos").hasAuthority("ZENTYS")
 
                         // Todo lo demás exige token
                         .anyRequest().authenticated()

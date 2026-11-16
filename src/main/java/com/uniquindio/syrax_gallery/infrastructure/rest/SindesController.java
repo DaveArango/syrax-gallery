@@ -5,6 +5,7 @@ import com.uniquindio.syrax_gallery.application.dto.response.SindesDetalleRespon
 import com.uniquindio.syrax_gallery.application.usecase.CancelarSindesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ConfirmarSindesUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ConsultarMisSindesUseCase;
+import com.uniquindio.syrax_gallery.application.usecase.ConsultarSindesDeAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RealizarSindesUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Sindes;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.SindesMapper;
@@ -29,6 +30,7 @@ public class SindesController {
     private final ConfirmarSindesUseCase confirmarSindesUseCase;
     private final CancelarSindesUseCase cancelarSindesUseCase;
     private final ConsultarMisSindesUseCase consultarMisSindesUseCase;
+    private final ConsultarSindesDeAzantysUseCase consultarSindesDeAzantysUseCase;
     private final SindesMapper mapper;
 
     // Zentys: comprar un Caraxes que está EN_VENTA
@@ -67,6 +69,14 @@ public class SindesController {
     @GetMapping("/mis-compras")
     public List<SindesDetalleResponse> misCompras(JwtAuthenticationToken token) {
         return consultarMisSindesUseCase.ejecutar(UsuarioActual.id(token)).stream()
+                .map(mapper::toDetalleResponse)
+                .toList();
+    }
+
+    // Azantys: las compras de sus obras; las PENDIENTE son las que le falta confirmar
+    @GetMapping("/mis-ventas")
+    public List<SindesDetalleResponse> misVentas(JwtAuthenticationToken token) {
+        return consultarSindesDeAzantysUseCase.ejecutar(UsuarioActual.id(token)).stream()
                 .map(mapper::toDetalleResponse)
                 .toList();
     }

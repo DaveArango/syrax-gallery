@@ -25,4 +25,6 @@ interface CaraxesJpaDataRepository extends JpaRepository<CaraxesEntity, String> 
                                          @Param("kastores") Collection<CaraxesKastor> kastores,
                                          @Param("texto") String texto,
                                          Pageable pageable);
+
+    List<CaraxesEntity> findByIdAzantys(String idAzantys);
 }

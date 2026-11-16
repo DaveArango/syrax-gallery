@@ -6,6 +6,7 @@ import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.mapper.Keliti
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -33,5 +34,12 @@ public class KelitisRepositoryJpa implements KelitisRepository {
     @Override
     public Optional<Kelitis> obtenerPorDohaeragon(String idDohaeragon) {
         return dataRepository.findByIdDohaeragon(idDohaeragon).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Kelitis> obtenerDeZentys(String idZentys) {
+        return dataRepository.findByIdZentys(idZentys).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

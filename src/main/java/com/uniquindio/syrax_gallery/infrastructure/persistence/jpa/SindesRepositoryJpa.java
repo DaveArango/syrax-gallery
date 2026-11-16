@@ -44,4 +44,11 @@ public class SindesRepositoryJpa implements SindesRepository {
         return dataRepository.existsByIdZentysAndIdCaraxesAndSindesJeda(
                 idZentys, idCaraxes, SindesJeda.COMPLETADA);
     }
+
+    @Override
+    public List<Sindes> obtenerPorAzantys(String idAzantys) {
+        return dataRepository.findByIdAzantysOrderByFechaDesc(idAzantys).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

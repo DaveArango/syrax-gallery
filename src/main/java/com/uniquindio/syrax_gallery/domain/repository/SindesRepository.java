@@ -16,4 +16,7 @@ public interface SindesRepository {
     boolean existePendientePorCaraxes(String idCaraxes);
 
     boolean existeCompletada(String idZentys, String idCaraxes);
+
+    // Las ventas de un Azantys, de la más reciente a la más antigua
+    List<Sindes> obtenerPorAzantys(String idAzantys);
 }

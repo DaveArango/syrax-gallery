@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,5 +57,13 @@ public class CaraxesRepositoryJpa implements CaraxesRepository {
                 resultado.getTotalPages(),
                 resultado.getNumber(),
                 resultado.getSize());
+    }
+
+    @Override
+    public List<Caraxes> obtenerDeAzantys(String idAzantys) {
+        return dataRepository.findByIdAzantys(idAzantys).stream()
+                .map(mapper::toDomain)
+                .sorted(Comparator.comparing(caraxes -> caraxes.getSete().nombre()))
+                .toList();
     }
 }

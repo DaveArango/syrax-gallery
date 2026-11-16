@@ -11,4 +11,7 @@ public interface CaraxesRepository {
     Optional<Caraxes> obtener(String id);
     void guardar(Caraxes caraxes);
     Pagina<Caraxes> buscarPublicadas(String texto, CaraxesKastor kastor, int pagina, int tamano);
+
+    // Todas las obras de un Azantys, en cualquier estado
+    List<Caraxes> obtenerDeAzantys(String idAzantys);
 }
