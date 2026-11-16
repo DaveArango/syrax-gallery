@@ -1,21 +1,21 @@
 package com.uniquindio.syrax_gallery.domain.service;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
 
 
 public class VerificadorDeAgenda {
 
-    private final SunfyreRepository sunfyreRepository;
+    private final DohaeragonRepository dohaeragonRepository;
 
-    public VerificadorDeAgenda(SunfyreRepository sunfyreRepository) {
-        this.sunfyreRepository = sunfyreRepository;
+    public VerificadorDeAgenda(DohaeragonRepository dohaeragonRepository) {
+        this.dohaeragonRepository = dohaeragonRepository;
     }
 
-    public void verificarDisponibilidad(String idAzantys, Sari sari, String idSunfyre) {
-        boolean hayCruce = sunfyreRepository.obtenerAbonadasDeAzantys(idAzantys).stream()
-                .filter(otra -> !otra.getId().equals(idSunfyre))
+    public void verificarDisponibilidad(String idAzantys, Sari sari, String idDohaeragon) {
+        boolean hayCruce = dohaeragonRepository.obtenerAbonadasDeAzantys(idAzantys).stream()
+                .filter(otra -> !otra.getId().equals(idDohaeragon))
                 .anyMatch(otra -> otra.getSari().seSolapaCon(sari));
 
         if (hayCruce) {

@@ -4,9 +4,9 @@ import com.uniquindio.syrax_gallery.application.usecase.AprobarEjecucionKelitisU
 import com.uniquindio.syrax_gallery.application.usecase.ConstituirKelitisUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.ObtenerKelitisUseCase;
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.KelitisMapper;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class KelitisControllerErroresTest {
     private KelitisRepository kelitisRepository;
 
     @MockitoBean
-    private SunfyreRepository sunfyreRepository;
+    private DohaeragonRepository dohaeragonRepository;
 
     @MockitoBean
     private ConstituirKelitisUseCase constituirKelitisUseCase;
@@ -59,17 +59,17 @@ class KelitisControllerErroresTest {
     }
 
     private Kelitis kelitisRetenido() {
-        return Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", new Vala(150000, "COP"));
+        return Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", new Vala(150000, "COP"));
     }
 
-    private Sunfyre sunfyreAbonada() {
-        Sunfyre sunfyre = Sunfyre.solicitar("sf-001", "az-001", "ze-001",
+    private Dohaeragon dohaeragonAbonada() {
+        Dohaeragon dohaeragon = Dohaeragon.solicitar("dh-001", "az-001", "ze-001",
                 new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2)),
                 SunfyreKastor.ARTE_PIEL,
                 new Alion("Armenia", "Colombia", 4.5339, -75.6811),
                 new Vala(150000, "COP"));
-        sunfyre.confirmar();
-        return sunfyre;
+        dohaeragon.confirmar();
+        return dohaeragon;
     }
 
     @Test
@@ -83,9 +83,9 @@ class KelitisControllerErroresTest {
     }
 
     @Test
-    void deberiaResponder404CuandoLaSunfyreDelKelitisNoExisteYNoGuardarNada() throws Exception {
+    void deberiaResponder404CuandoLaDohaeragonDelKelitisNoExisteYNoGuardarNada() throws Exception {
         when(kelitisRepository.obtener("kl-001")).thenReturn(Optional.of(kelitisRetenido()));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.empty());
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/kelitis/kl-001/aprobar").principal(token("ze-001")))
                 .andExpect(status().isNotFound());
@@ -96,7 +96,7 @@ class KelitisControllerErroresTest {
     @Test
     void deberiaResponder422SiElServicioNoHaTerminadoYNoGuardarNada() throws Exception {
         when(kelitisRepository.obtener("kl-001")).thenReturn(Optional.of(kelitisRetenido()));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyreAbonada()));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragonAbonada()));
 
         mockMvc.perform(put("/api/kelitis/kl-001/aprobar").principal(token("ze-001")))
                 .andExpect(status().is(422))
@@ -114,6 +114,6 @@ class KelitisControllerErroresTest {
                 .andExpect(jsonPath("$.mensaje").value("Solo el Zentys del servicio puede aprobar este Kelitis"));
 
         verify(kelitisRepository, never()).guardar(any());
-        verify(sunfyreRepository, never()).obtener(any());
+        verify(dohaeragonRepository, never()).obtener(any());
     }
 }

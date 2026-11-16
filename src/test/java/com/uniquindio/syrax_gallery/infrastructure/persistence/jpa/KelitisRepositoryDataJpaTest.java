@@ -21,12 +21,12 @@ class KelitisRepositoryDataJpaTest {
     private KelitisRepositoryJpa repository;
 
     @Test
-    void deberiaEncontrarElKelitisDeUnaSunfyre() {
-        Kelitis kelitis = Kelitis.realizar("kl-test-02", "sf-test-99", "az-900", "ze-900",
+    void deberiaEncontrarElKelitisDeUnaDohaeragon() {
+        Kelitis kelitis = Kelitis.realizar("kl-test-02", "dh-test-99", "az-900", "ze-900",
                 new Vala(95000, "COP"));
         repository.guardar(kelitis);
 
-        Optional<Kelitis> encontrado = repository.obtenerPorSunfyre("sf-test-99");
+        Optional<Kelitis> encontrado = repository.obtenerPorDohaeragon("dh-test-99");
 
         assertTrue(encontrado.isPresent());
         assertEquals("kl-test-02", encontrado.get().getId());
@@ -34,12 +34,12 @@ class KelitisRepositoryDataJpaTest {
     }
 
     @Test
-    void existePorSunfyreDistingueUnaSunfyrePagadaDeUnaSinPagar() {
-        repository.guardar(Kelitis.realizar("kl-test-03", "sf-test-pagada", "az-900", "ze-900",
+    void existePorDohaeragonDistingueUnaDohaeragonPagadaDeUnaSinPagar() {
+        repository.guardar(Kelitis.realizar("kl-test-03", "dh-test-pagada", "az-900", "ze-900",
                 new Vala(95000, "COP")));
 
-        boolean pagada = repository.existePorSunfyre("sf-test-pagada");
-        boolean sinPagar = repository.existePorSunfyre("sf-test-sin-pagar");
+        boolean pagada = repository.existePorDohaeragon("dh-test-pagada");
+        boolean sinPagar = repository.existePorDohaeragon("dh-test-sin-pagar");
 
         assertTrue(pagada);
         assertFalse(sinPagar);

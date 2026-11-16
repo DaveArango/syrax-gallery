@@ -1,9 +1,8 @@
 package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
-import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,8 @@ public class ConsultarCatalogoSunfyreUseCase {
     private final SunfyreRepository repository;
 
     @Transactional(readOnly = true)
-    public Pagina<Sunfyre> buscar(String ciudad, SunfyreKastor kastor,
-                                  Double precioMin, Double precioMax, int pagina, int tamano) {
+    public Pagina<Sunfyre> buscar(String texto, SunfyreKastor kastor, String ciudad,
+                                     Double precioMin, Double precioMax, int pagina, int tamano) {
         if (pagina < 0) {
             throw new IllegalArgumentException("La página no puede ser negativa");
         }
@@ -32,6 +31,6 @@ public class ConsultarCatalogoSunfyreUseCase {
         if (precioMin != null && precioMax != null && precioMin > precioMax) {
             throw new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo");
         }
-        return repository.buscarPublicadas(ciudad, kastor, precioMin, precioMax, pagina, tamano);
+        return repository.buscarActivos(texto, kastor, ciudad, precioMin, precioMax, pagina, tamano);
     }
 }

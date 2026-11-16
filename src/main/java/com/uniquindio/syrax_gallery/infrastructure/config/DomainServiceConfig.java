@@ -2,7 +2,7 @@ package com.uniquindio.syrax_gallery.infrastructure.config;
 
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
 import com.uniquindio.syrax_gallery.domain.repository.SindesRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.service.VerificadorDeAgenda;
 import com.uniquindio.syrax_gallery.domain.service.VerificadorDeKelitis;
 import com.uniquindio.syrax_gallery.domain.service.VerificadorDeSindes;
@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 public class DomainServiceConfig {
 
     @Bean
-    public VerificadorDeAgenda verificadorDeAgenda(SunfyreRepository sunfyreRepository) {
-        return new VerificadorDeAgenda(sunfyreRepository);
+    public VerificadorDeAgenda verificadorDeAgenda(DohaeragonRepository dohaeragonRepository) {
+        return new VerificadorDeAgenda(dohaeragonRepository);
     }
 
     @Bean

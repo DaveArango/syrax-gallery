@@ -1,7 +1,5 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa;
 
-import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
-import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity.SunfyreEntity;
 import org.springframework.data.domain.Page;
@@ -16,30 +14,20 @@ import java.util.List;
 interface SunfyreJpaDataRepository extends JpaRepository<SunfyreEntity, String> {
 
     @Query("""
-            SELECT s FROM SunfyreEntity s
-            WHERE s.kanez IN (:publicadas)
-            AND s.dohaeroxJeda = :disponible
-            AND s.kastor IN (:kastores)
-            AND LOWER(s.alion.ciudad) LIKE LOWER(CONCAT('%', :ciudad, '%'))
-            AND s.valaCongelado.monto BETWEEN :precioMin AND :precioMax
+            SELECT d FROM SunfyreEntity d
+            WHERE d.activo = true
+            AND d.kastor IN (:kastores)
+            AND LOWER(d.alion.ciudad) LIKE LOWER(CONCAT('%', :ciudad, '%'))
+            AND d.vala.monto BETWEEN :precioMin AND :precioMax
+            AND (LOWER(d.sete.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
+                 OR LOWER(d.jorva.descripcion) LIKE LOWER(CONCAT('%', :texto, '%')))
             """)
-    Page<SunfyreEntity> buscarPublicadas(@Param("publicadas") Collection<Kanez> publicadas,
-                                         @Param("disponible") DohaeroxJeda disponible,
-                                         @Param("kastores") Collection<SunfyreKastor> kastores,
+    Page<SunfyreEntity> buscarActivos(@Param("kastores") Collection<SunfyreKastor> kastores,
                                          @Param("ciudad") String ciudad,
                                          @Param("precioMin") double precioMin,
                                          @Param("precioMax") double precioMax,
+                                         @Param("texto") String texto,
                                          Pageable pageable);
 
-    @Query("""
-            SELECT s FROM SunfyreEntity s
-            WHERE s.idAzantys = :idAzantys
-            AND s.dohaeroxJeda IN (:estados)
-            """)
-    Page<SunfyreEntity> buscarDeAzantys(@Param("idAzantys") String idAzantys,
-                                        @Param("estados") Collection<DohaeroxJeda> estados,
-                                        Pageable pageable);
-
-    List<SunfyreEntity> findByIdAzantysAndDohaeroxJeda(String idAzantys, DohaeroxJeda dohaeroxJeda);
-
+    List<SunfyreEntity> findByIdAzantys(String idAzantys);
 }

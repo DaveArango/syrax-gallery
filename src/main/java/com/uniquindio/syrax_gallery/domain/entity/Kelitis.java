@@ -11,28 +11,28 @@ import java.util.Objects;
 public class Kelitis {
 
     private final String id;
-    private final String idSunfyre;
+    private final String idDohaeragon;
     private final String idAzantys;
     private final String idZentys;
     private final Vala valaCongelado;
     private Gelior gelior;
 
-    private Kelitis(String id, String idSunfyre, String idAzantys, String idZentys,
+    private Kelitis(String id, String idDohaeragon, String idAzantys, String idZentys,
                     Vala valaCongelado, Gelior gelior) {
         this.id = id;
-        this.idSunfyre = idSunfyre;
+        this.idDohaeragon = idDohaeragon;
         this.idAzantys = idAzantys;
         this.idZentys = idZentys;
         this.valaCongelado = valaCongelado;
         this.gelior = gelior;
     }
 
-    public static Kelitis realizar(String id, String idSunfyre, String idAzantys, String idZentys,
+    public static Kelitis realizar(String id, String idDohaeragon, String idAzantys, String idZentys,
                                    Vala valaCongelado) {
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id del Kelitis es obligatorio");
-        if (idSunfyre == null || idSunfyre.isBlank())
-            throw new ReglaDominioException("El idSunfyre es obligatorio");
+        if (idDohaeragon == null || idDohaeragon.isBlank())
+            throw new ReglaDominioException("El idDohaeragon es obligatorio");
         if (idAzantys == null || idAzantys.isBlank())
             throw new ReglaDominioException("El idAzantys es obligatorio");
         if (idZentys == null || idZentys.isBlank())
@@ -40,13 +40,13 @@ public class Kelitis {
         if (valaCongelado == null)
             throw new ReglaDominioException("El monto retenido es obligatorio");
 
-        return new Kelitis(id, idSunfyre, idAzantys, idZentys, valaCongelado, Gelior.RETENIDO);
+        return new Kelitis(id, idDohaeragon, idAzantys, idZentys, valaCongelado, Gelior.RETENIDO);
     }
 
 
-    public static Kelitis reconstruir(String id, String idSunfyre, String idAzantys, String idZentys,
+    public static Kelitis reconstruir(String id, String idDohaeragon, String idAzantys, String idZentys,
                                       Vala valaCongelado, Gelior gelior) {
-        return new Kelitis(id, idSunfyre, idAzantys, idZentys, valaCongelado, gelior);
+        return new Kelitis(id, idDohaeragon, idAzantys, idZentys, valaCongelado, gelior);
     }
 
     public void validarCliente(String idZentys) {

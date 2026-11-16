@@ -1,9 +1,9 @@
 package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.service.VerificadorDeAgenda;
 import com.uniquindio.syrax_gallery.domain.service.VerificadorDeKelitis;
 import lombok.RequiredArgsConstructor;
@@ -17,24 +17,24 @@ import java.util.NoSuchElementException;
 public class ConstituirKelitisUseCase {
 
     private final KelitisRepository kelitisRepository;
-    private final SunfyreRepository sunfyreRepository;
+    private final DohaeragonRepository dohaeragonRepository;
     private final VerificadorDeAgenda verificadorDeAgenda;
     private final VerificadorDeKelitis verificadorDeKelitis;
 
     @Transactional
-    public Kelitis ejecutar(String id, String sunfyreId, String zentysId) {
-        Sunfyre sunfyre = sunfyreRepository.obtener(sunfyreId)
-                .orElseThrow(() -> new NoSuchElementException("Sunfyre no encontrada"));
+    public Kelitis ejecutar(String id, String dohaeragonId, String zentysId) {
+        Dohaeragon dohaeragon = dohaeragonRepository.obtener(dohaeragonId)
+                .orElseThrow(() -> new NoSuchElementException("Dohaeragon no encontrada"));
 
-        sunfyre.validarCliente(zentysId);
-        verificadorDeKelitis.verificarQueNoTengaKelitis(sunfyreId);
-        verificadorDeAgenda.verificarDisponibilidad(sunfyre.getIdAzantys(), sunfyre.getSari(), sunfyre.getId());
+        dohaeragon.validarCliente(zentysId);
+        verificadorDeKelitis.verificarQueNoTengaKelitis(dohaeragonId);
+        verificadorDeAgenda.verificarDisponibilidad(dohaeragon.getIdAzantys(), dohaeragon.getSari(), dohaeragon.getId());
 
-        sunfyre.confirmar();
-        Kelitis kelitis = Kelitis.realizar(id, sunfyre.getId(), sunfyre.getIdAzantys(),
-                sunfyre.getIdZentys(), sunfyre.getValaCongelado());
+        dohaeragon.confirmar();
+        Kelitis kelitis = Kelitis.realizar(id, dohaeragon.getId(), dohaeragon.getIdAzantys(),
+                dohaeragon.getIdZentys(), dohaeragon.getValaCongelado());
 
-        sunfyreRepository.guardar(sunfyre);
+        dohaeragonRepository.guardar(dohaeragon);
         kelitisRepository.guardar(kelitis);
         return kelitis;
     }

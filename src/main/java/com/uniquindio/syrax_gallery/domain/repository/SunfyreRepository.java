@@ -1,7 +1,6 @@
 package com.uniquindio.syrax_gallery.domain.repository;
 
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
-import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 
 import java.util.List;
@@ -13,10 +12,8 @@ public interface SunfyreRepository {
 
     void guardar(Sunfyre sunfyre);
 
-    Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor,
+    Pagina<Sunfyre> buscarActivos(String texto, SunfyreKastor kastor, String ciudad,
                                      Double precioMin, Double precioMax, int pagina, int tamano);
 
-    Pagina<Sunfyre> buscarDeAzantys(String idAzantys, DohaeroxJeda estado, int pagina, int tamano);
-
-    List<Sunfyre> obtenerAbonadasDeAzantys(String idAzantys);
+    List<Sunfyre> obtenerDeAzantys(String idAzantys);
 }

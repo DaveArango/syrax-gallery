@@ -1,161 +1,112 @@
 package com.uniquindio.syrax_gallery.domain.entity;
 
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
-import com.uniquindio.syrax_gallery.domain.valueobject.*;
+import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
+import com.uniquindio.syrax_gallery.domain.valueobject.Jedar;
+import com.uniquindio.syrax_gallery.domain.valueobject.Jorva;
+import com.uniquindio.syrax_gallery.domain.valueobject.Sete;
+import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
+import com.uniquindio.syrax_gallery.domain.valueobject.Urnebion;
+import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import lombok.Getter;
 
 import java.util.Objects;
 
+/**
+ * Sunfyre: el servicio que un Azantys ofrece en el catálogo
+ * (por ejemplo "Tatuaje realista, 3 horas, $300.000, en Armenia").
+ *
+ * No es una cita: la cita es la Dohaeragon que un Zentys reserva sobre esta Sunfyre.
+ *
+ * Invariantes:
+ *  - siempre tiene un Azantys dueño, nombre, descripción, imagen, tipo, ubicación y horario;
+ *  - el precio es mayor a cero;
+ *  - la duración va de 30 minutos a 8 horas y cabe dentro del horario de atención;
+ *  - nace activa (visible en el catálogo).
+ */
 @Getter
 public class Sunfyre {
 
+    private static final int DURACION_MINIMA = 30;
+    private static final int DURACION_MAXIMA = 480;
+
     private final String id;
     private final String idAzantys;
-    private final String idZentys;
-    private Sari sari;
-    private SunfyreKastor kastor;
-    private Alion alion;
-    private final Vala valaCongelado;
-    private DohaeroxJeda dohaeroxJeda;
-    private Kanez kanez;
+    private final Sete sete;               // nombre del servicio
+    private final Jorva jorva;             // descripción
+    private final Urnebion urnebion;       // imagen de referencia
+    private final SunfyreKastor kastor;    // tipo de servicio
+    private final Alion alion;             // dónde se presta
+    private final Vala vala;               // precio
+    private final int duracionMinutos;
+    private final Jedar jedar;
+    private final boolean activo;
 
-    private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
-                    SunfyreKastor kastor, Alion alion, Vala valaCongelado,
-                    DohaeroxJeda dohaeroxJeda, Kanez kanez) {
+    private Sunfyre(String id, String idAzantys, Sete sete, Jorva jorva, Urnebion urnebion,
+                       SunfyreKastor kastor, Alion alion, Vala vala, int duracionMinutos,
+                       Jedar jedar, boolean activo) {
         this.id = id;
         this.idAzantys = idAzantys;
-        this.idZentys = idZentys;
-        this.sari = sari;
+        this.sete = sete;
+        this.jorva = jorva;
+        this.urnebion = urnebion;
         this.kastor = kastor;
         this.alion = alion;
-        this.valaCongelado = valaCongelado;
-        this.dohaeroxJeda = dohaeroxJeda;
-        this.kanez = kanez;
+        this.vala = vala;
+        this.duracionMinutos = duracionMinutos;
+        this.jedar = jedar;
+        this.activo = activo;
     }
 
-    private Sunfyre(String id, String idAzantys, String idZentys, Sari sari,
-                    SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
-        this(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
-                DohaeroxJeda.PENDIENTE, Kanez.BORRADOR);
-    }
-
-    public static Sunfyre solicitar(String id, String idAzantys, String idZentys, Sari sari,
-                                    SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
+    public static Sunfyre crear(String id, String idAzantys, Sete sete, Jorva jorva, Urnebion urnebion,
+                                   SunfyreKastor kastor, Alion alion, Vala vala, int duracionMinutos,
+                                   Jedar jedar) {
         if (id == null || id.isBlank())
             throw new ReglaDominioException("El id de la Sunfyre es obligatorio");
         if (idAzantys == null || idAzantys.isBlank())
-            throw new ReglaDominioException("El idAzantys es obligatorio");
-        if (idZentys == null || idZentys.isBlank())
-            throw new ReglaDominioException("El idZentys es obligatorio");
-        if (sari == null)
-            throw new ReglaDominioException("El sari (ventana de tiempo) es obligatorio");
-        if (sari.iniciaEnElPasado())
-            throw new ReglaDominioException("No se permiten ventanas en el pasado");
+            throw new ReglaDominioException("La Sunfyre debe indicar el Azantys que la ofrece");
+        if (sete == null)
+            throw new ReglaDominioException("El nombre de la Sunfyre es obligatorio");
+        if (jorva == null)
+            throw new ReglaDominioException("La descripción de la Sunfyre es obligatoria");
+        if (urnebion == null)
+            throw new ReglaDominioException("La imagen de referencia de la Sunfyre es obligatoria");
         if (kastor == null)
             throw new ReglaDominioException("El kastor (tipo de servicio) es obligatorio");
         if (alion == null)
             throw new ReglaDominioException("El alion (ubicación) es obligatorio");
-        if (valaCongelado == null)
-            throw new ReglaDominioException("El precio pactado es obligatorio");
+        if (vala == null || vala.monto() <= 0)
+            throw new ReglaDominioException("La Sunfyre debe tener un precio mayor a cero");
+        if (jedar == null)
+            throw new ReglaDominioException("El horario de atención es obligatorio");
+        if (duracionMinutos < DURACION_MINIMA || duracionMinutos > DURACION_MAXIMA)
+            throw new ReglaDominioException("La duración debe estar entre " + DURACION_MINIMA
+                    + " y " + DURACION_MAXIMA + " minutos");
+        if (duracionMinutos > jedar.minutosDeAtencion())
+            throw new ReglaDominioException("La duración del servicio no cabe en el horario de atención");
 
-        return new Sunfyre(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado);
+        return new Sunfyre(id, idAzantys, sete, jorva, urnebion, kastor, alion, vala,
+                duracionMinutos, jedar, true);
     }
 
-    public static Sunfyre reconstruir(String id, String idAzantys, String idZentys, Sari sari,
-                                      SunfyreKastor kastor, Alion alion, Vala valaCongelado,
-                                      DohaeroxJeda dohaeroxJeda, Kanez kanez) {
-        return new Sunfyre(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
-                dohaeroxJeda, kanez);
+    /** Solo para el adaptador de persistencia: revive una Sunfyre que ya existía, sin validar. */
+    public static Sunfyre reconstruir(String id, String idAzantys, Sete sete, Jorva jorva, Urnebion urnebion,
+                                         SunfyreKastor kastor, Alion alion, Vala vala, int duracionMinutos,
+                                         Jedar jedar, boolean activo) {
+        return new Sunfyre(id, idAzantys, sete, jorva, urnebion, kastor, alion, vala,
+                duracionMinutos, jedar, activo);
     }
 
-    public void validarAutoria(String idAzantys) {
-        if (idAzantys == null || !this.idAzantys.equals(idAzantys))
-            throw new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre");
-    }
-
-    public void validarParticipante(String idParticipante) {
-        if (idParticipante == null
-                || (!idParticipante.equals(this.idAzantys) && !idParticipante.equals(this.idZentys)))
-            throw new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden realizar esta acción");
-    }
-
-    public void validarCliente(String idZentys) {
-        if (idZentys == null || !this.idZentys.equals(idZentys))
-            throw new ReglaDominioException("Solo el Zentys de la Sunfyre puede constituir su Kelitis");
-    }
-
-    public void publicar(Kanez kanez) {
-        if (kanez == null)
-            throw new ReglaDominioException("El destino de publicación es obligatorio");
-        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE)
-            throw new ReglaDominioException("Solo una Sunfyre PENDIENTE puede publicarse");
-        switch (kanez) {
-            case EXHIBICION -> publicarParaExhibicion();
-            case EN_VENTA -> publicarParaVenta();
-            default -> throw new ReglaDominioException("Solo se puede publicar para EXHIBICION o EN_VENTA");
-        }
-    }
-
-    private void publicarParaExhibicion() {
-        if (kanez != Kanez.BORRADOR)
-            throw new ReglaDominioException("Solo una Sunfyre en BORRADOR puede publicarse para exhibición");
-        this.kanez = Kanez.EXHIBICION;
-    }
-
-    private void publicarParaVenta() {
-        if (kanez != Kanez.BORRADOR && kanez != Kanez.EXHIBICION)
-            throw new ReglaDominioException("Solo una Sunfyre en BORRADOR o EXHIBICION puede ponerse en venta");
-        if (valaCongelado.monto() <= 0)
-            throw new ReglaDominioException("Una Sunfyre debe tener un precio mayor a cero para ponerse en venta");
-        this.kanez = Kanez.EN_VENTA;
-    }
-
-    public void confirmar() {
-        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE)
-            throw new ReglaDominioException("Solo una Sunfyre PENDIENTE puede confirmarse");
-        this.dohaeroxJeda = DohaeroxJeda.ABONADO;
-    }
-
-    public void reprogramar(Sari nuevoSari) {
-        if (dohaeroxJeda != DohaeroxJeda.ABONADO)
-            throw new ReglaDominioException("Solo una Sunfyre ABONADA puede reprogramarse");
-        if (nuevoSari == null)
-            throw new ReglaDominioException("El nuevo sari es obligatorio");
-        if (nuevoSari.iniciaEnElPasado())
-            throw new ReglaDominioException("No se permiten ventanas en el pasado");
-        this.sari = nuevoSari;
-    }
-
-    public void iniciarEjecucion() {
-        if (dohaeroxJeda != DohaeroxJeda.ABONADO)
-            throw new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución");
-        this.dohaeroxJeda = DohaeroxJeda.EN_EJECUCION;
-    }
-
-    public void finalizar() {
-        if (dohaeroxJeda != DohaeroxJeda.EN_EJECUCION)
-            throw new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar");
-        this.dohaeroxJeda = DohaeroxJeda.COMPLETADO;
-    }
-
-    public void validarCompletada() {
-        if (dohaeroxJeda != DohaeroxJeda.COMPLETADO)
-            throw new ReglaDominioException("Solo se puede aprobar un servicio ya ejecutado");
-    }
-
-    public void cancelar(String motivo) {
-        if (dohaeroxJeda != DohaeroxJeda.PENDIENTE && dohaeroxJeda != DohaeroxJeda.ABONADO)
-            throw new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse");
-        if (motivo == null || motivo.isBlank())
-            throw new ReglaDominioException("El motivo de cancelación es obligatorio");
-        this.dohaeroxJeda = DohaeroxJeda.CANCELADO;
+    public void validarDisponible() {
+        if (!activo)
+            throw new ReglaDominioException("Esta Sunfyre ya no está disponible");
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Sunfyre that)) return false;
-        return id.equals(that.id);
+        if (!(o instanceof Sunfyre otro)) return false;
+        return id.equals(otro.id);
     }
 
     @Override

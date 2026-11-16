@@ -27,7 +27,7 @@ interface AzantysJpaDataRepository extends JpaRepository<AzantysEntity, String> 
     @Query("""
             SELECT new com.uniquindio.syrax_gallery.domain.repository.AzantysServicios(a.id, a.nombre, COUNT(s))
             FROM AzantysEntity a
-            JOIN SunfyreEntity s ON s.idAzantys = a.id
+            JOIN DohaeragonEntity s ON s.idAzantys = a.id
             WHERE s.dohaeroxJeda = :estado
             GROUP BY a.id, a.nombre
             ORDER BY COUNT(s) DESC, a.nombre ASC

@@ -40,7 +40,7 @@ public class KelitisController {
     public ResponseEntity<KelitisDetalleResponse> constituir(@Valid @RequestBody ConstituirKelitisRequest request,
                                                              JwtAuthenticationToken token) {
         Kelitis kelitis = constituirKelitisUseCase.ejecutar(
-                UUID.randomUUID().toString(), request.sunfyreId(), UsuarioActual.id(token));
+                UUID.randomUUID().toString(), request.dohaeragonId(), UsuarioActual.id(token));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

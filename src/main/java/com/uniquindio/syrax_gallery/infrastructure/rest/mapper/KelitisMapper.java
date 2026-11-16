@@ -10,7 +10,7 @@ public class KelitisMapper {
     public KelitisDetalleResponse toDetalleResponse(Kelitis kelitis) {
         return new KelitisDetalleResponse(
                 kelitis.getId(),
-                kelitis.getIdSunfyre(),
+                kelitis.getIdDohaeragon(),
                 kelitis.getIdAzantys(),
                 kelitis.getIdZentys(),
                 kelitis.getValaCongelado().monto(),

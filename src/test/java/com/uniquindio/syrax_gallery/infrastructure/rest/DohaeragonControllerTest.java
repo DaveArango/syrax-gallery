@@ -1,12 +1,12 @@
 package com.uniquindio.syrax_gallery.infrastructure.rest;
 
-import com.uniquindio.syrax_gallery.application.dto.response.SunfyreDetalleResponse;
+import com.uniquindio.syrax_gallery.application.dto.response.DohaeragonDetalleResponse;
 import com.uniquindio.syrax_gallery.application.usecase.*;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
-import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.SunfyreMapper;
+import com.uniquindio.syrax_gallery.infrastructure.rest.mapper.DohaeragonMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -27,42 +27,42 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(SunfyreController.class)
+@WebMvcTest(DohaeragonController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class SunfyreControllerTest {
+class DohaeragonControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CrearSunfyreUseCase crearSunfyreUseCase;
+    private CrearDohaeragonUseCase crearDohaeragonUseCase;
 
     @MockitoBean
-    private ObtenerSunfyreUseCase obtenerSunfyreUseCase;
+    private ObtenerDohaeragonUseCase obtenerDohaeragonUseCase;
 
     @MockitoBean
-    private PublicarSunfyreUseCase publicarSunfyreUseCase;
+    private PublicarDohaeragonUseCase publicarDohaeragonUseCase;
 
     @MockitoBean
-    private IniciarEjecucionSunfyreUseCase iniciarEjecucionSunfyreUseCase;
+    private IniciarEjecucionDohaeragonUseCase iniciarEjecucionDohaeragonUseCase;
 
     @MockitoBean
-    private FinalizarSunfyreUseCase finalizarSunfyreUseCase;
+    private FinalizarDohaeragonUseCase finalizarDohaeragonUseCase;
 
     @MockitoBean
-    private CancelarSunfyreUseCase cancelarSunfyreUseCase;
+    private CancelarDohaeragonUseCase cancelarDohaeragonUseCase;
 
     @MockitoBean
-    private ReprogramarSunfyreUseCase reprogramarSunfyreUseCase;
+    private ReprogramarDohaeragonUseCase reprogramarDohaeragonUseCase;
 
     @MockitoBean
-    private ConsultarCatalogoSunfyreUseCase consultarCatalogoSunfyreUseCase;
+    private ConsultarCatalogoDohaeragonUseCase consultarCatalogoDohaeragonUseCase;
 
     @MockitoBean
-    private ConsultarSunfyreDeAzantysUseCase consultarSunfyreDeAzantysUseCase;
+    private ConsultarDohaeragonDeAzantysUseCase consultarDohaeragonDeAzantysUseCase;
 
     @MockitoBean
-    private SunfyreMapper mapper;
+    private DohaeragonMapper mapper;
 
     private JwtAuthenticationToken token(String uid) {
         Jwt jwt = Jwt.withTokenValue("token-de-prueba")
@@ -72,26 +72,26 @@ class SunfyreControllerTest {
         return new JwtAuthenticationToken(jwt);
     }
 
-    private Sunfyre sunfyreSimulada() {
-        return Sunfyre.solicitar("sf-001", "az-001", "ze-001",
+    private Dohaeragon dohaeragonSimulada() {
+        return Dohaeragon.solicitar("dh-001", "az-001", "ze-001",
                 new Sari(LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3).plusHours(2)),
                 SunfyreKastor.ARTE_PIEL,
                 new Alion("Armenia", "Colombia", 4.5339, -75.6811),
                 new Vala(150000, "COP"));
     }
 
-    private SunfyreDetalleResponse respuestaDe(Sunfyre sunfyre, String kanez) {
-        return new SunfyreDetalleResponse(
-                sunfyre.getId(), sunfyre.getIdAzantys(), sunfyre.getIdZentys(),
-                sunfyre.getSari().inicio(), sunfyre.getSari().fin(),
+    private DohaeragonDetalleResponse respuestaDe(Dohaeragon dohaeragon, String kanez) {
+        return new DohaeragonDetalleResponse(
+                dohaeragon.getId(), dohaeragon.getIdAzantys(), dohaeragon.getIdZentys(),
+                dohaeragon.getSari().inicio(), dohaeragon.getSari().fin(),
                 "ARTE_PIEL", "Armenia", "Colombia",
                 150000, "COP", "PENDIENTE", kanez);
     }
 
-    // ---------- POST /api/sunfyre ----------
+    // ---------- POST /api/dohaeragon ----------
 
     @Test
-    void deberiaCrearSunfyreCuandoDatosValidos() throws Exception {
+    void deberiaCrearDohaeragonCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
                     "zentysId": "ze-001",
@@ -106,10 +106,10 @@ class SunfyreControllerTest {
                     "divisa": "COP"
                 }
                 """;
-        when(crearSunfyreUseCase.ejecutar(any(), eq("az-001"), eq("ze-001"), any(), any(), any(), any()))
-                .thenReturn(sunfyreSimulada());
+        when(crearDohaeragonUseCase.ejecutar(any(), eq("az-001"), eq("ze-001"), any(), any(), any(), any()))
+                .thenReturn(dohaeragonSimulada());
 
-        mockMvc.perform(post("/api/sunfyre")
+        mockMvc.perform(post("/api/dohaeragon")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -133,7 +133,7 @@ class SunfyreControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/sunfyre")
+        mockMvc.perform(post("/api/dohaeragon")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -157,7 +157,7 @@ class SunfyreControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/sunfyre")
+        mockMvc.perform(post("/api/dohaeragon")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -180,63 +180,63 @@ class SunfyreControllerTest {
                     "divisa": "COP"
                 }
                 """;
-        when(crearSunfyreUseCase.ejecutar(any(), eq("az-001"), eq("no-existe"), any(), any(), any(), any()))
+        when(crearDohaeragonUseCase.ejecutar(any(), eq("az-001"), eq("no-existe"), any(), any(), any(), any()))
                 .thenThrow(new NoSuchElementException("Zentys no encontrado"));
 
-        mockMvc.perform(post("/api/sunfyre")
+        mockMvc.perform(post("/api/dohaeragon")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
     }
 
-    // ---------- GET /api/sunfyre/{id} ----------
+    // ---------- GET /api/dohaeragon/{id} ----------
 
     @Test
-    void deberiaRetornarElDetalleDeLaSunfyre() throws Exception {
-        Sunfyre sunfyre = sunfyreSimulada();
-        when(obtenerSunfyreUseCase.ejecutar("sf-001", "az-001")).thenReturn(sunfyre);
-        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "BORRADOR"));
+    void deberiaRetornarElDetalleDeLaDohaeragon() throws Exception {
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        when(obtenerDohaeragonUseCase.ejecutar("dh-001", "az-001")).thenReturn(dohaeragon);
+        when(mapper.toDetalleResponse(dohaeragon)).thenReturn(respuestaDe(dohaeragon, "BORRADOR"));
 
-        mockMvc.perform(get("/api/sunfyre/sf-001").principal(token("az-001")))
+        mockMvc.perform(get("/api/dohaeragon/dh-001").principal(token("az-001")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("sf-001"))
+                .andExpect(jsonPath("$.id").value("dh-001"))
                 .andExpect(jsonPath("$.ciudad").value("Armenia"))
                 .andExpect(jsonPath("$.estado").value("PENDIENTE"));
     }
 
     @Test
-    void deberiaRetornar422CuandoUnTerceroConsultaLaSunfyre() throws Exception {
-        when(obtenerSunfyreUseCase.ejecutar("sf-001", "ze-999"))
-                .thenThrow(new ReglaDominioException("Solo el Azantys o el Zentys de la Sunfyre pueden realizar esta acción"));
+    void deberiaRetornar422CuandoUnTerceroConsultaLaDohaeragon() throws Exception {
+        when(obtenerDohaeragonUseCase.ejecutar("dh-001", "ze-999"))
+                .thenThrow(new ReglaDominioException("Solo el Azantys o el Zentys de la Dohaeragon pueden realizar esta acción"));
 
-        mockMvc.perform(get("/api/sunfyre/sf-001").principal(token("ze-999")))
+        mockMvc.perform(get("/api/dohaeragon/dh-001").principal(token("ze-999")))
                 .andExpect(status().is(422));
     }
 
     @Test
-    void deberiaRetornar404CuandoLaSunfyreNoExiste() throws Exception {
-        when(obtenerSunfyreUseCase.ejecutar("no-existe", "az-001"))
-                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+    void deberiaRetornar404CuandoLaDohaeragonNoExiste() throws Exception {
+        when(obtenerDohaeragonUseCase.ejecutar("no-existe", "az-001"))
+                .thenThrow(new NoSuchElementException("Dohaeragon no encontrada"));
 
-        mockMvc.perform(get("/api/sunfyre/no-existe").principal(token("az-001")))
+        mockMvc.perform(get("/api/dohaeragon/no-existe").principal(token("az-001")))
                 .andExpect(status().isNotFound());
     }
 
-    // ---------- PUT /api/sunfyre/{id}/publicar ----------
+    // ---------- PUT /api/dohaeragon/{id}/publicar ----------
 
     @Test
-    void deberiaPublicarSunfyreCuandoDatosValidos() throws Exception {
+    void deberiaPublicarDohaeragonCuandoDatosValidos() throws Exception {
         String requestJson = """
                 {
                     "destino": "EXHIBICION"
                 }
                 """;
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.publicar(Kanez.EXHIBICION);
-        when(publicarSunfyreUseCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION)).thenReturn(sunfyre);
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.publicar(Kanez.EXHIBICION);
+        when(publicarDohaeragonUseCase.ejecutar("az-001", "dh-001", Kanez.EXHIBICION)).thenReturn(dohaeragon);
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/publicar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -245,7 +245,7 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltaElDestino() throws Exception {
-        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/publicar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -259,10 +259,10 @@ class SunfyreControllerTest {
                     "destino": "EN_VENTA"
                 }
                 """;
-        when(publicarSunfyreUseCase.ejecutar(eq("az-002"), eq("sf-001"), any()))
+        when(publicarDohaeragonUseCase.ejecutar(eq("az-002"), eq("dh-001"), any()))
                 .thenThrow(new ReglaDominioException("No puede publicar sin verificar su identidad."));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/publicar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/publicar")
                         .principal(token("az-002"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -270,136 +270,136 @@ class SunfyreControllerTest {
                 .andExpect(jsonPath("$.mensaje").value("No puede publicar sin verificar su identidad."));
     }
 
-    // ---------- GET /api/sunfyre (catálogo público, sin token) ----------
+    // ---------- GET /api/dohaeragon (catálogo público, sin token) ----------
 
     @Test
     void deberiaBuscarEnElCatalogoConFiltros() throws Exception {
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.publicar(Kanez.EN_VENTA);
-        when(consultarCatalogoSunfyreUseCase.buscar("armenia", SunfyreKastor.ARTE_PIEL, null, null, 0, 10))                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 5));
-        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "EN_VENTA"));
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.publicar(Kanez.EN_VENTA);
+        when(consultarCatalogoDohaeragonUseCase.buscar("armenia", SunfyreKastor.ARTE_PIEL, null, null, 0, 10))                .thenReturn(new Pagina<>(List.of(dohaeragon), 1, 1, 0, 5));
+        when(mapper.toDetalleResponse(dohaeragon)).thenReturn(respuestaDe(dohaeragon, "EN_VENTA"));
 
-        mockMvc.perform(get("/api/sunfyre")
+        mockMvc.perform(get("/api/dohaeragon")
                         .param("ciudad", "armenia")
                         .param("kastor", "ARTE_PIEL"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.content[0].id").value("dh-001"))
                 .andExpect(jsonPath("$.content[0].kanez").value("EN_VENTA"))
                 .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
     void deberiaRetornar400CuandoElKastorNoExiste() throws Exception {
-        mockMvc.perform(get("/api/sunfyre").param("kastor", "PINTURA"))
+        mockMvc.perform(get("/api/dohaeragon").param("kastor", "PINTURA"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void deberiaRetornar400CuandoLaPaginaEsNegativa() throws Exception {
-        when(consultarCatalogoSunfyreUseCase.buscar(null, null, null, null, -1, 10))                .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
+        when(consultarCatalogoDohaeragonUseCase.buscar(null, null, null, null, -1, 10))                .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
 
-        mockMvc.perform(get("/api/sunfyre").param("page", "-1"))
+        mockMvc.perform(get("/api/dohaeragon").param("page", "-1"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void deberiaFiltrarElCatalogoPorRangoDePrecio() throws Exception {
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.publicar(Kanez.EN_VENTA);
-        when(consultarCatalogoSunfyreUseCase.buscar(null, null, 100000.0, 200000.0, 0, 10))
-                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 10));
-        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "EN_VENTA"));
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.publicar(Kanez.EN_VENTA);
+        when(consultarCatalogoDohaeragonUseCase.buscar(null, null, 100000.0, 200000.0, 0, 10))
+                .thenReturn(new Pagina<>(List.of(dohaeragon), 1, 1, 0, 10));
+        when(mapper.toDetalleResponse(dohaeragon)).thenReturn(respuestaDe(dohaeragon, "EN_VENTA"));
 
-        mockMvc.perform(get("/api/sunfyre")
+        mockMvc.perform(get("/api/dohaeragon")
                         .param("precioMin", "100000")
                         .param("precioMax", "200000"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.content[0].id").value("dh-001"))
                 .andExpect(jsonPath("$.size").value(10));
     }
 
     @Test
     void deberiaRetornar400CuandoElPrecioMinimoEsMayorQueElMaximo() throws Exception {
-        when(consultarCatalogoSunfyreUseCase.buscar(null, null, 500000.0, 100000.0, 0, 10))
+        when(consultarCatalogoDohaeragonUseCase.buscar(null, null, 500000.0, 100000.0, 0, 10))
                 .thenThrow(new IllegalArgumentException("El precio mínimo no puede ser mayor que el máximo"));
 
-        mockMvc.perform(get("/api/sunfyre")
+        mockMvc.perform(get("/api/dohaeragon")
                         .param("precioMin", "500000")
                         .param("precioMax", "100000"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensaje").value("El precio mínimo no puede ser mayor que el máximo"));
     }
 
-    // ---------- PUT /api/sunfyre/{id}/iniciar (sin cuerpo) ----------
+    // ---------- PUT /api/dohaeragon/{id}/iniciar (sin cuerpo) ----------
 
     @Test
     void deberiaIniciarEjecucionCuandoDatosValidos() throws Exception {
         // Arrange
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.confirmar();
+        dohaeragon.iniciarEjecucion();
+        when(iniciarEjecucionDohaeragonUseCase.ejecutar("az-001", "dh-001")).thenReturn(dohaeragon);
 
         // Act & Assert
-        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar").principal(token("az-001")))
+        mockMvc.perform(put("/api/dohaeragon/dh-001/iniciar").principal(token("az-001")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void deberiaRetornar422CuandoLaSunfyreNoEstaAbonada() throws Exception {
-        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "sf-001"))
-                .thenThrow(new ReglaDominioException("Solo una Sunfyre ABONADA puede iniciar ejecución"));
+    void deberiaRetornar422CuandoLaDohaeragonNoEstaAbonada() throws Exception {
+        when(iniciarEjecucionDohaeragonUseCase.ejecutar("az-001", "dh-001"))
+                .thenThrow(new ReglaDominioException("Solo una Dohaeragon ABONADA puede iniciar ejecución"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/iniciar").principal(token("az-001")))
+        mockMvc.perform(put("/api/dohaeragon/dh-001/iniciar").principal(token("az-001")))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre ABONADA puede iniciar ejecución"));
+                .andExpect(jsonPath("$.mensaje").value("Solo una Dohaeragon ABONADA puede iniciar ejecución"));
     }
 
     @Test
-    void deberiaRetornar404CuandoLaSunfyreNoExisteAlIniciar() throws Exception {
-        when(iniciarEjecucionSunfyreUseCase.ejecutar("az-001", "no-existe"))
-                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+    void deberiaRetornar404CuandoLaDohaeragonNoExisteAlIniciar() throws Exception {
+        when(iniciarEjecucionDohaeragonUseCase.ejecutar("az-001", "no-existe"))
+                .thenThrow(new NoSuchElementException("Dohaeragon no encontrada"));
 
-        mockMvc.perform(put("/api/sunfyre/no-existe/iniciar").principal(token("az-001")))
+        mockMvc.perform(put("/api/dohaeragon/no-existe/iniciar").principal(token("az-001")))
                 .andExpect(status().isNotFound());
     }
 
-    // ---------- PUT /api/sunfyre/{id}/finalizar (sin cuerpo) ----------
+    // ---------- PUT /api/dohaeragon/{id}/finalizar (sin cuerpo) ----------
 
     @Test
     void deberiaFinalizarCuandoDatosValidos() throws Exception {
         // Arrange
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-        sunfyre.finalizar();
-        when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001")).thenReturn(sunfyre);
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.confirmar();
+        dohaeragon.iniciarEjecucion();
+        dohaeragon.finalizar();
+        when(finalizarDohaeragonUseCase.ejecutar("az-001", "dh-001")).thenReturn(dohaeragon);
 
         // Act & Assert
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-001")))
+        mockMvc.perform(put("/api/dohaeragon/dh-001/finalizar").principal(token("az-001")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void deberiaRetornar422CuandoLaSunfyreNoEstaEnEjecucion() throws Exception {
-        when(finalizarSunfyreUseCase.ejecutar("az-001", "sf-001"))
-                .thenThrow(new ReglaDominioException("Solo una Sunfyre en ejecución puede finalizar"));
+    void deberiaRetornar422CuandoLaDohaeragonNoEstaEnEjecucion() throws Exception {
+        when(finalizarDohaeragonUseCase.ejecutar("az-001", "dh-001"))
+                .thenThrow(new ReglaDominioException("Solo una Dohaeragon en ejecución puede finalizar"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-001")))
+        mockMvc.perform(put("/api/dohaeragon/dh-001/finalizar").principal(token("az-001")))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre en ejecución puede finalizar"));
+                .andExpect(jsonPath("$.mensaje").value("Solo una Dohaeragon en ejecución puede finalizar"));
     }
 
     @Test
     void deberiaRetornar422CuandoOtroAzantysIntentaFinalizar() throws Exception {
-        when(finalizarSunfyreUseCase.ejecutar("az-002", "sf-001"))
-                .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar esta Sunfyre"));
+        when(finalizarDohaeragonUseCase.ejecutar("az-002", "dh-001"))
+                .thenThrow(new ReglaDominioException("Solo el Azantys creador puede gestionar esta Dohaeragon"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/finalizar").principal(token("az-002")))
+        mockMvc.perform(put("/api/dohaeragon/dh-001/finalizar").principal(token("az-002")))
                 .andExpect(status().is(422));
     }
 
-    // ---------- PUT /api/sunfyre/{id}/cancelar ----------
+    // ---------- PUT /api/dohaeragon/{id}/cancelar ----------
 
     @Test
     void deberiaCancelarCuandoDatosValidos() throws Exception {
@@ -408,11 +408,11 @@ class SunfyreControllerTest {
                     "motivo": "El cliente viaja esa semana"
                 }
                 """;
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.cancelar("El cliente viaja esa semana");
-        when(cancelarSunfyreUseCase.ejecutar("sf-001", "ze-001", "El cliente viaja esa semana")).thenReturn(sunfyre);
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.cancelar("El cliente viaja esa semana");
+        when(cancelarDohaeragonUseCase.ejecutar("dh-001", "ze-001", "El cliente viaja esa semana")).thenReturn(dohaeragon);
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/cancelar")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -421,7 +421,7 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltaElMotivo() throws Exception {
-        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/cancelar")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -429,41 +429,41 @@ class SunfyreControllerTest {
     }
 
     @Test
-    void deberiaRetornar422CuandoLaSunfyreYaInicio() throws Exception {
+    void deberiaRetornar422CuandoLaDohaeragonYaInicio() throws Exception {
         String requestJson = """
                 {
                     "motivo": "Ya no la quiero"
                 }
                 """;
-        when(cancelarSunfyreUseCase.ejecutar("sf-001", "ze-001", "Ya no la quiero"))
-                .thenThrow(new ReglaDominioException("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
+        when(cancelarDohaeragonUseCase.ejecutar("dh-001", "ze-001", "Ya no la quiero"))
+                .thenThrow(new ReglaDominioException("Solo una Dohaeragon PENDIENTE o ABONADA puede cancelarse"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/cancelar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/cancelar")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
+                .andExpect(jsonPath("$.mensaje").value("Solo una Dohaeragon PENDIENTE o ABONADA puede cancelarse"));
     }
 
     @Test
-    void deberiaRetornar404CuandoLaSunfyreNoExisteAlCancelar() throws Exception {
+    void deberiaRetornar404CuandoLaDohaeragonNoExisteAlCancelar() throws Exception {
         String requestJson = """
                 {
                     "motivo": "El cliente viaja esa semana"
                 }
                 """;
-        when(cancelarSunfyreUseCase.ejecutar("no-existe", "ze-001", "El cliente viaja esa semana"))
-                .thenThrow(new NoSuchElementException("Sunfyre no encontrada"));
+        when(cancelarDohaeragonUseCase.ejecutar("no-existe", "ze-001", "El cliente viaja esa semana"))
+                .thenThrow(new NoSuchElementException("Dohaeragon no encontrada"));
 
-        mockMvc.perform(put("/api/sunfyre/no-existe/cancelar")
+        mockMvc.perform(put("/api/dohaeragon/no-existe/cancelar")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isNotFound());
     }
 
-    // ---------- PUT /api/sunfyre/{id}/reprogramar ----------
+    // ---------- PUT /api/dohaeragon/{id}/reprogramar ----------
 
     @Test
     void deberiaReprogramarCuandoDatosValidos() throws Exception {
@@ -473,11 +473,11 @@ class SunfyreControllerTest {
                     "fin": "2030-05-20T12:00:00"
                 }
                 """;
-        Sunfyre sunfyre = sunfyreSimulada();
-        sunfyre.confirmar();
-        when(reprogramarSunfyreUseCase.ejecutar(eq("az-001"), eq("sf-001"), any())).thenReturn(sunfyre);
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        dohaeragon.confirmar();
+        when(reprogramarDohaeragonUseCase.ejecutar(eq("az-001"), eq("dh-001"), any())).thenReturn(dohaeragon);
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/reprogramar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -486,7 +486,7 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoFaltanLasFechas() throws Exception {
-        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/reprogramar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -501,10 +501,10 @@ class SunfyreControllerTest {
                     "fin": "2030-05-20T12:00:00"
                 }
                 """;
-        when(reprogramarSunfyreUseCase.ejecutar(eq("az-001"), eq("sf-001"), any()))
+        when(reprogramarDohaeragonUseCase.ejecutar(eq("az-001"), eq("dh-001"), any()))
                 .thenThrow(new ReglaDominioException("El Azantys ya tiene una cita en ese horario"));
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/reprogramar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
@@ -521,33 +521,33 @@ class SunfyreControllerTest {
                 }
                 """;
 
-        mockMvc.perform(put("/api/sunfyre/sf-001/reprogramar")
+        mockMvc.perform(put("/api/dohaeragon/dh-001/reprogramar")
                         .principal(token("az-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422));
     }
 
-    // ---------- GET /api/sunfyre/mis-servicios (Azantys del token) ----------
+    // ---------- GET /api/dohaeragon/mis-servicios (Azantys del token) ----------
 
     @Test
     void deberiaListarLosServiciosDelAzantys() throws Exception {
-        Sunfyre sunfyre = sunfyreSimulada();
-        when(consultarSunfyreDeAzantysUseCase.ejecutar("az-001", DohaeroxJeda.PENDIENTE, 0, 10))
-                .thenReturn(new Pagina<>(List.of(sunfyre), 1, 1, 0, 10));
-        when(mapper.toDetalleResponse(sunfyre)).thenReturn(respuestaDe(sunfyre, "BORRADOR"));
+        Dohaeragon dohaeragon = dohaeragonSimulada();
+        when(consultarDohaeragonDeAzantysUseCase.ejecutar("az-001", DohaeroxJeda.PENDIENTE, 0, 10))
+                .thenReturn(new Pagina<>(List.of(dohaeragon), 1, 1, 0, 10));
+        when(mapper.toDetalleResponse(dohaeragon)).thenReturn(respuestaDe(dohaeragon, "BORRADOR"));
 
-        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios")
                         .param("estado", "PENDIENTE")
                         .principal(token("az-001")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value("sf-001"))
+                .andExpect(jsonPath("$.content[0].id").value("dh-001"))
                 .andExpect(jsonPath("$.totalElementos").value(1));
     }
 
     @Test
     void deberiaRetornar400CuandoElEstadoNoExisteEnMisServicios() throws Exception {
-        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios")
                         .param("estado", "PAGADO")
                         .principal(token("az-001")))
                 .andExpect(status().isBadRequest());
@@ -555,10 +555,10 @@ class SunfyreControllerTest {
 
     @Test
     void deberiaRetornar400CuandoLaPaginaEsNegativaEnMisServicios() throws Exception {
-        when(consultarSunfyreDeAzantysUseCase.ejecutar("az-001", null, -1, 10))
+        when(consultarDohaeragonDeAzantysUseCase.ejecutar("az-001", null, -1, 10))
                 .thenThrow(new IllegalArgumentException("La página no puede ser negativa"));
 
-        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios")
                         .param("page", "-1")
                         .principal(token("az-001")))
                 .andExpect(status().isBadRequest());

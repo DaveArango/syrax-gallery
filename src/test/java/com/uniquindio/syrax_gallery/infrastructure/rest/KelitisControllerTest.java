@@ -55,11 +55,11 @@ class KelitisControllerTest {
     }
 
     private Kelitis kelitisSimulado() {
-        return Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", new Vala(150000, "COP"));
+        return Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", new Vala(150000, "COP"));
     }
 
     private KelitisDetalleResponse respuesta(String gelior) {
-        return new KelitisDetalleResponse("kl-001", "sf-001", "az-001", "ze-001", 150000, "COP", gelior);
+        return new KelitisDetalleResponse("kl-001", "dh-001", "az-001", "ze-001", 150000, "COP", gelior);
     }
 
     // ---------- POST /api/kelitis ----------
@@ -69,10 +69,10 @@ class KelitisControllerTest {
         // Arrange
         String requestJson = """
                 {
-                    "sunfyreId": "sf-001"
+                    "dohaeragonId": "dh-001"
                 }
                 """;
-        when(constituirKelitisUseCase.ejecutar(any(), eq("sf-001"), eq("ze-001"))).thenReturn(kelitisSimulado());
+        when(constituirKelitisUseCase.ejecutar(any(), eq("dh-001"), eq("ze-001"))).thenReturn(kelitisSimulado());
         when(mapper.toDetalleResponse(any())).thenReturn(respuesta("RETENIDO"));
 
         // Act & Assert
@@ -86,7 +86,7 @@ class KelitisControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltaLaSunfyre() throws Exception {
+    void deberiaRetornar400CuandoFaltaLaDohaeragon() throws Exception {
         mockMvc.perform(post("/api/kelitis")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,39 +95,39 @@ class KelitisControllerTest {
     }
 
     @Test
-    void deberiaRetornar422CuandoLaSunfyreYaTieneKelitis() throws Exception {
+    void deberiaRetornar422CuandoLaDohaeragonYaTieneKelitis() throws Exception {
         String requestJson = """
                 {
-                    "sunfyreId": "sf-001"
+                    "dohaeragonId": "dh-001"
                 }
                 """;
-        when(constituirKelitisUseCase.ejecutar(any(), eq("sf-001"), eq("ze-001")))
-                .thenThrow(new ReglaDominioException("La Sunfyre ya tiene un Kelitis constituido"));
+        when(constituirKelitisUseCase.ejecutar(any(), eq("dh-001"), eq("ze-001")))
+                .thenThrow(new ReglaDominioException("La Dohaeragon ya tiene un Kelitis constituido"));
 
         mockMvc.perform(post("/api/kelitis")
                         .principal(token("ze-001"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("La Sunfyre ya tiene un Kelitis constituido"));
+                .andExpect(jsonPath("$.mensaje").value("La Dohaeragon ya tiene un Kelitis constituido"));
     }
 
     @Test
     void deberiaRetornar422CuandoOtroZentysIntentaPagar() throws Exception {
         String requestJson = """
                 {
-                    "sunfyreId": "sf-001"
+                    "dohaeragonId": "dh-001"
                 }
                 """;
-        when(constituirKelitisUseCase.ejecutar(any(), eq("sf-001"), eq("ze-999")))
-                .thenThrow(new ReglaDominioException("Solo el Zentys de la Sunfyre puede constituir su Kelitis"));
+        when(constituirKelitisUseCase.ejecutar(any(), eq("dh-001"), eq("ze-999")))
+                .thenThrow(new ReglaDominioException("Solo el Zentys de la Dohaeragon puede constituir su Kelitis"));
 
         mockMvc.perform(post("/api/kelitis")
                         .principal(token("ze-999"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("Solo el Zentys de la Sunfyre puede constituir su Kelitis"));
+                .andExpect(jsonPath("$.mensaje").value("Solo el Zentys de la Dohaeragon puede constituir su Kelitis"));
     }
 
     // ---------- GET /api/kelitis/{id} ----------
@@ -140,7 +140,7 @@ class KelitisControllerTest {
 
         mockMvc.perform(get("/api/kelitis/kl-001").principal(token("ze-001")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idSunfyre").value("sf-001"))
+                .andExpect(jsonPath("$.idDohaeragon").value("dh-001"))
                 .andExpect(jsonPath("$.monto").value(150000.0));
     }
 

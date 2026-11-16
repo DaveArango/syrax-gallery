@@ -1,7 +1,5 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity;
 
-import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
-import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -14,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "sunfyre")
@@ -26,17 +24,17 @@ public class SunfyreEntity {
     @Column(length = 36)
     private String id;
 
-    @Column(name = "id_azantys", nullable = false, length = 36)
+    @Column(name = "id_azantys", nullable = false, length = 50)
     private String idAzantys;
 
-    @Column(name = "id_zentys", nullable = false, length = 36)
-    private String idZentys;
+    @Embedded
+    private SeteEmbeddable sete;
 
-    @Column(name = "sari_inicio", nullable = false)
-    private LocalDateTime sariInicio;
+    @Embedded
+    private JorvaEmbeddable jorva;
 
-    @Column(name = "sari_fin", nullable = false)
-    private LocalDateTime sariFin;
+    @Embedded
+    private UrnebionEmbeddable urnebion;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -46,13 +44,21 @@ public class SunfyreEntity {
     private AlionEmbeddable alion;
 
     @Embedded
-    private ValaEmbeddable valaCongelado;
+    private ValaEmbeddable vala;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "dohaerox_jeda", nullable = false, length = 20)
-    private DohaeroxJeda dohaeroxJeda;
+    @Column(name = "duracion_minutos", nullable = false)
+    private int duracionMinutos;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Kanez kanez;
+    // Días de atención separados por coma: MONDAY,TUESDAY,WEDNESDAY
+    @Column(nullable = false, length = 80)
+    private String dias;
+
+    @Column(nullable = false)
+    private LocalTime apertura;
+
+    @Column(nullable = false)
+    private LocalTime cierre;
+
+    @Column(nullable = false)
+    private boolean activo;
 }

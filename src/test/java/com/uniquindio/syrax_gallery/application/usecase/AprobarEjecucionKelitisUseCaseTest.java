@@ -1,10 +1,10 @@
 package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,34 +25,34 @@ class AprobarEjecucionKelitisUseCaseTest {
     private KelitisRepository kelitisRepository;
 
     @Mock
-    private SunfyreRepository sunfyreRepository;
+    private DohaeragonRepository dohaeragonRepository;
 
     @InjectMocks
     private AprobarEjecucionKelitisUseCase useCase;
 
-    private Sunfyre sunfyreAbonada() {
-        Sunfyre sunfyre = Sunfyre.solicitar("sf-001", "az-001", "ze-001",
+    private Dohaeragon dohaeragonAbonada() {
+        Dohaeragon dohaeragon = Dohaeragon.solicitar("dh-001", "az-001", "ze-001",
                 new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2)),
                 SunfyreKastor.ARTE_PIEL,
                 new Alion("Armenia", "Colombia", 4.5339, -75.6811),
                 new Vala(150000, "COP"));
-        sunfyre.confirmar();
-        return sunfyre;
+        dohaeragon.confirmar();
+        return dohaeragon;
     }
 
     private Kelitis kelitisRetenido() {
-        return Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", new Vala(150000, "COP"));
+        return Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", new Vala(150000, "COP"));
     }
 
     @Test
     void deberiaLiberarElPagoCuandoElServicioTermino() {
         // Arrange
         Kelitis kelitis = kelitisRetenido();
-        Sunfyre sunfyre = sunfyreAbonada();
-        sunfyre.iniciarEjecucion();
-        sunfyre.finalizar();
+        Dohaeragon dohaeragon = dohaeragonAbonada();
+        dohaeragon.iniciarEjecucion();
+        dohaeragon.finalizar();
         when(kelitisRepository.obtener("kl-001")).thenReturn(Optional.of(kelitis));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyre));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragon));
 
         // Act
         Kelitis resultado = useCase.ejecutar("kl-001", "ze-001");
@@ -67,7 +67,7 @@ class AprobarEjecucionKelitisUseCaseTest {
         // Arrange
         Kelitis kelitis = kelitisRetenido();
         when(kelitisRepository.obtener("kl-001")).thenReturn(Optional.of(kelitis));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyreAbonada()));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragonAbonada()));
 
         // Act & Assert
         ReglaDominioException ex = assertThrows(ReglaDominioException.class,

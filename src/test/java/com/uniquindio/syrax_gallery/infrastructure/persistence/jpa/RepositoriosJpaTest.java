@@ -1,12 +1,12 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa;
 
 import com.uniquindio.syrax_gallery.domain.entity.Kelitis;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysServicios;
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RepositoriosJpaTest {
 
     @Autowired
-    private SunfyreRepository sunfyreRepository;
+    private DohaeragonRepository dohaeragonRepository;
 
     @Autowired
     private KelitisRepository kelitisRepository;
@@ -33,17 +33,17 @@ class RepositoriosJpaTest {
     private AzantysRepository azantysRepository;
 
     @Test
-    void deberiaGuardarYRecuperarUnaSunfyreConSusValueObjects() {
+    void deberiaGuardarYRecuperarUnaDohaeragonConSusValueObjects() {
         LocalDateTime inicio = LocalDateTime.of(2028, 1, 15, 9, 0);
         LocalDateTime fin = LocalDateTime.of(2028, 1, 15, 12, 0);
-        Sunfyre sunfyre = Sunfyre.solicitar("sf-test-01", "az-001", "zentys-01",
+        Dohaeragon dohaeragon = Dohaeragon.solicitar("dh-test-01", "az-001", "zentys-01",
                 new Sari(inicio, fin),
                 SunfyreKastor.MURAL,
                 new Alion("Salento", "Colombia", 4.6377, -75.5703),
                 new Vala(480000, "COP"));
 
-        sunfyreRepository.guardar(sunfyre);
-        Sunfyre recuperada = sunfyreRepository.obtener("sf-test-01").orElseThrow();
+        dohaeragonRepository.guardar(dohaeragon);
+        Dohaeragon recuperada = dohaeragonRepository.obtener("dh-test-01").orElseThrow();
 
         assertEquals(new Sari(inicio, fin), recuperada.getSari());
         assertEquals(new Vala(480000, "COP"), recuperada.getValaCongelado());
@@ -55,31 +55,31 @@ class RepositoriosJpaTest {
 
     @Test
     void deberiaGuardarYRecuperarUnKelitisConSuMontoYEstado() {
-        Kelitis kelitis = Kelitis.realizar("kl-test-01", "sf-007", "az-004", "zentys-01",
+        Kelitis kelitis = Kelitis.realizar("kl-test-01", "dh-007", "az-004", "zentys-01",
                 new Vala(220000, "COP"));
         kelitis.liberarPago();
 
         kelitisRepository.guardar(kelitis);
         Kelitis recuperado = kelitisRepository.obtener("kl-test-01").orElseThrow();
 
-        assertEquals("sf-007", recuperado.getIdSunfyre());
+        assertEquals("dh-007", recuperado.getIdDohaeragon());
         assertEquals(new Vala(220000, "COP"), recuperado.getValaCongelado());
         assertEquals(Gelior.LIBERADO, recuperado.getGelior());
     }
 
     @Test
-    void elCatalogoDeberiaPaginarLasTresSunfyrePublicadasDeDataSql() {
+    void elCatalogoDeberiaPaginarLasDohaeragonPublicadasDeDataSql() {
 
-        Pagina<Sunfyre> pagina = sunfyreRepository.buscarPublicadas(null, null, null, null, 0, 2);
+        Pagina<Dohaeragon> pagina = dohaeragonRepository.buscarPublicadas(null, null, null, null, 0, 2);
 
-        assertEquals(3, pagina.totalElementos());
-        assertEquals(2, pagina.totalPaginas());
-        assertEquals(List.of("sf-007", "sf-008"),
-                pagina.contenido().stream().map(Sunfyre::getId).toList());
+        assertEquals(9, pagina.totalElementos());
+        assertEquals(5, pagina.totalPaginas());
+        assertEquals(List.of("dh-007", "dh-008"),
+                pagina.contenido().stream().map(Dohaeragon::getId).toList());
     }
 
     @Test
-    void elRankingDeberiaOrdenarALosAzantysPorSunfyreCompletadas() {
+    void elRankingDeberiaOrdenarALosAzantysPorDohaeragonCompletadas() {
 
         List<AzantysServicios> ranking = azantysRepository.masSolicitados(3);
 

@@ -1,9 +1,9 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa;
 
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
-import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.mapper.SunfyrePersistenceMapper;
+import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.mapper.DohaeragonPersistenceMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -16,18 +16,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Prueba del adaptador de persistencia contra una base H2 real (no simulada):
- * comprueba que el mapper guarda y reconstruye bien la Sunfyre y que la consulta JPQL filtra en la base de datos.
+ * comprueba que el mapper guarda y reconstruye bien la Dohaeragon y que la consulta JPQL filtra en la base de datos.
  * Usa la ciudad "Filandia" para no mezclarse con los datos de data.sql.
  */
 @DataJpaTest
-@Import({SunfyreRepositoryJpa.class, SunfyrePersistenceMapper.class})
-class SunfyreRepositoryDataJpaTest {
+@Import({DohaeragonRepositoryJpa.class, DohaeragonPersistenceMapper.class})
+class DohaeragonRepositoryDataJpaTest {
 
     @Autowired
-    private SunfyreRepositoryJpa repository;
+    private DohaeragonRepositoryJpa repository;
 
-    private Sunfyre sunfyreEnFilandia(String id, double monto) {
-        return Sunfyre.solicitar(id, "az-900", "ze-900",
+    private Dohaeragon dohaeragonEnFilandia(String id, double monto) {
+        return Dohaeragon.solicitar(id, "az-900", "ze-900",
                 new Sari(LocalDateTime.now().plusDays(30), LocalDateTime.now().plusDays(30).plusHours(2)),
                 SunfyreKastor.MURAL,
                 new Alion("Filandia", "Colombia", 4.6747, -75.6581),
@@ -35,13 +35,13 @@ class SunfyreRepositoryDataJpaTest {
     }
 
     @Test
-    void deberiaGuardarYRecuperarUnaSunfyre() {
+    void deberiaGuardarYRecuperarUnaDohaeragon() {
         // Arrange
-        Sunfyre sunfyre = sunfyreEnFilandia("sf-test-1", 250000);
+        Dohaeragon dohaeragon = dohaeragonEnFilandia("dh-test-1", 250000);
 
         // Act
-        repository.guardar(sunfyre);
-        Optional<Sunfyre> encontrada = repository.obtener("sf-test-1");
+        repository.guardar(dohaeragon);
+        Optional<Dohaeragon> encontrada = repository.obtener("dh-test-1");
 
         // Assert
         assertTrue(encontrada.isPresent());
@@ -55,21 +55,21 @@ class SunfyreRepositoryDataJpaTest {
     @Test
     void elCatalogoSoloTraeLasPublicadasDentroDelRangoDePrecio() {
         // Arrange
-        Sunfyre barata = sunfyreEnFilandia("sf-test-2", 100000);
+        Dohaeragon barata = dohaeragonEnFilandia("dh-test-2", 100000);
         barata.publicar(Kanez.EN_VENTA);
-        Sunfyre cara = sunfyreEnFilandia("sf-test-3", 900000);
+        Dohaeragon cara = dohaeragonEnFilandia("dh-test-3", 900000);
         cara.publicar(Kanez.EN_VENTA);
-        Sunfyre borrador = sunfyreEnFilandia("sf-test-4", 120000); // no publicada: no debe salir
+        Dohaeragon borrador = dohaeragonEnFilandia("dh-test-4", 120000); // no publicada: no debe salir
         repository.guardar(barata);
         repository.guardar(cara);
         repository.guardar(borrador);
 
         // Act
-        Pagina<Sunfyre> pagina = repository.buscarPublicadas("filandia", null, 50000.0, 200000.0, 0, 10);
+        Pagina<Dohaeragon> pagina = repository.buscarPublicadas("filandia", null, 50000.0, 200000.0, 0, 10);
 
         // Assert
         assertEquals(1, pagina.totalElementos());
         assertEquals(1, pagina.totalPaginas());
-        assertEquals("sf-test-2", pagina.contenido().get(0).getId());
+        assertEquals("dh-test-2", pagina.contenido().get(0).getId());
     }
 }

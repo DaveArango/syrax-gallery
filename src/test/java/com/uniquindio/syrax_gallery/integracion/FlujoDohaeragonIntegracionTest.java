@@ -1,8 +1,8 @@
 package com.uniquindio.syrax_gallery.integracion;
 
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.repository.KelitisRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +21,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class FlujoSunfyreIntegracionTest {
+class FlujoDohaeragonIntegracionTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private SunfyreRepository sunfyreRepository;
+    private DohaeragonRepository dohaeragonRepository;
 
     @Autowired
     private KelitisRepository kelitisRepository;
 
     @Test
-    void unAzantysDeberiaCrearUnaSunfyreQueNacePendiente() throws Exception {
+    void unAzantysDeberiaCrearUnaDohaeragonQueNacePendiente() throws Exception {
         String cuerpo = """
                 {
                   "zentysId": "zentys-01",
@@ -49,7 +49,7 @@ class FlujoSunfyreIntegracionTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/sunfyre")
+        mockMvc.perform(post("/api/dohaeragon")
                         .with(jwt().jwt(j -> j.claim("uid", "az-001"))
                                 .authorities(new SimpleGrantedAuthority("AZANTYS")))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,9 +62,9 @@ class FlujoSunfyreIntegracionTest {
     }
 
     @Test
-    void unZentysDeberiaPagarUnaSunfyreYQuedarElDineroRetenido() throws Exception {
+    void unZentysDeberiaPagarUnaDohaeragonYQuedarElDineroRetenido() throws Exception {
         String cuerpo = """
-                {"sunfyreId": "sf-007"}
+                {"dohaeragonId": "dh-007"}
                 """;
 
         mockMvc.perform(post("/api/kelitis")
@@ -73,29 +73,29 @@ class FlujoSunfyreIntegracionTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpo))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.idSunfyre").value("sf-007"))
+                .andExpect(jsonPath("$.idDohaeragon").value("dh-007"))
                 .andExpect(jsonPath("$.gelior").value("RETENIDO"));
 
-        Sunfyre sunfyre = sunfyreRepository.obtener("sf-007").orElseThrow();
-        assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
-        assertTrue(kelitisRepository.existePorSunfyre("sf-007"));
+        Dohaeragon dohaeragon = dohaeragonRepository.obtener("dh-007").orElseThrow();
+        assertEquals(DohaeroxJeda.ABONADO, dohaeragon.getDohaeroxJeda());
+        assertTrue(kelitisRepository.existePorDohaeragon("dh-007"));
     }
 
     @Test
-    void cancelarUnaSunfyreCompletadaDeberiaResponder422YNoCambiarNada() throws Exception {
+    void cancelarUnaDohaeragonCompletadaDeberiaResponder422YNoCambiarNada() throws Exception {
         String cuerpo = """
                 {"motivo": "Ya no lo quiero"}
                 """;
 
-        mockMvc.perform(put("/api/sunfyre/sf-004/cancelar")
+        mockMvc.perform(put("/api/dohaeragon/dh-004/cancelar")
                         .with(jwt().jwt(j -> j.claim("uid", "zentys-02"))
                                 .authorities(new SimpleGrantedAuthority("ZENTYS")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpo))
                 .andExpect(status().is(422))
-                .andExpect(jsonPath("$.mensaje").value("Solo una Sunfyre PENDIENTE o ABONADA puede cancelarse"));
+                .andExpect(jsonPath("$.mensaje").value("Solo una Dohaeragon PENDIENTE o ABONADA puede cancelarse"));
 
-        Sunfyre sunfyre = sunfyreRepository.obtener("sf-004").orElseThrow();
-        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda());
+        Dohaeragon dohaeragon = dohaeragonRepository.obtener("dh-004").orElseThrow();
+        assertEquals(DohaeroxJeda.COMPLETADO, dohaeragon.getDohaeroxJeda());
     }
 }

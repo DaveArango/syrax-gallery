@@ -26,7 +26,7 @@ interface ZentysJpaDataRepository extends JpaRepository<ZentysEntity, String> {
     @Query("""
             SELECT new com.uniquindio.syrax_gallery.domain.repository.ZentysServicios(z.id, z.nombre, COUNT(s))
             FROM ZentysEntity z
-            JOIN SunfyreEntity s ON s.idZentys = z.id
+            JOIN DohaeragonEntity s ON s.idZentys = z.id
             WHERE z.estaActivo = true
             AND s.dohaeroxJeda = :estado
             GROUP BY z.id, z.nombre

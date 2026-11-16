@@ -11,17 +11,17 @@ class KelitisTest {
 
     private Kelitis kelitisRetenido() {
         Vala monto = new Vala(150000, "COP");
-        return Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", monto);
+        return Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", monto);
     }
 
     @Test
     void crearKelitisEnEstadoRetenido() {
         Vala monto = new Vala(150000, "COP");
 
-        Kelitis kelitis = Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", monto);
+        Kelitis kelitis = Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", monto);
 
         assertEquals(Gelior.RETENIDO, kelitis.getGelior());
-        assertEquals("sf-001", kelitis.getIdSunfyre());
+        assertEquals("dh-001", kelitis.getIdDohaeragon());
         assertEquals("az-001", kelitis.getIdAzantys());
         assertEquals("ze-001", kelitis.getIdZentys());
         assertEquals(monto, kelitis.getValaCongelado());
@@ -30,11 +30,11 @@ class KelitisTest {
     @Test
     void noDebeCrearKelitisSinMonto() {
         assertThrows(ReglaDominioException.class,
-                () -> Kelitis.realizar("kl-001", "sf-001", "az-001", "ze-001", null));
+                () -> Kelitis.realizar("kl-001", "dh-001", "az-001", "ze-001", null));
     }
 
     @Test
-    void noDebeCrearKelitisSinSunfyre() {
+    void noDebeCrearKelitisSinDohaeragon() {
         assertThrows(ReglaDominioException.class,
                 () -> Kelitis.realizar("kl-001", " ", "az-001", "ze-001", new Vala(150000, "COP")));
     }
@@ -132,7 +132,7 @@ class KelitisTest {
 
     @Test
     void reconstruirConservaElEstado() {
-        Kelitis kelitis = Kelitis.reconstruir("kl-009", "sf-009", "az-001", "ze-001",
+        Kelitis kelitis = Kelitis.reconstruir("kl-009", "dh-009", "az-001", "ze-001",
                 new Vala(150000, "COP"), Gelior.LIBERADO);
 
         assertEquals(Gelior.LIBERADO, kelitis.getGelior());

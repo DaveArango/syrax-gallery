@@ -11,9 +11,9 @@ public class VerificadorDeKelitis {
         this.kelitisRepository = kelitisRepository;
     }
 
-    public void verificarQueNoTengaKelitis(String idSunfyre) {
-        if (kelitisRepository.existePorSunfyre(idSunfyre)) {
-            throw new ReglaDominioException("La Sunfyre ya tiene un Kelitis constituido");
+    public void verificarQueNoTengaKelitis(String idDohaeragon) {
+        if (kelitisRepository.existePorDohaeragon(idDohaeragon)) {
+            throw new ReglaDominioException("La Dohaeragon ya tiene un Kelitis constituido");
         }
     }
 }

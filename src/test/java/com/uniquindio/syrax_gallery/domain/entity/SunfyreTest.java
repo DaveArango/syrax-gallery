@@ -4,279 +4,81 @@ import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SunfyreTest {
+class SunfyreTest {
 
-    private Sari sariFuturo() {
-        return new Sari(LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(2));
+    private Jedar deNueveASeis() {
+        return new Jedar(EnumSet.range(DayOfWeek.MONDAY, DayOfWeek.FRIDAY),
+                LocalTime.of(9, 0), LocalTime.of(18, 0));
     }
 
-    private Alion alionArmenia() {
-        return new Alion("Armenia", "Colombia", 4.5339, -75.6811);
-    }
-
-    private Sunfyre sunfyrePendiente() {
-        return Sunfyre.solicitar("sf-001", "az-001", "ze-001", sariFuturo(),
-                SunfyreKastor.ARTE_PIEL, alionArmenia(), new Vala(150000, "COP"));
-    }
-
-    @Test
-    void solicitarCreaUnaSunfyrePendienteYEnBorrador() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
-        assertEquals(Kanez.BORRADOR, sunfyre.getKanez());
+    private Sunfyre tatuaje(double precio, int duracionMinutos, Jedar horario) {
+        return Sunfyre.crear("sf-001", "az-001",
+                new Sete("Tatuaje realista"),
+                new Jorva("Tatuaje realista en blanco y negro, incluye el diseño."),
+                new Urnebion("https://cdn.syrax.com/servicios/sf-001.jpg"),
+                SunfyreKastor.ARTE_PIEL,
+                new Alion("Armenia", "Colombia", 4.5339, -75.6811),
+                new Vala(precio, "COP"),
+                duracionMinutos,
+                horario);
     }
 
     @Test
-    void noPermitirSolicitarUnaSunfyreEnElPasado() {
-        Sari sariPasado = new Sari(LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1).plusHours(2));
+    void deberiaNacerActivoConSusDatos() {
+        // Act
+        Sunfyre sunfyre = tatuaje(300000, 180, deNueveASeis());
 
-        assertThrows(ReglaDominioException.class, () -> Sunfyre.solicitar("sf-001", "az-001", "ze-001",
-                sariPasado, SunfyreKastor.ARTE_PIEL, alionArmenia(), new Vala(150000, "COP")));
+        // Assert
+        assertTrue(sunfyre.isActivo());
+        assertEquals("az-001", sunfyre.getIdAzantys());
+        assertEquals(180, sunfyre.getDuracionMinutos());
+        assertEquals(new Vala(300000, "COP"), sunfyre.getVala());
+        assertDoesNotThrow(sunfyre::validarDisponible);
     }
 
     @Test
-    void noPermitirSolicitarSinZentys() {
-        assertThrows(ReglaDominioException.class, () -> Sunfyre.solicitar("sf-001", "az-001", " ",
-                sariFuturo(), SunfyreKastor.ARTE_PIEL, alionArmenia(), new Vala(150000, "COP")));
+    void noDeberiaCrearseConPrecioEnCero() {
+        // Act & Assert
+        ReglaDominioException ex = assertThrows(ReglaDominioException.class,
+                () -> tatuaje(0, 180, deNueveASeis()));
+
+        assertEquals("La Sunfyre debe tener un precio mayor a cero", ex.getMessage());
     }
 
     @Test
-    void publicarParaExhibicionDesdeBorrador() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        sunfyre.publicar(Kanez.EXHIBICION);
-
-        assertEquals(Kanez.EXHIBICION, sunfyre.getKanez());
+    void noDeberiaDurarMenosDeMediaHora() {
+        // Act & Assert
+        assertThrows(ReglaDominioException.class, () -> tatuaje(300000, 20, deNueveASeis()));
     }
 
     @Test
-    void publicarParaVentaDesdeExhibicion() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.publicar(Kanez.EXHIBICION);
+    void laDuracionDebeCaberEnElHorarioDeAtencion() {
+        // Arrange: atiende solo 2 horas, pero el servicio dura 3
+        Jedar dosHoras = new Jedar(EnumSet.of(DayOfWeek.SATURDAY),
+                LocalTime.of(9, 0), LocalTime.of(11, 0));
 
-        sunfyre.publicar(Kanez.EN_VENTA);
+        // Act & Assert
+        ReglaDominioException ex = assertThrows(ReglaDominioException.class,
+                () -> tatuaje(300000, 180, dosHoras));
 
-        assertEquals(Kanez.EN_VENTA, sunfyre.getKanez());
+        assertEquals("La duración del servicio no cabe en el horario de atención", ex.getMessage());
     }
 
     @Test
-    void noPermitirPonerEnVentaUnaSunfyreConPrecioCero() {
-        Sunfyre sunfyre = Sunfyre.solicitar("sf-002", "az-001", "ze-001", sariFuturo(),
-                SunfyreKastor.MURAL, alionArmenia(), new Vala(0, "COP"));
+    void unaSunfyreInactivaNoEstaDisponible() {
+        // Arrange
+        Sunfyre activo = tatuaje(300000, 180, deNueveASeis());
+        Sunfyre inactivo = Sunfyre.reconstruir(activo.getId(), activo.getIdAzantys(), activo.getSete(),
+                activo.getJorva(), activo.getUrnebion(), activo.getKastor(), activo.getAlion(), activo.getVala(),
+                activo.getDuracionMinutos(), activo.getJedar(), false);
 
-        assertThrows(ReglaDominioException.class, () -> sunfyre.publicar(Kanez.EN_VENTA));
-
-        assertEquals(Kanez.BORRADOR, sunfyre.getKanez());
-    }
-
-    @Test
-    void noPermitirPublicarComoVendido() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.publicar(Kanez.VENDIDO));
-    }
-
-    @Test
-    void noPermitirPublicarUnaSunfyreAbonada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.publicar(Kanez.EXHIBICION));
-
-        assertEquals(Kanez.BORRADOR, sunfyre.getKanez());
-    }
-
-    @Test
-    void validarAutoriaAceptaAlAzantysCreador() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertDoesNotThrow(() -> sunfyre.validarAutoria("az-001"));
-    }
-
-    @Test
-    void validarAutoriaRechazaAOtroAzantys() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.validarAutoria("az-999"));
-    }
-
-    @Test
-    void noPermitirReprogramarUnaSunfyrePendiente() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        Sari nuevoSari = new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2));
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.reprogramar(nuevoSari));
-
-        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void noPermitirReprogramarHaciaElPasado() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        Sari sariPasado = new Sari(LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1).plusHours(2));
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.reprogramar(sariPasado));
-    }
-
-    @Test
-    void noPermitirCancelarUnaSunfyreYaCompletada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-        sunfyre.finalizar();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar("Ya no la quiero"));
-
-        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda()); // sigue completada, no se canceló
-    }
-
-    @Test
-    void reconstruirConservaElEstadoAunqueLaCitaYaHayaPasado() {
-        Sari sariPasado = new Sari(LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(10).plusHours(3));
-
-        Sunfyre sunfyre = Sunfyre.reconstruir("sf-009", "az-001", "ze-001", sariPasado,
-                SunfyreKastor.ARTE_PIEL, alionArmenia(), new Vala(150000, "COP"),
-                DohaeroxJeda.COMPLETADO, Kanez.EN_VENTA);
-
-        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda());
-        assertEquals(Kanez.EN_VENTA, sunfyre.getKanez());
-    }
-
-    @Test
-    void iniciarEjecucionDeUnaSunfyreAbonada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-
-        sunfyre.iniciarEjecucion();
-
-        assertEquals(DohaeroxJeda.EN_EJECUCION, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void noPermitirIniciarEjecucionDeUnaSunfyrePendiente() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, sunfyre::iniciarEjecucion);
-
-        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void finalizarUnaSunfyreEnEjecucion() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-
-        sunfyre.finalizar();
-
-        assertEquals(DohaeroxJeda.COMPLETADO, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void noPermitirFinalizarSinHaberIniciadoLaEjecucion() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-
-        assertThrows(ReglaDominioException.class, sunfyre::finalizar);
-
-        assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void cancelarUnaSunfyreAbonada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-
-        sunfyre.cancelar("El cliente viaja esa semana");
-
-        assertEquals(DohaeroxJeda.CANCELADO, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void noPermitirCancelarUnaSunfyreEnEjecucion() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar("Ya no la quiero"));
-
-        assertEquals(DohaeroxJeda.EN_EJECUCION, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void noPermitirCancelarSinMotivo() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.cancelar(""));
-
-        assertEquals(DohaeroxJeda.PENDIENTE, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void validarParticipanteAceptaAlAzantysYAlZentys() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertDoesNotThrow(() -> sunfyre.validarParticipante("az-001"));
-        assertDoesNotThrow(() -> sunfyre.validarParticipante("ze-001"));
-    }
-
-    @Test
-    void validarParticipanteRechazaAUnTercero() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.validarParticipante("ze-999"));
-    }
-
-    @Test
-    void reprogramarUnaSunfyreAbonada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        Sari nuevo = new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2));
-
-        sunfyre.reprogramar(nuevo);
-
-        assertEquals(nuevo, sunfyre.getSari());
-        assertEquals(DohaeroxJeda.ABONADO, sunfyre.getDohaeroxJeda());
-    }
-
-    @Test
-    void validarClienteAceptaAlZentysDeLaSunfyre() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertDoesNotThrow(() -> sunfyre.validarCliente("ze-001"));
-    }
-
-    @Test
-    void validarClienteRechazaAlAzantysYAOtroZentys() {
-        Sunfyre sunfyre = sunfyrePendiente();
-
-        assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("az-001"));
-        assertThrows(ReglaDominioException.class, () -> sunfyre.validarCliente("ze-999"));
-    }
-
-    @Test
-    void validarCompletadaAceptaUnaSunfyreCompletada() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-        sunfyre.iniciarEjecucion();
-        sunfyre.finalizar();
-
-        assertDoesNotThrow(sunfyre::validarCompletada);
-    }
-
-    @Test
-    void validarCompletadaRechazaUnaSunfyreQueAunNoTermina() {
-        Sunfyre sunfyre = sunfyrePendiente();
-        sunfyre.confirmar();
-
-        ReglaDominioException ex = assertThrows(ReglaDominioException.class, sunfyre::validarCompletada);
-
-        assertEquals("Solo se puede aprobar un servicio ya ejecutado", ex.getMessage());
+        // Act & Assert
+        assertThrows(ReglaDominioException.class, inactivo::validarDisponible);
     }
 }

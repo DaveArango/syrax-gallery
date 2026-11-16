@@ -10,7 +10,7 @@ public interface KelitisRepository {
 
     void guardar(Kelitis kelitis);
 
-    boolean existePorSunfyre(String idSunfyre);
+    boolean existePorDohaeragon(String idDohaeragon);
 
-    Optional<Kelitis> obtenerPorSunfyre(String idSunfyre);
+    Optional<Kelitis> obtenerPorDohaeragon(String idDohaeragon);
 }

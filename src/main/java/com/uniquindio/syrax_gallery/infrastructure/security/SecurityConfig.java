@@ -48,14 +48,19 @@ public class SecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
 
+                        // Va antes del bloque público: "/api/sunfyre/*" también cubriría esta ruta
+                        .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
+
                         // Público
                         .requestMatchers(HttpMethod.GET,
                                 "/api/azantys",               // buscar Azantys
                                 "/api/azantys/mas-solicitados",
                                 "/api/azantys/*",             // perfil público
                                 "/api/caraxes",               // catálogo (solo obras publicadas)
-                                "/api/sunfyre",               // catálogo (solo servicios publicados)
-                                "/api/gida"                   // Gida de una obra
+                                "/api/dohaeragon",            // reservas publicadas (se retira al ligar la reserva a su Sunfyre)
+                                "/api/gida",                  // Gida de una obra
+                                "/api/sunfyre",               // catálogo de servicios ofrecidos
+                                "/api/sunfyre/*"              // detalle de un servicio
                         ).permitAll()
 
                         // Registro público de Azantys y Zentys (crea también su cuenta de login)
@@ -65,16 +70,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/azantys/*/revision").hasAuthority("ADMIN")
 
                         // Solo el Azantys (vendedor)
-                        .requestMatchers(HttpMethod.POST, "/api/sunfyre").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.POST, "/api/dohaeragon").hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.PUT,
-                                "/api/sunfyre/*/publicar",
-                                "/api/sunfyre/*/iniciar",
-                                "/api/sunfyre/*/finalizar",
-                                "/api/sunfyre/*/reprogramar",
+                                "/api/dohaeragon/*/publicar",
+                                "/api/dohaeragon/*/iniciar",
+                                "/api/dohaeragon/*/finalizar",
+                                "/api/dohaeragon/*/reprogramar",
                                 "/api/azantys/*/identidad"
                         ).hasAuthority("AZANTYS")
-                        .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/dohaeragon/mis-servicios").hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.POST, "/api/caraxes").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.POST, "/api/sunfyre").hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/caraxes/*/publicar",
                                 "/api/caraxes/*/retirar"

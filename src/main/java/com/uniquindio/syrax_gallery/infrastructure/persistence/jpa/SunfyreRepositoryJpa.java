@@ -1,10 +1,8 @@
 package com.uniquindio.syrax_gallery.infrastructure.persistence.jpa;
 
 import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
-import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
-import com.uniquindio.syrax_gallery.domain.valueobject.DohaeroxJeda;
-import com.uniquindio.syrax_gallery.domain.valueobject.Kanez;
+import com.uniquindio.syrax_gallery.domain.repository.Pagina;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.entity.SunfyreEntity;
 import com.uniquindio.syrax_gallery.infrastructure.persistence.jpa.mapper.SunfyrePersistenceMapper;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +21,6 @@ import java.util.Set;
 @Repository
 @RequiredArgsConstructor
 public class SunfyreRepositoryJpa implements SunfyreRepository {
-
-    private static final Set<Kanez> PUBLICADAS = EnumSet.of(Kanez.EXHIBICION, Kanez.EN_VENTA);
 
     private final SunfyreJpaDataRepository dataRepository;
     private final SunfyrePersistenceMapper mapper;
@@ -39,16 +36,19 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
     }
 
     @Override
-    public Pagina<Sunfyre> buscarPublicadas(String ciudad, SunfyreKastor kastor,
+    public Pagina<Sunfyre> buscarActivos(String texto, SunfyreKastor kastor, String ciudad,
                                             Double precioMin, Double precioMax, int pagina, int tamano) {
-        String patron = (ciudad == null) ? "" : ciudad.trim();
+        // Un filtro que no llega se convierte en "todos"
         Set<SunfyreKastor> kastores = (kastor == null) ? EnumSet.allOf(SunfyreKastor.class) : EnumSet.of(kastor);
-        double minimo = (precioMin == null) ? 0 : precioMin;
-        double maximo = (precioMax == null) ? Double.MAX_VALUE : precioMax;
 
-        Page<SunfyreEntity> resultado = dataRepository.buscarPublicadas(
-                PUBLICADAS, DohaeroxJeda.PENDIENTE, kastores, patron, minimo, maximo,
-                PageRequest.of(pagina, tamano, Sort.by("sariInicio")));
+        Page<SunfyreEntity> resultado = dataRepository.buscarActivos(
+                kastores,
+                (ciudad == null) ? "" : ciudad.trim(),
+                (precioMin == null) ? 0 : precioMin,
+                (precioMax == null) ? Double.MAX_VALUE : precioMax,
+                (texto == null) ? "" : texto.trim(),
+                PageRequest.of(pagina, tamano, Sort.by("sete.nombre")));
+
         return new Pagina<>(
                 resultado.getContent().stream().map(mapper::toDomain).toList(),
                 resultado.getTotalElements(),
@@ -58,30 +58,10 @@ public class SunfyreRepositoryJpa implements SunfyreRepository {
     }
 
     @Override
-    public List<Sunfyre> obtenerAbonadasDeAzantys(String idAzantys) {
-        return dataRepository.findByIdAzantysAndDohaeroxJeda(idAzantys, DohaeroxJeda.ABONADO).stream()
+    public List<Sunfyre> obtenerDeAzantys(String idAzantys) {
+        return dataRepository.findByIdAzantys(idAzantys).stream()
                 .map(mapper::toDomain)
+                .sorted(Comparator.comparing(d -> d.getSete().nombre()))
                 .toList();
-    }
-
-    @Override
-    public Pagina<Sunfyre> buscarDeAzantys(String idAzantys, DohaeroxJeda estado, int pagina, int tamano) {
-        Page<SunfyreEntity> resultado = dataRepository.buscarDeAzantys(
-                idAzantys, estados(estado),
-                PageRequest.of(pagina, tamano, Sort.by("sariInicio").descending())); // más reciente primero
-        return aPagina(resultado);
-    }
-
-    private Set<DohaeroxJeda> estados(DohaeroxJeda estado) {
-        return (estado == null) ? EnumSet.allOf(DohaeroxJeda.class) : EnumSet.of(estado);
-    }
-
-    private Pagina<Sunfyre> aPagina(Page<SunfyreEntity> resultado) {
-        return new Pagina<>(
-                resultado.getContent().stream().map(mapper::toDomain).toList(),
-                resultado.getTotalElements(),
-                resultado.getTotalPages(),
-                resultado.getNumber(),
-                resultado.getSize());
     }
 }

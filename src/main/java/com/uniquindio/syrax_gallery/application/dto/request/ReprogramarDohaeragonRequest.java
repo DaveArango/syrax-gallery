@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-// Mapea a: PUT /api/sunfyre/{id}/reprogramar   (el Azantys sale del token)
-public record ReprogramarSunfyreRequest(
+// Mapea a: PUT /api/dohaeragon/{id}/reprogramar   (el Azantys sale del token)
+public record ReprogramarDohaeragonRequest(
         @NotNull(message = "El nuevo inicio es obligatorio.")
         LocalDateTime inicio,
 

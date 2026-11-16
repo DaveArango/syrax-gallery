@@ -21,21 +21,21 @@ class SeguridadEndpointTest {
 
     @Test
     void sinTokenDeberiaResponder401() throws Exception {
-        mockMvc.perform(get("/api/sunfyre/mis-servicios"))
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401));
     }
 
     @Test
     void conUnTokenFalsoDeberiaResponder401() throws Exception {
-        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios")
                         .header("Authorization", "Bearer esto-no-es-un-token"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void unZentysNoPuedeCrearSunfyreYDeberiaResponder403() throws Exception {
-        mockMvc.perform(post("/api/sunfyre")
+    void unZentysNoPuedeCrearDohaeragonYDeberiaResponder403() throws Exception {
+        mockMvc.perform(post("/api/dohaeragon")
                         .with(jwt().jwt(j -> j.claim("uid", "zentys-01"))
                                 .authorities(new SimpleGrantedAuthority("ZENTYS")))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,7 +58,7 @@ class SeguridadEndpointTest {
 
     @Test
     void unAzantysPuedeVerSusServiciosYDeberiaResponder200() throws Exception {
-        mockMvc.perform(get("/api/sunfyre/mis-servicios")
+        mockMvc.perform(get("/api/dohaeragon/mis-servicios")
                         .with(jwt().jwt(j -> j.claim("uid", "az-001"))
                                 .authorities(new SimpleGrantedAuthority("AZANTYS"))))
                 .andExpect(status().isOk())

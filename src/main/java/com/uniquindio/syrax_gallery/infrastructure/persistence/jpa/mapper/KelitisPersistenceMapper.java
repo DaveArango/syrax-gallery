@@ -12,7 +12,7 @@ public class KelitisPersistenceMapper {
     public KelitisEntity toEntity(Kelitis kelitis) {
         KelitisEntity entity = new KelitisEntity();
         entity.setId(kelitis.getId());
-        entity.setIdSunfyre(kelitis.getIdSunfyre());
+        entity.setIdDohaeragon(kelitis.getIdDohaeragon());
         entity.setIdAzantys(kelitis.getIdAzantys());
         entity.setIdZentys(kelitis.getIdZentys());
         entity.setValaCongelado(new ValaEmbeddable(
@@ -25,7 +25,7 @@ public class KelitisPersistenceMapper {
     public Kelitis toDomain(KelitisEntity entity) {
         return Kelitis.reconstruir(
                 entity.getId(),
-                entity.getIdSunfyre(),
+                entity.getIdDohaeragon(),
                 entity.getIdAzantys(),
                 entity.getIdZentys(),
                 new Vala(entity.getValaCongelado().getMonto(), entity.getValaCongelado().getDivisa()),

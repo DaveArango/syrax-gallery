@@ -7,7 +7,7 @@ import java.util.Optional;
 
 interface KelitisJpaDataRepository extends JpaRepository<KelitisEntity, String> {
 
-    boolean existsByIdSunfyre(String idSunfyre);
+    boolean existsByIdDohaeragon(String idDohaeragon);
 
-    Optional<KelitisEntity> findByIdSunfyre(String idSunfyre);
+    Optional<KelitisEntity> findByIdDohaeragon(String idDohaeragon);
 }

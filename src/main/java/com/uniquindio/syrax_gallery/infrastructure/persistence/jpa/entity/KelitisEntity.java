@@ -22,8 +22,8 @@ public class KelitisEntity {
     @Column(length = 36)
     private String id;
 
-    @Column(name = "id_sunfyre", nullable = false, unique = true, length = 36)
-    private String idSunfyre;
+    @Column(name = "id_dohaeragon", nullable = false, unique = true, length = 36)
+    private String idDohaeragon;
 
     @Column(name = "id_azantys", nullable = false, length = 36)
     private String idAzantys;

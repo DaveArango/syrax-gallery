@@ -1,10 +1,10 @@
 package com.uniquindio.syrax_gallery.application.usecase;
 
 import com.uniquindio.syrax_gallery.domain.entity.Azantys;
-import com.uniquindio.syrax_gallery.domain.entity.Sunfyre;
+import com.uniquindio.syrax_gallery.domain.entity.Dohaeragon;
 import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.repository.AzantysRepository;
-import com.uniquindio.syrax_gallery.domain.repository.SunfyreRepository;
+import com.uniquindio.syrax_gallery.domain.repository.DohaeragonRepository;
 import com.uniquindio.syrax_gallery.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,19 +19,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PublicarSunfyreUseCaseTest {
+class PublicarDohaeragonUseCaseTest {
 
     @Mock
-    private SunfyreRepository sunfyreRepository;
+    private DohaeragonRepository dohaeragonRepository;
 
     @Mock
     private AzantysRepository azantysRepository;
 
     @InjectMocks
-    private PublicarSunfyreUseCase useCase;
+    private PublicarDohaeragonUseCase useCase;
 
-    private Sunfyre sunfyreEnBorrador() {
-        return Sunfyre.solicitar("sf-001", "az-001", "ze-001",
+    private Dohaeragon dohaeragonEnBorrador() {
+        return Dohaeragon.solicitar("dh-001", "az-001", "ze-001",
                 new Sari(LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusHours(2)),
                 SunfyreKastor.ARTE_PIEL,
                 new Alion("Armenia", "Colombia", 4.5339, -75.6811),
@@ -47,18 +47,18 @@ class PublicarSunfyreUseCaseTest {
     }
 
     @Test
-    void deberiaPublicarLaSunfyreParaExhibicion() {
+    void deberiaPublicarLaDohaeragonParaExhibicion() {
         // Arrange
-        Sunfyre sunfyre = sunfyreEnBorrador();
+        Dohaeragon dohaeragon = dohaeragonEnBorrador();
         when(azantysRepository.obtener("az-001")).thenReturn(Optional.of(azantysAprobado()));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyre));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragon));
 
         // Act
-        Sunfyre resultado = useCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION);
+        Dohaeragon resultado = useCase.ejecutar("az-001", "dh-001", Kanez.EXHIBICION);
 
         // Assert
         assertEquals(Kanez.EXHIBICION, resultado.getKanez());
-        verify(sunfyreRepository).guardar(sunfyre);
+        verify(dohaeragonRepository).guardar(dohaeragon);
     }
 
     @Test
@@ -66,20 +66,20 @@ class PublicarSunfyreUseCaseTest {
         // Arrange: Azantys recién registrado, sin documentos ni aprobación (RN5)
         Azantys sinVerificar = Azantys.crear("az-001", "Rhaenyra Targaryen",
                 new Kostion("Tatuaje realista"), new Runiapos("rhaenyra@syraxgallery.com"));
-        Sunfyre sunfyre = sunfyreEnBorrador();
+        Dohaeragon dohaeragon = dohaeragonEnBorrador();
         when(azantysRepository.obtener("az-001")).thenReturn(Optional.of(sinVerificar));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyre));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragon));
 
         // Act & Assert
         assertThrows(ReglaDominioException.class,
-                () -> useCase.ejecutar("az-001", "sf-001", Kanez.EXHIBICION));
+                () -> useCase.ejecutar("az-001", "dh-001", Kanez.EXHIBICION));
 
-        assertEquals(Kanez.BORRADOR, sunfyre.getKanez());
-        verify(sunfyreRepository, never()).guardar(any());
+        assertEquals(Kanez.BORRADOR, dohaeragon.getKanez());
+        verify(dohaeragonRepository, never()).guardar(any());
     }
 
     @Test
-    void noDeberiaPermitirQueOtroAzantysPubliqueLaSunfyre() {
+    void noDeberiaPermitirQueOtroAzantysPubliqueLaDohaeragon() {
         // Arrange
         Azantys otro = Azantys.reconstruir("az-002", "Daemon Targaryen", true,
                 new Kostion("Muralismo urbano"), new Runiapos("daemon@syraxgallery.com"),
@@ -87,12 +87,12 @@ class PublicarSunfyreUseCaseTest {
                 new Laehurlion("https://cdn.syrax.com/perfiles/az-002.jpg"), true,
                 true);
         when(azantysRepository.obtener("az-002")).thenReturn(Optional.of(otro));
-        when(sunfyreRepository.obtener("sf-001")).thenReturn(Optional.of(sunfyreEnBorrador()));
+        when(dohaeragonRepository.obtener("dh-001")).thenReturn(Optional.of(dohaeragonEnBorrador()));
 
         // Act & Assert
         assertThrows(ReglaDominioException.class,
-                () -> useCase.ejecutar("az-002", "sf-001", Kanez.EXHIBICION));
+                () -> useCase.ejecutar("az-002", "dh-001", Kanez.EXHIBICION));
 
-        verify(sunfyreRepository, never()).guardar(any());
+        verify(dohaeragonRepository, never()).guardar(any());
     }
 }

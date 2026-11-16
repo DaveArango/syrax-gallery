@@ -26,12 +26,12 @@ public class KelitisRepositoryJpa implements KelitisRepository {
     }
 
     @Override
-    public boolean existePorSunfyre(String idSunfyre) {
-        return dataRepository.existsByIdSunfyre(idSunfyre);
+    public boolean existePorDohaeragon(String idDohaeragon) {
+        return dataRepository.existsByIdDohaeragon(idDohaeragon);
     }
 
     @Override
-    public Optional<Kelitis> obtenerPorSunfyre(String idSunfyre) {
-        return dataRepository.findByIdSunfyre(idSunfyre).map(mapper::toDomain);
+    public Optional<Kelitis> obtenerPorDohaeragon(String idDohaeragon) {
+        return dataRepository.findByIdDohaeragon(idDohaeragon).map(mapper::toDomain);
     }
 }
