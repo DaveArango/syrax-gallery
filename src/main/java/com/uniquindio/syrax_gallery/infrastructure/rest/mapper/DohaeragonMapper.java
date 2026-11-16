@@ -20,7 +20,8 @@ public class DohaeragonMapper {
                 dohaeragon.getValaCongelado().monto(),
                 dohaeragon.getValaCongelado().divisa(),
                 dohaeragon.getDohaeroxJeda().name(),
-                dohaeragon.getKanez().name()
+                dohaeragon.getKanez().name(),
+                dohaeragon.getIdSunfyre()
         );
     }
 }

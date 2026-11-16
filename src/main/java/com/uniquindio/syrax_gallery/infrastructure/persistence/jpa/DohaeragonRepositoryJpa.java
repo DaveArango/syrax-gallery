@@ -24,6 +24,8 @@ import java.util.Set;
 public class DohaeragonRepositoryJpa implements DohaeragonRepository {
 
     private static final Set<Kanez> PUBLICADAS = EnumSet.of(Kanez.EXHIBICION, Kanez.EN_VENTA);
+    private static final Set<DohaeroxJeda> ACTIVAS =
+            EnumSet.of(DohaeroxJeda.PENDIENTE, DohaeroxJeda.ABONADO, DohaeroxJeda.EN_EJECUCION);
 
     private final DohaeragonJpaDataRepository dataRepository;
     private final DohaeragonPersistenceMapper mapper;
@@ -60,6 +62,20 @@ public class DohaeragonRepositoryJpa implements DohaeragonRepository {
     @Override
     public List<Dohaeragon> obtenerAbonadasDeAzantys(String idAzantys) {
         return dataRepository.findByIdAzantysAndDohaeroxJeda(idAzantys, DohaeroxJeda.ABONADO).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Dohaeragon> obtenerActivasDeAzantys(String idAzantys) {
+        return dataRepository.findByIdAzantysAndDohaeroxJedaIn(idAzantys, ACTIVAS).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Dohaeragon> obtenerDeZentys(String idZentys) {
+        return dataRepository.findByIdZentysOrderBySariInicioAsc(idZentys).stream()
                 .map(mapper::toDomain)
                 .toList();
     }

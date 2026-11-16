@@ -14,5 +14,6 @@ public record DohaeragonDetalleResponse(
         double monto,
         String divisa,
         String estado,
-        String kanez
+        String kanez,
+        String idSunfyre   // null si la cita la creó el Azantys
 ) {}

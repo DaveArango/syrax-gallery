@@ -42,4 +42,8 @@ interface DohaeragonJpaDataRepository extends JpaRepository<DohaeragonEntity, St
 
     List<DohaeragonEntity> findByIdAzantysAndDohaeroxJeda(String idAzantys, DohaeroxJeda dohaeroxJeda);
 
+    List<DohaeragonEntity> findByIdAzantysAndDohaeroxJedaIn(String idAzantys, Collection<DohaeroxJeda> estados);
+
+    List<DohaeragonEntity> findByIdZentysOrderBySariInicioAsc(String idZentys);
+
 }

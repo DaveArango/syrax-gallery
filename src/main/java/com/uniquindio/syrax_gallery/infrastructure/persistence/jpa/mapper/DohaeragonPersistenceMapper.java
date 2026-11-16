@@ -30,6 +30,7 @@ public class DohaeragonPersistenceMapper {
                 dohaeragon.getValaCongelado().divisa()));
         entity.setDohaeroxJeda(dohaeragon.getDohaeroxJeda());
         entity.setKanez(dohaeragon.getKanez());
+        entity.setIdSunfyre(dohaeragon.getIdSunfyre());
         return entity;
     }
 
@@ -44,6 +45,7 @@ public class DohaeragonPersistenceMapper {
                         entity.getAlion().getLatitud(), entity.getAlion().getLongitud()),
                 new Vala(entity.getValaCongelado().getMonto(), entity.getValaCongelado().getDivisa()),
                 entity.getDohaeroxJeda(),
-                entity.getKanez());
+                entity.getKanez(),
+                entity.getIdSunfyre());
     }
 }

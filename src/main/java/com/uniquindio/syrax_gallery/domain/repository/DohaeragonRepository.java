@@ -19,4 +19,10 @@ public interface DohaeragonRepository {
     Pagina<Dohaeragon> buscarDeAzantys(String idAzantys, DohaeroxJeda estado, int pagina, int tamano);
 
     List<Dohaeragon> obtenerAbonadasDeAzantys(String idAzantys);
+
+    // Citas que ocupan la agenda del Azantys: PENDIENTE, ABONADO y EN_EJECUCION
+    List<Dohaeragon> obtenerActivasDeAzantys(String idAzantys);
+
+    // Las reservas de un Zentys, de la más próxima a la más lejana
+    List<Dohaeragon> obtenerDeZentys(String idZentys);
 }

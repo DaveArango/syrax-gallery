@@ -85,7 +85,7 @@ class DohaeragonControllerTest {
                 dohaeragon.getId(), dohaeragon.getIdAzantys(), dohaeragon.getIdZentys(),
                 dohaeragon.getSari().inicio(), dohaeragon.getSari().fin(),
                 "ARTE_PIEL", "Armenia", "Colombia",
-                150000, "COP", "PENDIENTE", kanez);
+                150000, "COP", "PENDIENTE", kanez, null);
     }
 
     // ---------- POST /api/dohaeragon ----------

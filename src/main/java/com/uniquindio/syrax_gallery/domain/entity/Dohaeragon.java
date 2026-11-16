@@ -18,10 +18,11 @@ public class Dohaeragon {
     private final Vala valaCongelado;
     private DohaeroxJeda dohaeroxJeda;
     private Kanez kanez;
+    private final String idSunfyre;   // la Sunfyre que se reservó; null si la cita la creó el Azantys
 
     private Dohaeragon(String id, String idAzantys, String idZentys, Sari sari,
                     SunfyreKastor kastor, Alion alion, Vala valaCongelado,
-                    DohaeroxJeda dohaeroxJeda, Kanez kanez) {
+                    DohaeroxJeda dohaeroxJeda, Kanez kanez, String idSunfyre) {
         this.id = id;
         this.idAzantys = idAzantys;
         this.idZentys = idZentys;
@@ -31,12 +32,13 @@ public class Dohaeragon {
         this.valaCongelado = valaCongelado;
         this.dohaeroxJeda = dohaeroxJeda;
         this.kanez = kanez;
+        this.idSunfyre = idSunfyre;
     }
 
     private Dohaeragon(String id, String idAzantys, String idZentys, Sari sari,
                     SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
         this(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
-                DohaeroxJeda.PENDIENTE, Kanez.BORRADOR);
+                DohaeroxJeda.PENDIENTE, Kanez.BORRADOR, null);
     }
 
     public static Dohaeragon solicitar(String id, String idAzantys, String idZentys, Sari sari,
@@ -61,11 +63,30 @@ public class Dohaeragon {
         return new Dohaeragon(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado);
     }
 
+    /** El Zentys reserva una Sunfyre del catálogo: la cita nace PENDIENTE y ligada a ese servicio. */
+    public static Dohaeragon reservar(String id, String idSunfyre, String idAzantys, String idZentys, Sari sari,
+                                   SunfyreKastor kastor, Alion alion, Vala valaCongelado) {
+        if (idSunfyre == null || idSunfyre.isBlank())
+            throw new ReglaDominioException("La Dohaeragon debe indicar la Sunfyre que se reserva");
+
+        // Las demás reglas son las mismas de cualquier cita
+        solicitar(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado);
+        return new Dohaeragon(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
+                DohaeroxJeda.PENDIENTE, Kanez.BORRADOR, idSunfyre);
+    }
+
     public static Dohaeragon reconstruir(String id, String idAzantys, String idZentys, Sari sari,
                                       SunfyreKastor kastor, Alion alion, Vala valaCongelado,
                                       DohaeroxJeda dohaeroxJeda, Kanez kanez) {
+        return reconstruir(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
+                dohaeroxJeda, kanez, null);
+    }
+
+    public static Dohaeragon reconstruir(String id, String idAzantys, String idZentys, Sari sari,
+                                      SunfyreKastor kastor, Alion alion, Vala valaCongelado,
+                                      DohaeroxJeda dohaeroxJeda, Kanez kanez, String idSunfyre) {
         return new Dohaeragon(id, idAzantys, idZentys, sari, kastor, alion, valaCongelado,
-                dohaeroxJeda, kanez);
+                dohaeroxJeda, kanez, idSunfyre);
     }
 
     public void validarAutoria(String idAzantys) {

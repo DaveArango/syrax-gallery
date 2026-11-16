@@ -55,4 +55,8 @@ public class DohaeragonEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Kanez kanez;
+
+    // Vacío en las citas que creó el Azantys directamente
+    @Column(name = "id_sunfyre", length = 36)
+    private String idSunfyre;
 }

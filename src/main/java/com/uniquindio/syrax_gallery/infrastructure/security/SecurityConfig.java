@@ -60,7 +60,8 @@ public class SecurityConfig {
                                 "/api/dohaeragon",            // reservas publicadas (se retira al ligar la reserva a su Sunfyre)
                                 "/api/gida",                  // Gida de una obra
                                 "/api/sunfyre",               // catálogo de servicios ofrecidos
-                                "/api/sunfyre/*"              // detalle de un servicio
+                                "/api/sunfyre/*",             // detalle de un servicio
+                                "/api/sunfyre/*/disponibilidad" // horas libres de un servicio en una fecha
                         ).permitAll()
 
                         // Registro público de Azantys y Zentys (crea también su cuenta de login)
@@ -94,6 +95,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/sindes", "/api/gida").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/sindes/*/cancelar").hasAuthority("ZENTYS")
                         .requestMatchers(HttpMethod.GET, "/api/sindes/mis-compras").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.POST, "/api/sunfyre/*/reservas").hasAuthority("ZENTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/dohaeragon/mis-reservas").hasAuthority("ZENTYS")
 
                         // Todo lo demás exige token
                         .anyRequest().authenticated()

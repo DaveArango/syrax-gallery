@@ -4,12 +4,17 @@ import com.uniquindio.syrax_gallery.domain.exception.ReglaDominioException;
 import com.uniquindio.syrax_gallery.domain.valueobject.Alion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Jedar;
 import com.uniquindio.syrax_gallery.domain.valueobject.Jorva;
+import com.uniquindio.syrax_gallery.domain.valueobject.Sari;
 import com.uniquindio.syrax_gallery.domain.valueobject.Sete;
 import com.uniquindio.syrax_gallery.domain.valueobject.SunfyreKastor;
 import com.uniquindio.syrax_gallery.domain.valueobject.Urnebion;
 import com.uniquindio.syrax_gallery.domain.valueobject.Vala;
 import lombok.Getter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -95,6 +100,25 @@ public class Sunfyre {
                                          Jedar jedar, boolean activo) {
         return new Sunfyre(id, idAzantys, sete, jorva, urnebion, kastor, alion, vala,
                 duracionMinutos, jedar, activo);
+    }
+
+    /**
+     * Las ventanas (Sari) en que se puede prestar el servicio ese día, una detrás de otra:
+     * de 09:00 a 18:00 con 3 horas de duración da 09-12, 12-15 y 15-18.
+     * Si ese día no se atiende, no hay ninguna.
+     */
+    public List<Sari> ventanasDel(LocalDate fecha) {
+        List<Sari> ventanas = new ArrayList<>();
+        if (fecha == null || !jedar.atiende(fecha.getDayOfWeek())) {
+            return ventanas;
+        }
+        LocalDateTime inicio = fecha.atTime(jedar.apertura());
+        LocalDateTime cierre = fecha.atTime(jedar.cierre());
+        while (!inicio.plusMinutes(duracionMinutos).isAfter(cierre)) {
+            ventanas.add(new Sari(inicio, inicio.plusMinutes(duracionMinutos)));
+            inicio = inicio.plusMinutes(duracionMinutos);
+        }
+        return ventanas;
     }
 
     public void validarDisponible() {
