@@ -40,6 +40,14 @@ public class ConsultarAzantysUseCase {
     }
 
     @Transactional(readOnly = true)
+    public Azantys obtenerPropio(String id, String solicitanteId) {
+        Azantys azantys = repository.obtener(id)
+                .orElseThrow(() -> new NoSuchElementException("Azantys no encontrado"));
+        azantys.validarTitular(solicitanteId);
+        return azantys;
+    }
+
+    @Transactional(readOnly = true)
     public List<AzantysServicios> masSolicitados(int limite) {
         if (limite < 1 || limite > RANKING_MAXIMO) {
             throw new IllegalArgumentException("El límite debe estar entre 1 y " + RANKING_MAXIMO);

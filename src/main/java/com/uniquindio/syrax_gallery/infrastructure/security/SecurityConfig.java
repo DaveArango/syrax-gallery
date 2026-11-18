@@ -51,6 +51,8 @@ public class SecurityConfig {
                         // Va antes del bloque público: "/api/sunfyre/*" también cubriría esta ruta
                         .requestMatchers(HttpMethod.GET, "/api/sunfyre/mis-servicios").hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.GET, "/api/caraxes/mis-obras").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/caraxes/mis-obras").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.GET, "/api/azantys/*/verificacion").hasAuthority("AZANTYS")
 
                         // Público
                         .requestMatchers(HttpMethod.GET,

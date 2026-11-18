@@ -3,10 +3,7 @@ package com.uniquindio.syrax_gallery.infrastructure.rest;
 import com.uniquindio.syrax_gallery.application.dto.request.RegistrarAzantysRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.RevisarVerificacionRequest;
 import com.uniquindio.syrax_gallery.application.dto.request.VerificarIdentidadRequest;
-import com.uniquindio.syrax_gallery.application.dto.response.AzantysDetalleResponse;
-import com.uniquindio.syrax_gallery.application.dto.response.AzantysPerfilResponse;
-import com.uniquindio.syrax_gallery.application.dto.response.AzantysRankingResponse;
-import com.uniquindio.syrax_gallery.application.dto.response.PageResponse;
+import com.uniquindio.syrax_gallery.application.dto.response.*;
 import com.uniquindio.syrax_gallery.application.usecase.ConsultarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RegistrarAzantysUseCase;
 import com.uniquindio.syrax_gallery.application.usecase.RevisarVerificacionAzantysUseCase;
@@ -119,5 +116,11 @@ public class AzantysController {
                                                                       @Valid @RequestBody RevisarVerificacionRequest request) {
         Azantys azantys = revisarVerificacionAzantysUseCase.ejecutar(id, request.aprobada(), request.motivo());
         return ResponseEntity.ok(mapper.toDetalleResponse(azantys));
+    }
+
+    @GetMapping("/{id}/verificacion")
+    public AzantysVerificacionResponse verificacion(@PathVariable String id, JwtAuthenticationToken token) {
+        return AzantysVerificacionResponse.desde(
+                consultarAzantysUseCase.obtenerPropio(id, UsuarioActual.id(token)));
     }
 }
