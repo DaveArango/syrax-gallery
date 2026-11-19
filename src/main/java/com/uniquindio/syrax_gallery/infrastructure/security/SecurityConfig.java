@@ -62,10 +62,12 @@ public class SecurityConfig {
                                 "/api/azantys/*",             // perfil público
                                 "/api/caraxes",               // catálogo (solo obras publicadas)
                                 "/api/caraxes/*",             // detalle de una obra
+                                "/api/caraxes/*/imagenes",             // detalle de una obra
                                 "/api/dohaeragon",            // reservas publicadas (se retira al ligar la reserva a su Sunfyre)
                                 "/api/gida",                  // Gida de una obra
                                 "/api/sunfyre",               // catálogo de servicios ofrecidos
                                 "/api/sunfyre/*",             // detalle de un servicio
+                                "/api/sunfyre/*/imagenes",            // detalle de un servicio
                                 "/api/sunfyre/*/disponibilidad" // horas libres de un servicio en una fecha
                         ).permitAll()
 
@@ -93,6 +95,10 @@ public class SecurityConfig {
                         ).hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.PUT, "/api/sindes/*/confirmar").hasAuthority("AZANTYS")
                         .requestMatchers(HttpMethod.GET, "/api/sindes/mis-ventas").hasAuthority("AZANTYS")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/caraxes/*/imagenes",
+                                "/api/sunfyre/*/imagenes"
+                        ).hasAuthority("AZANTYS")
 
                         // Solo el Zentys (comprador)
                         .requestMatchers(HttpMethod.POST, "/api/kelitis").hasAuthority("ZENTYS")
