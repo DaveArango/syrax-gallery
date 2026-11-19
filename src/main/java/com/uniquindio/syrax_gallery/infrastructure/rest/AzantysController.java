@@ -123,4 +123,12 @@ public class AzantysController {
         return AzantysVerificacionResponse.desde(
                 consultarAzantysUseCase.obtenerPropio(id, UsuarioActual.id(token)));
     }
+
+    @GetMapping("/pendientes")
+    public List<AzantysPendienteResponse> pendientes() {
+        return consultarAzantysUseCase.pendientesDeRevision().stream()
+                .map(AzantysPendienteResponse::desde)
+                .toList();
+    }
+
 }

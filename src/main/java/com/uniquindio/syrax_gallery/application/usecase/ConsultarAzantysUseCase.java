@@ -54,4 +54,10 @@ public class ConsultarAzantysUseCase {
         }
         return repository.masSolicitados(limite);
     }
+
+    @Transactional(readOnly = true)
+    public List<Azantys> pendientesDeRevision() {
+        return repository.pendientesDeRevision();
+    }
+
 }

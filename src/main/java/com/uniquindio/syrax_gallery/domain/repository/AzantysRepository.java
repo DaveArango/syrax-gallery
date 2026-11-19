@@ -14,4 +14,6 @@ public interface AzantysRepository {
     Pagina<Azantys> buscarHabilitados(String texto, int pagina, int tamano);
 
     List<AzantysServicios> masSolicitados(int limite);
+
+    List<Azantys> pendientesDeRevision();
 }

@@ -33,4 +33,15 @@ interface AzantysJpaDataRepository extends JpaRepository<AzantysEntity, String> 
             ORDER BY COUNT(s) DESC, a.nombre ASC
             """)
     List<AzantysServicios> masSolicitados(@Param("estado") DohaeroxJeda estado, Pageable pageable);
+
+    @Query("""
+            SELECT a FROM AzantysEntity a
+            WHERE a.activo = true
+            AND a.iksiaVerificada = true
+            AND a.laehurlionVerificado = true
+            AND a.identidadAprobada = false
+            ORDER BY a.nombre
+            """)
+    List<AzantysEntity> pendientesDeRevision();
+
 }

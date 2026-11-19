@@ -52,4 +52,10 @@ public class AzantysRepositoryJpa implements AzantysRepository {
     public List<AzantysServicios> masSolicitados(int limite) {
         return dataRepository.masSolicitados(DohaeroxJeda.COMPLETADO, PageRequest.of(0, limite));
     }
+
+    @Override
+    public List<Azantys> pendientesDeRevision() {
+        return dataRepository.pendientesDeRevision().stream().map(mapper::toDomain).toList();
+    }
+
 }
